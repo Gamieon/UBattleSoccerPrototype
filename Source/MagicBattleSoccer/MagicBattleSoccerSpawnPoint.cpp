@@ -13,24 +13,10 @@ AMagicBattleSoccerSpawnPoint::AMagicBattleSoccerSpawnPoint(const class FPostCons
 
 #pragma region Events
 
-/** This occurs when play begins */
-/*void AMagicBattleSoccerSpawnPoint::BeginPlay()
+/** Called by the GameMode object when a spawned player is about to be destroyed */
+void AMagicBattleSoccerSpawnPoint::SpawnedPlayerBeingDestroyed_Implementation(AMagicBattleSoccerPlayer* SoccerPlayer)
 {
-	Super::BeginPlay();
-
-	// Gather a list of players which already have us as existing spawn points
-	NumberOfPlayersOnField = 0;
-	for (TActorIterator<AMagicBattleSoccerPlayer> It(GetWorld()); It; ++It)
-	{
-		if ((*It)->SpawnPoint == this)
-		{
-			NumberOfPlayersOnField++;
-		}
-	}
-
-	// Spawn all the bots until we reach our limit
-	// TODO: Blueprint
-	// TODO: Server only
-}*/
+	// Nothing to do here -- the blueprint should do all the work and it should only be done on the server
+}
 
 #pragma endregion

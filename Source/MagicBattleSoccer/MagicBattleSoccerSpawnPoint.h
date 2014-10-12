@@ -4,6 +4,7 @@
 #include "MagicBattleSoccerSpawnPoint.generated.h"
 
 class AMagicBattleSoccerGoal;
+class AMagicBattleSoccerPlayer;
 
 /**
 *
@@ -28,4 +29,8 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerSpawnPoint : public ATargetPoint
 	/** The current number of players on the field */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	int32 NumberOfPlayersOnField;
+
+	/** Called by the GameMode object when a spawned player is about to be destroyed */
+	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
+	void SpawnedPlayerBeingDestroyed(AMagicBattleSoccerPlayer* SoccerPlayer);
 };

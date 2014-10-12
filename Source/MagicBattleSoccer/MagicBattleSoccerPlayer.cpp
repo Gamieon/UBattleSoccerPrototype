@@ -331,7 +331,7 @@ void AMagicBattleSoccerPlayer::AttackPlayer(AMagicBattleSoccerPlayer* Target)
 	if (!PossessesBall() && NULL != CurrentWeapon)
 	{
 		// Face the target
-		FRotator faceRot = (Target->GetActorLocation() - GetActorLocation()).Rotation();
+		FRotator faceRot = ( (Target->GetActorLocation() + Target->GetVelocity() ) - GetActorLocation()).Rotation();
 		SetActorRotation(faceRot);
 
 		// Start attacking the player if we haven't already

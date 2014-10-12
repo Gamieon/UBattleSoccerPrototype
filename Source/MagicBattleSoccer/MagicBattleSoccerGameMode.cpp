@@ -8,6 +8,7 @@
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerPlayer.h"
 #include "MagicBattleSoccerWeapon.h"
+#include "MagicBattleSoccerSpawnPoint.h"
 
 AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
@@ -22,6 +23,11 @@ AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FPostConstruc
 /** Destroys a soccer player */
 void AMagicBattleSoccerGameMode::DestroySoccerPlayer(AMagicBattleSoccerPlayer *SoccerPlayer)
 {
+	if (NULL != SoccerPlayer->SpawnPoint)
+	{
+		SoccerPlayer->SpawnPoint->SpawnedPlayerBeingDestroyed(SoccerPlayer);
+	}
+
 	if (SoccerPlayer->PossessesBall())
 	{
 		this->SoccerBall->SetPossessor(NULL);
