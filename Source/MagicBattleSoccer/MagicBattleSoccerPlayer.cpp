@@ -5,6 +5,7 @@
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerPlayer.h"
 #include "MagicBattleSoccerWeapon.h"
+#include "MagicBattleSoccerProjectile.h"
 #include "AIController.h"
 
 AMagicBattleSoccerPlayer::AMagicBattleSoccerPlayer(const class FPostConstructInitializeProperties& PCIP)
@@ -13,6 +14,7 @@ AMagicBattleSoccerPlayer::AMagicBattleSoccerPlayer(const class FPostConstructIni
 	this->OnActorBeginOverlap.AddDynamic(this, &AMagicBattleSoccerPlayer::OnBeginOverlap);
 	this->OnActorEndOverlap.AddDynamic(this, &AMagicBattleSoccerPlayer::OnEndOverlap);
 	this->SetActorTickEnabled(true);
+	IsAttacking = false;
 	IsStunned = false;
 	StunReleaseTime = 0;
 }
@@ -326,6 +328,21 @@ FVector AMagicBattleSoccerPlayer::GetIdealPossessorFollowLocation()
 /** Attacks a soccer player */
 void AMagicBattleSoccerPlayer::AttackPlayer(AMagicBattleSoccerPlayer* Target)
 {
+	if (!PossessesBall() && NULL != CurrentWeapon)
+	{
+		// Face the target
+		FRotator faceRot = (Target->GetActorLocation() - GetActorLocation()).Rotation();
+		SetActorRotation(faceRot);
+
+		// Start attacking the player if we haven't already
+		if (!IsAttacking)
+		{
+			CurrentWeapon->PrimaryActionPressed();
+			IsAttacking = true;
+		}
+	}
+
+	/*
 	AMagicBattleSoccerBall *Ball = GetSoccerBall();
 	if (NULL != Target)
 	{
@@ -340,6 +357,16 @@ void AMagicBattleSoccerPlayer::AttackPlayer(AMagicBattleSoccerPlayer* Target)
 		{
 			Ball->Kick(FVector(FMath::FRandRange(-35000.0f, 35000.0f), FMath::FRandRange(-35000.0f, 35000.0f), 0.0f));
 		}
+	}*/
+}
+
+/** Stops attacking */
+void AMagicBattleSoccerPlayer::CeaseFire()
+{
+	if (IsAttacking && NULL != CurrentWeapon)
+	{
+		CurrentWeapon->PrimaryActionReleased();
+		IsAttacking = false;
 	}
 }
 
@@ -375,6 +402,37 @@ void AMagicBattleSoccerPlayer::OnBeginOverlap(AActor* OtherActor)
 	if (NULL != Ball)
 	{
 		OverlappingBall = Ball;
+	}
+	else
+	{
+		// Handle projectile collisions
+		AMagicBattleSoccerProjectile* Projectile = Cast<AMagicBattleSoccerProjectile>(OtherActor);
+		if (NULL != Projectile)
+		{
+			bool ignore = false;
+
+			// Ignore the event if the owner is on our team
+			const AMagicBattleSoccerPlayer *spawnedByPlayer = Cast<AMagicBattleSoccerPlayer>(Projectile->SpawnedByActor);
+			if (NULL != spawnedByPlayer)
+			{
+				const AMagicBattleSoccerGoal *owningPlayerEnemyGoal = spawnedByPlayer->EnemyGoal;
+				if (owningPlayerEnemyGoal == EnemyGoal)
+				{
+					ignore = true;
+				}
+			}
+
+			if (!ignore)
+			{
+				if ((Hitpoints -= Projectile->Damage) <= 0)
+				{
+					GetGameMode()->DestroySoccerPlayer(this);
+				}
+
+				// Destroy the projectile
+				OtherActor->Destroy();
+			}
+		}
 	}
 }
 
@@ -412,6 +470,12 @@ void AMagicBattleSoccerPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Add ourselves to the game mode cache
+	GetGameMode()->SoccerPlayers.Add(this);
+
+	// Reset the hitpoint count
+	Hitpoints = MaxHitpoints;
+
 	// Retain the current walk speed as the default movement speed
 	UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
 	DefaultMovementSpeed = MovementComponent->MaxWalkSpeed;
@@ -429,21 +493,41 @@ void AMagicBattleSoccerPlayer::BeginPlay()
 
 }
 
-/** Handle the primary action of the player controlling this character */
-void AMagicBattleSoccerPlayer::HandleControllerPrimaryAction()
+/** This occurs when play ends */
+void AMagicBattleSoccerPlayer::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason)
+{
+	Super::ReceiveEndPlay(EndPlayReason);
+
+	// Remove ourselves from the game mode cache
+	GetGameMode()->SoccerPlayers.Remove(this);
+}
+
+/** Handle the primary action press of the player controlling this character */
+void AMagicBattleSoccerPlayer::HandleControllerPrimaryActionPressed()
 {
 	if (PossessesBall())
 	{
 		KickBallForward();
 	}
-	else
+	else if (!IsAttacking)
 	{
-		AMagicBattleSoccerPlayer* ClosestOpponent = GetClosestOpponent();
-		if (NULL != ClosestOpponent && GetDistanceTo(ClosestOpponent) < 100)
+		if (NULL != CurrentWeapon)
 		{
-			AttackPlayer(ClosestOpponent);
+			CurrentWeapon->PrimaryActionPressed();
 		}
+		IsAttacking = true;
 	}
+}
+
+/** Handle the primary action press of the player controlling this character */
+void AMagicBattleSoccerPlayer::HandleControllerPrimaryActionReleased()
+{
+	if (NULL != CurrentWeapon && IsAttacking)
+	{
+		CurrentWeapon->PrimaryActionReleased();
+	}
+
+	IsAttacking = false;
 }
 
 #pragma endregion

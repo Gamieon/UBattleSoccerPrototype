@@ -3,50 +3,48 @@
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerPlayerController.h"
+#include "MagicBattleSoccerAIController.h"
 #include "MagicBattleSoccerBall.h"
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerWeapon.h"
 
 AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
 	PlayerControllerClass = AMagicBattleSoccerPlayerController::StaticClass();
+	SoccerBall = NULL;
+	Team1Goal = NULL;
+	Team2Goal = NULL;
+	PenetratedGoal = NULL;
+}
+
+/** Destroys a soccer player */
+void AMagicBattleSoccerGameMode::DestroySoccerPlayer(AMagicBattleSoccerPlayer *SoccerPlayer)
+{
+	if (SoccerPlayer->PossessesBall())
+	{
+		this->SoccerBall->SetPossessor(NULL);
+	}
+
+	if (NULL != SoccerPlayer->CurrentWeapon)
+	{
+		SoccerPlayer->CurrentWeapon->Destroy();
+	}
+	
+	this->SoccerPlayers.Remove(SoccerPlayer);
+	SoccerPlayer->Destroy();
 }
 
 #pragma region Events
 
-/** This occurs when play begins */
-void AMagicBattleSoccerGameMode::BeginPlay()
+/** This occurs when play ends */
+void AMagicBattleSoccerGameMode::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason)
 {
-	Super::BeginPlay();
-
-	// Cache the soccer players
-	UWorld *world = GetWorld();
-	for (TActorIterator<AMagicBattleSoccerPlayer> It(world); It; ++It)
-	{
-		this->SoccerPlayers.Add(*It);
-	}
-
-	// Cache the soccer ball
-	for (TActorIterator<AMagicBattleSoccerBall> It(world); It; ++It)
-	{
-		this->SoccerBall = *It;
-		break; // There should only ever be one. If there is more, we only cache the first one
-	}
-
-	// Cache our goals
-	for (TActorIterator<AMagicBattleSoccerGoal> It(world); It; ++It)
-	{
-		FString name = *It->GetName();
-		if (0 == name.Compare("Team1Goal"))
-		{
-			this->Team1Goal = *It;
-		}
-		else if (0 == name.Compare("Team2Goal"))
-		{
-			this->Team2Goal = *It;
-		}
-	}
+	SoccerPlayers.Empty();
+	SoccerBall = NULL;
+	Team1Goal = NULL;
+	Team2Goal = NULL;
 	PenetratedGoal = NULL;
 }
 

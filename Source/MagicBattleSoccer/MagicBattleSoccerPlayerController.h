@@ -12,7 +12,4 @@ UCLASS()
 class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayerController : public APlayerController
 {
 	GENERATED_UCLASS_BODY()
-
-	
-	
 };

@@ -9,5 +9,3 @@ AMagicBattleSoccerPlayerController::AMagicBattleSoccerPlayerController(const cla
 {
 
 }
-
-

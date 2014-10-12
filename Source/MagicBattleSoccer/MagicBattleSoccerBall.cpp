@@ -45,6 +45,16 @@ void AMagicBattleSoccerBall::Kick(const FVector& Force)
 
 #pragma region Events
 
+/** This occurs when play begins */
+void AMagicBattleSoccerBall::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Add ourselves to the game mode cache
+	AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameMode->SoccerBall = this;
+}
+
 void AMagicBattleSoccerBall::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -56,8 +66,6 @@ void AMagicBattleSoccerBall::Tick(float DeltaSeconds)
 }
 
 #pragma endregion
-
-#pragma region Setters
 
 /** Sets the current ball possessor */
 void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
@@ -87,6 +95,7 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 		this->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
 		if (NULL != Possessor)
 		{
+			Possessor->CeaseFire();
 			PrimitiveComponents[0]->PutRigidBodyToSleep();
 			PrimitiveComponents[0]->SetSimulatePhysics(false);
 			SetActorEnableCollision(false);
@@ -102,5 +111,3 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 		}
 	}	
 }
-
-#pragma endregion

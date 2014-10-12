@@ -9,7 +9,13 @@ AMagicBattleSoccerWeapon::AMagicBattleSoccerWeapon(const class FPostConstructIni
 }
 
 /** Activates the weapon's primary function */
-void AMagicBattleSoccerWeapon::FirePrimary()
+void AMagicBattleSoccerWeapon::PrimaryActionPressed_Implementation()
+{
+
+}
+
+/** Deactivates the weapon's primary function */
+void AMagicBattleSoccerWeapon::PrimaryActionReleased_Implementation()
 {
 
 }

@@ -7,6 +7,7 @@ class AMagicBattleSoccerGoal;
 class AMagicBattleSoccerBall;
 class AMagicBattleSoccerGameMode;
 class AMagicBattleSoccerWeapon;
+class AMagicBattleSoccerSpawnPoint;
 
 /**
 *
@@ -27,6 +28,22 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	/** The zone that this player is restricted to */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	ATriggerBox* ActionZone;
+
+	/** The point where this player was spawned */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
+	AMagicBattleSoccerSpawnPoint* SpawnPoint;
+
+	/** The max number of hitpoints this player has */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
+	int32 MaxHitpoints;
+
+	/** The number of hitpoints this player has */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	int32 Hitpoints;
+
+	/** True if this player is running the attack action */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
+	bool IsAttacking;
 
 	/** True if this player is stunned */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
@@ -108,6 +125,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	void AttackPlayer(AMagicBattleSoccerPlayer* Target);
 
+	/** Stops attacking */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	void CeaseFire();
+
 	/** Gives a weapon to the player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	void GiveWeapon(AMagicBattleSoccerWeapon* Weapon);
@@ -124,6 +145,8 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	/** The soccer ball that overlaps this player */
 	AMagicBattleSoccerBall* OverlappingBall;
 
+#pragma region Events
+
 	UFUNCTION()
 	void OnBeginOverlap(AActor* OtherActor);
 
@@ -135,8 +158,17 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	/** This occurs when play begins */
 	virtual void BeginPlay() override;
 
-	/** Handle the primary action of the player controlling this character */
+	/** This occurs when play ends */
+	virtual void ReceiveEndPlay(EEndPlayReason::Type EndPlayReason) override;
+
+	/** Handle the primary action press of the player controlling this character */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void HandleControllerPrimaryAction();
+	void HandleControllerPrimaryActionPressed();
+
+	/** Handle the primary action release of the player controlling this character */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	void HandleControllerPrimaryActionReleased();
+
+#pragma endregion
 };
 

@@ -16,4 +16,11 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGoal : public AActor
 	/** Gets the ideal point for a player to run to when approaching the goal */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	FVector GetIdealRunLocation(AMagicBattleSoccerPlayer* Player);
+
+#pragma region Events
+
+	/** This occurs when play begins */
+	virtual void BeginPlay() override;
+
+#pragma endregion
 };

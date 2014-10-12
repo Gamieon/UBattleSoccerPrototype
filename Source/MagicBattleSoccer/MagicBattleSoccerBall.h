@@ -33,10 +33,16 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerBall : public AActor
 	/** Kicks this ball with a given force */
 	void Kick(const FVector& Force);
 
-private:
 	/** Move with the possessing player */
 	void MoveWithPossessor();
 
+#pragma region Events
+
+	/** This occurs when play begins */
+	virtual void BeginPlay() override;
+
 	void Tick(float DeltaSeconds) override;
+
+#pragma endregion
 };
 
