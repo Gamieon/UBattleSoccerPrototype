@@ -17,10 +17,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGoal : public AActor
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	FVector GetIdealRunLocation(AMagicBattleSoccerPlayer* Player);
 
-#pragma region Events
+	//Begin AActor interface
 
 	/** This occurs when play begins */
 	virtual void BeginPlay() override;
 
-#pragma endregion
+	//End AActor interface
 };

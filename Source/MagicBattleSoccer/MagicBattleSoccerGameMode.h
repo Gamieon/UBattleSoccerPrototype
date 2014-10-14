@@ -37,14 +37,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameMode : public AGameMode
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Soccer)
 	AMagicBattleSoccerGoal *PenetratedGoal;
 
-	/** Destroys a soccer player */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void DestroySoccerPlayer(AMagicBattleSoccerPlayer *SoccerPlayer);
-
-#pragma region Events
+	//Begin AActor interface
 
 	/** This occurs when play ends */
 	virtual void ReceiveEndPlay(EEndPlayReason::Type EndPlayReason) override;
 
-#pragma endregion
+	//End AActor interface
 };

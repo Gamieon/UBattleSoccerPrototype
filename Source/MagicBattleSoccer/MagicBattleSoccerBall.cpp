@@ -43,8 +43,6 @@ void AMagicBattleSoccerBall::Kick(const FVector& Force)
 	PrimitiveComponents[0]->AddForce(Force);
 }
 
-#pragma region Events
-
 /** This occurs when play begins */
 void AMagicBattleSoccerBall::BeginPlay()
 {
@@ -64,8 +62,6 @@ void AMagicBattleSoccerBall::Tick(float DeltaSeconds)
 		MoveWithPossessor();
 	}
 }
-
-#pragma endregion
 
 /** Sets the current ball possessor */
 void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)

@@ -145,13 +145,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	/** The soccer ball that overlaps this player */
 	AMagicBattleSoccerBall* OverlappingBall;
 
-#pragma region Events
-
 	UFUNCTION()
 	void OnBeginOverlap(AActor* OtherActor);
 
 	UFUNCTION()
 	void OnEndOverlap(AActor* OtherActor);
+
+	//Begin AActor interface
 
 	void Tick(float DeltaSeconds) override;
 
@@ -161,6 +161,11 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	/** This occurs when play ends */
 	virtual void ReceiveEndPlay(EEndPlayReason::Type EndPlayReason) override;
 
+	/** This occurs when the player is destroyed */
+	virtual void Destroyed() override;
+
+	//End AActor interface
+
 	/** Handle the primary action press of the player controlling this character */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	void HandleControllerPrimaryActionPressed();
@@ -168,7 +173,5 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	/** Handle the primary action release of the player controlling this character */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	void HandleControllerPrimaryActionReleased();
-
-#pragma endregion
 };
 

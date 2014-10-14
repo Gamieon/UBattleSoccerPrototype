@@ -36,13 +36,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerBall : public AActor
 	/** Move with the possessing player */
 	void MoveWithPossessor();
 
-#pragma region Events
+	//Begin AActor interface
 
 	/** This occurs when play begins */
 	virtual void BeginPlay() override;
 
 	void Tick(float DeltaSeconds) override;
 
-#pragma endregion
+	//End AActor interface
 };
 

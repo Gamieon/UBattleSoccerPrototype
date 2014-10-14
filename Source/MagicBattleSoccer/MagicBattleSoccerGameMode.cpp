@@ -20,30 +20,6 @@ AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FPostConstruc
 	PenetratedGoal = NULL;
 }
 
-/** Destroys a soccer player */
-void AMagicBattleSoccerGameMode::DestroySoccerPlayer(AMagicBattleSoccerPlayer *SoccerPlayer)
-{
-	if (NULL != SoccerPlayer->SpawnPoint)
-	{
-		SoccerPlayer->SpawnPoint->SpawnedPlayerBeingDestroyed(SoccerPlayer);
-	}
-
-	if (SoccerPlayer->PossessesBall())
-	{
-		this->SoccerBall->SetPossessor(NULL);
-	}
-
-	if (NULL != SoccerPlayer->CurrentWeapon)
-	{
-		SoccerPlayer->CurrentWeapon->Destroy();
-	}
-	
-	this->SoccerPlayers.Remove(SoccerPlayer);
-	SoccerPlayer->Destroy();
-}
-
-#pragma region Events
-
 /** This occurs when play ends */
 void AMagicBattleSoccerGameMode::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason)
 {
@@ -54,4 +30,3 @@ void AMagicBattleSoccerGameMode::ReceiveEndPlay(EEndPlayReason::Type EndPlayReas
 	PenetratedGoal = NULL;
 }
 
-#pragma endregion

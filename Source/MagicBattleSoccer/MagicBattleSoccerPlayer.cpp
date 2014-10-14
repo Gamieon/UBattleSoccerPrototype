@@ -6,6 +6,7 @@
 #include "MagicBattleSoccerPlayer.h"
 #include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerProjectile.h"
+#include "MagicBattleSoccerSpawnPoint.h"
 #include "AIController.h"
 
 AMagicBattleSoccerPlayer::AMagicBattleSoccerPlayer(const class FPostConstructInitializeProperties& PCIP)
@@ -394,8 +395,6 @@ void AMagicBattleSoccerPlayer::Stun(float Duration)
 	UpdateMovementSpeed();*/
 }
 
-#pragma region Event Handlers
-
 void AMagicBattleSoccerPlayer::OnBeginOverlap(AActor* OtherActor)
 {
 	AMagicBattleSoccerBall *Ball = Cast<AMagicBattleSoccerBall>(OtherActor);
@@ -424,13 +423,13 @@ void AMagicBattleSoccerPlayer::OnBeginOverlap(AActor* OtherActor)
 
 			if (!ignore)
 			{
-				if ((Hitpoints -= Projectile->Damage) <= 0)
-				{
-					GetGameMode()->DestroySoccerPlayer(this);
-				}
-
 				// Destroy the projectile
 				OtherActor->Destroy();
+
+				if ((Hitpoints -= Projectile->Damage) <= 0)
+				{
+					Destroy();
+				}
 			}
 		}
 	}
@@ -502,6 +501,29 @@ void AMagicBattleSoccerPlayer::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason
 	GetGameMode()->SoccerPlayers.Remove(this);
 }
 
+/** This occurs when the player is destroyed */
+void AMagicBattleSoccerPlayer::Destroyed()
+{
+	if (NULL != this->SpawnPoint)
+	{
+		this->SpawnPoint->SpawnedPlayerBeingDestroyed(this);
+	}
+
+	if (PossessesBall())
+	{
+		GetSoccerBall()->SetPossessor(NULL);
+	}
+
+	if (NULL != this->CurrentWeapon)
+	{
+		this->CurrentWeapon->Destroy();
+	}
+
+	GetGameMode()->SoccerPlayers.Remove(this);
+
+	Super::Destroyed();
+}
+
 /** Handle the primary action press of the player controlling this character */
 void AMagicBattleSoccerPlayer::HandleControllerPrimaryActionPressed()
 {
@@ -529,5 +551,3 @@ void AMagicBattleSoccerPlayer::HandleControllerPrimaryActionReleased()
 
 	IsAttacking = false;
 }
-
-#pragma endregion
