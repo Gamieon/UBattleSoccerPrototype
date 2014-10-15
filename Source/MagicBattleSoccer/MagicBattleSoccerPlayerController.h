@@ -21,6 +21,9 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayerController : public APlayerC
 
 	//Begin AController interface
 	
+	/** Sets the pawn */
+	virtual void SetPawn(APawn* inPawn) override;
+
 	/** update camera when pawn dies */
 	virtual void PawnPendingDestroy(APawn* inPawn) override;
 

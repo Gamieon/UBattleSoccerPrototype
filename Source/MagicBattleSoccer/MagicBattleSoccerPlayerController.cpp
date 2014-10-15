@@ -2,7 +2,8 @@
 
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerPlayerController.h"
-
+#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerGoal.h"
 
 AMagicBattleSoccerPlayerController::AMagicBattleSoccerPlayerController(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
@@ -40,10 +41,30 @@ bool AMagicBattleSoccerPlayerController::FindDeathCameraSpot(FVector& CameraLoca
 	return false;
 }
 
+void AMagicBattleSoccerPlayerController::SetPawn(APawn* inPawn)
+{
+	Super::SetPawn(inPawn);
+
+	if (NULL != inPawn)
+	{
+		AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(inPawn);
+
+		// For now default to team 1
+		for (TObjectIterator<AMagicBattleSoccerGoal> It; It; ++It)
+		{
+			if (2 == It->TeamNumber)
+			{
+				PlayerPawn->EnemyGoal = *It;
+				break;
+			}
+		}
+	}
+}
+
 void AMagicBattleSoccerPlayerController::PawnPendingDestroy(APawn* inPawn)
 {
 	LastDeathLocation = inPawn->GetActorLocation();
-	FVector CameraLocation = LastDeathLocation + FVector(0, 0, 300.0f);
+	FVector CameraLocation = LastDeathLocation + FVector(0, 0, 600.0f);
 	FRotator CameraRotation(-90.0f, 0.0f, 0.0f);
 	FindDeathCameraSpot(CameraLocation, CameraRotation);
 

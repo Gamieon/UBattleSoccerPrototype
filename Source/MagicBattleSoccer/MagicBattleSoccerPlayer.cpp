@@ -40,7 +40,9 @@ TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerPlayer::GetTeammates()
 
 	for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Players.CreateConstIterator()); It; ++It)
 	{
-		if (this != *It && (*It)->EnemyGoal == EnemyGoal)
+		// We have to test labels because when a human player is assigned their goal, the pointer to the goal may
+		// not be the same as the pointer that a bot player retains although they are the same object.
+		if (this != *It && (*It)->EnemyGoal->TeamNumber == EnemyGoal->TeamNumber)
 		{
 			Teammates.Add(*It);
 		}
@@ -57,7 +59,9 @@ TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerPlayer::GetOpponents()
 
 	for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Players.CreateConstIterator()); It; ++It)
 	{
-		if ((*It)->EnemyGoal != EnemyGoal)
+		// We have to test labels because when a human player is assigned their goal, the pointer to the goal may
+		// not be the same as the pointer that a bot player retains although they are the same object.
+		if (this != *It && (*It)->EnemyGoal->TeamNumber != EnemyGoal->TeamNumber)
 		{
 			Opponents.Add(*It);
 		}
@@ -92,7 +96,7 @@ void AMagicBattleSoccerPlayer::UpdateMovementSpeed()
 	}
 	else if (Ball->Possessor == this)
 	{
-		NewSpeed *= 0.65f;
+		NewSpeed *= 0.75f;
 	}
 
 	MovementComponent->MaxWalkSpeed = NewSpeed;

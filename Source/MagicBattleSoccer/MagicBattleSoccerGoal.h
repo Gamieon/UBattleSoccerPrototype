@@ -17,6 +17,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGoal : public AActor
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	FVector GetIdealRunLocation(AMagicBattleSoccerPlayer* Player);
 
+	/** The goal's team number */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
+	int32 TeamNumber;
+	
 	//Begin AActor interface
 
 	/** This occurs when play begins */

@@ -24,13 +24,11 @@ void AMagicBattleSoccerGoal::BeginPlay()
 
 	// Add ourselves to the game mode cache
 	AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	FString name = GetActorLabel();
-
-	if (name.Equals(TEXT("Team1Goal")))
+	if (1 == TeamNumber)
 	{
 		GameMode->Team1Goal = this;
 	}
-	else if (name.Equals(TEXT("Team2Goal")))
+	else if (2 == TeamNumber)
 	{
 		GameMode->Team2Goal = this;
 	}
