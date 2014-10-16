@@ -4,6 +4,7 @@
 #include "MagicBattleSoccerPlayerController.h"
 #include "MagicBattleSoccerPlayer.h"
 #include "MagicBattleSoccerGoal.h"
+#include "MagicBattleSoccerWeapon.h"
 
 AMagicBattleSoccerPlayerController::AMagicBattleSoccerPlayerController(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
@@ -39,6 +40,70 @@ bool AMagicBattleSoccerPlayerController::FindDeathCameraSpot(FVector& CameraLoca
 	}
 
 	return false;
+}
+
+/** Player move forward event */
+void AMagicBattleSoccerPlayerController::OnMoveForward(float axisValue)
+{
+	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	if (NULL != PlayerPawn)
+	{
+		PlayerPawn->AddMovementInput(FVector(1, 0, 0), axisValue);
+	}
+}
+
+/** Player move right event */
+void AMagicBattleSoccerPlayerController::OnMoveRight(float axisValue)
+{
+	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	if (NULL != PlayerPawn)
+	{
+		PlayerPawn->AddMovementInput(FVector(0, 1, 0), axisValue);
+	}
+}
+
+/** Player primary action event */
+void AMagicBattleSoccerPlayerController::OnPrimaryAction()
+{
+	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	if (NULL != PlayerPawn)
+	{
+
+		if (PlayerPawn->PossessesBall())
+		{
+			PlayerPawn->KickBallForward();
+		}
+		else if (!PlayerPawn->IsAttacking)
+		{
+			if (NULL != PlayerPawn->CurrentWeapon)
+			{
+				FHitResult hitResult;
+				GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, hitResult);
+				FVector hitLocation = FVector(hitResult.Location.X, hitResult.Location.Y, PlayerPawn->GetActorLocation().Z);
+				FRotator lookAtRotation = (hitLocation - PlayerPawn->GetActorLocation()).Rotation();
+				PlayerPawn->CurrentWeapon->BeginFire();
+				PlayerPawn->CurrentWeapon->CeaseFire();
+			}
+		}
+	}
+}
+
+/** Player suicide event */
+void AMagicBattleSoccerPlayerController::OnSuicide()
+{
+	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	PlayerPawn->Destroy();
+}
+
+void AMagicBattleSoccerPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	// UI input
+	InputComponent->BindAxis("MoveForward", this, &AMagicBattleSoccerPlayerController::OnMoveForward);
+	InputComponent->BindAxis("MoveRight", this, &AMagicBattleSoccerPlayerController::OnMoveRight);
+	InputComponent->BindAction("PrimaryAction", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnPrimaryAction);
+	InputComponent->BindAction("Suicide", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnSuicide);
 }
 
 void AMagicBattleSoccerPlayerController::SetPawn(APawn* inPawn)

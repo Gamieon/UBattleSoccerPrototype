@@ -334,15 +334,15 @@ FVector AMagicBattleSoccerPlayer::GetIdealPossessorFollowLocation()
 void AMagicBattleSoccerPlayer::AttackPlayer(AMagicBattleSoccerPlayer* Target)
 {
 	if (!PossessesBall() && NULL != CurrentWeapon)
-	{
+	{	
+		FRotator faceRot = ((Target->GetActorLocation() + Target->GetVelocity()) - GetActorLocation()).Rotation();
 		// Face the target
-		FRotator faceRot = ( (Target->GetActorLocation() + Target->GetVelocity() ) - GetActorLocation()).Rotation();
 		SetActorRotation(faceRot);
 
 		// Start attacking the player if we haven't already
 		if (!IsAttacking)
 		{
-			CurrentWeapon->PrimaryActionPressed();
+			CurrentWeapon->BeginFire();
 			IsAttacking = true;
 		}
 	}
@@ -370,7 +370,7 @@ void AMagicBattleSoccerPlayer::CeaseFire()
 {
 	if (IsAttacking && NULL != CurrentWeapon)
 	{
-		CurrentWeapon->PrimaryActionReleased();
+		CurrentWeapon->CeaseFire();
 		IsAttacking = false;
 	}
 }
@@ -526,32 +526,4 @@ void AMagicBattleSoccerPlayer::Destroyed()
 	GetGameMode()->SoccerPlayers.Remove(this);
 
 	Super::Destroyed();
-}
-
-/** Handle the primary action press of the player controlling this character */
-void AMagicBattleSoccerPlayer::HandleControllerPrimaryActionPressed()
-{
-	if (PossessesBall())
-	{
-		KickBallForward();
-	}
-	else if (!IsAttacking)
-	{
-		if (NULL != CurrentWeapon)
-		{
-			CurrentWeapon->PrimaryActionPressed();
-		}
-		IsAttacking = true;
-	}
-}
-
-/** Handle the primary action press of the player controlling this character */
-void AMagicBattleSoccerPlayer::HandleControllerPrimaryActionReleased()
-{
-	if (NULL != CurrentWeapon && IsAttacking)
-	{
-		CurrentWeapon->PrimaryActionReleased();
-	}
-
-	IsAttacking = false;
 }

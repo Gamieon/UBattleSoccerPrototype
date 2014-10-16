@@ -19,8 +19,23 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayerController : public APlayerC
 	/** try to find spot for death cam */
 	bool FindDeathCameraSpot(FVector& CameraLocation, FRotator& CameraRotation);
 
+	/** Player move forward event */
+	void OnMoveForward(float axisValue);
+
+	/** Player move right event */
+	void OnMoveRight(float axisValue);
+
+	/** Player primary action event */
+	void OnPrimaryAction();
+
+	/** Player suicide event */
+	void OnSuicide();
+
 	//Begin AController interface
 	
+	/** sets up input */
+	virtual void SetupInputComponent() override;
+
 	/** Sets the pawn */
 	virtual void SetPawn(APawn* inPawn) override;
 

@@ -3,6 +3,8 @@
 #include "GameFramework/Actor.h"
 #include "MagicBattleSoccerWeapon.generated.h"
 
+class AMagicBattleSoccerPlayerController;
+
 /**
 *
 */
@@ -15,11 +17,19 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon : public AActor
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	float EffectiveRange;
 
+	/** True if the weapon is being fired */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	bool IsFiring;
+
+	/** Gets the rotation the weapon should emit damage from */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	FRotator GetWorldFiringRotation();
+
 	/** Activates the weapon's primary function */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
-	void PrimaryActionPressed();
+	void BeginFire();
 
 	/** Deactivates the weapon's primary function */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
-	void PrimaryActionReleased();
+	void CeaseFire();
 };

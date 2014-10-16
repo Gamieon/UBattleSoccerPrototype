@@ -165,13 +165,5 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	virtual void Destroyed() override;
 
 	//End AActor interface
-
-	/** Handle the primary action press of the player controlling this character */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void HandleControllerPrimaryActionPressed();
-
-	/** Handle the primary action release of the player controlling this character */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void HandleControllerPrimaryActionReleased();
 };
 
