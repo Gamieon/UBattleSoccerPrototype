@@ -508,22 +508,30 @@ void AMagicBattleSoccerPlayer::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason
 /** This occurs when the player is destroyed */
 void AMagicBattleSoccerPlayer::Destroyed()
 {
-	if (NULL != this->SpawnPoint)
+	if (NULL == GetGameMode())
 	{
-		this->SpawnPoint->SpawnedPlayerBeingDestroyed(this);
+		// If we get here we're not in a game. We're being destroyed in the editor
+		// so don't do any game tasks.
 	}
-
-	if (PossessesBall())
+	else
 	{
-		GetSoccerBall()->SetPossessor(NULL);
-	}
+		if (NULL != this->SpawnPoint)
+		{
+			this->SpawnPoint->SpawnedPlayerBeingDestroyed(this);
+		}
 
-	if (NULL != this->CurrentWeapon)
-	{
-		this->CurrentWeapon->Destroy();
-	}
+		if (PossessesBall())
+		{
+			GetSoccerBall()->SetPossessor(NULL);
+		}
 
-	GetGameMode()->SoccerPlayers.Remove(this);
+		if (NULL != this->CurrentWeapon)
+		{
+			this->CurrentWeapon->Destroy();
+		}
+
+		GetGameMode()->SoccerPlayers.Remove(this);
+	}
 
 	Super::Destroyed();
 }
