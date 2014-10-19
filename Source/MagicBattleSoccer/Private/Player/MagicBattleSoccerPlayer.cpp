@@ -8,6 +8,7 @@
 #include "MagicBattleSoccerProjectile.h"
 #include "MagicBattleSoccerSpawnPoint.h"
 #include "AIController.h"
+#include "Engine/TriggerBox.h"
 
 AMagicBattleSoccerPlayer::AMagicBattleSoccerPlayer(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)

@@ -5,6 +5,7 @@
 
 class AMagicBattleSoccerGoal;
 class AMagicBattleSoccerPlayer;
+class ATriggerBox;
 
 /**
 *

@@ -8,6 +8,7 @@ class AMagicBattleSoccerBall;
 class AMagicBattleSoccerGameMode;
 class AMagicBattleSoccerWeapon;
 class AMagicBattleSoccerSpawnPoint;
+class ATriggerBox;
 
 /**
 *
