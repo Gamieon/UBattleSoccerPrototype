@@ -12,6 +12,4 @@ AMagicBattleSoccerPlayerController_Menu::AMagicBattleSoccerPlayerController_Menu
 void AMagicBattleSoccerPlayerController_Menu::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	//FShooterStyle::Initialize();
 }

@@ -3,12 +3,7 @@
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerPlayerController.h"
-#include "MagicBattleSoccerAIController.h"
-#include "MagicBattleSoccerBall.h"
-#include "MagicBattleSoccerGoal.h"
-#include "MagicBattleSoccerPlayer.h"
-#include "MagicBattleSoccerWeapon.h"
-#include "MagicBattleSoccerSpawnPoint.h"
+
 
 AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
