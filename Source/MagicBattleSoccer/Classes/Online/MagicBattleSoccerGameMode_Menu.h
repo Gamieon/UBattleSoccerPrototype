@@ -1,3 +1,6 @@
+/**
+MagicBattleSoccerGameMode_Menu.h - The game mode class for the main menu
+**/
 
 
 #pragma once
@@ -20,5 +23,4 @@ public:
 	virtual void RestartPlayer(class AController* NewPlayer) override;
 
 	// End AGameMode interface
-
 };

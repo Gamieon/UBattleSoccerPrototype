@@ -1,4 +1,6 @@
-
+/**
+MagicBattleSoccerPlayerController_Menu.h - The player controller class for the main menu
+**/
 
 #pragma once
 

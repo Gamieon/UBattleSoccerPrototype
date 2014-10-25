@@ -13,6 +13,9 @@ public class MagicBattleSoccer : ModuleRules
 				,"MagicBattleSoccer/Classes/Player"
                 ,"MagicBattleSoccer/Classes/Soccer"
                 ,"MagicBattleSoccer/Classes/Weapons"
+                ,"MagicBattleSoccer/Classes/UI"
+                ,"MagicBattleSoccer/Private/UI/Menu"
+                ,"MagicBattleSoccer/Private/UI/Style"
             }
         );
 
