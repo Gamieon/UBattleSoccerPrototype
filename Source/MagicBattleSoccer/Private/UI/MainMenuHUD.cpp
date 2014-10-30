@@ -6,6 +6,7 @@ complete collection of menus for the Main Menu; including HOST, OPTIONS, QUIT, e
 #include "MagicBattleSoccer.h"
 #include "MainMenuHUD.h"
 #include "MainMenuUI.h"
+#include "OptionsMenuUI.h"
 #include "MagicBattleSoccerStyles.h"
 
 AMainMenuHUD::AMainMenuHUD(const class FPostConstructInitializeProperties& PCIP)
@@ -28,27 +29,43 @@ void AMainMenuHUD::PostInitializeComponents()
 		SAssignNew(MainMenuUI, SMainMenuUI)
 			.MenuHUD(TWeakObjectPtr<AMainMenuHUD>(this));
 
-		// Bring the top level menu items to the screen
-		Viewport->AddViewportWidgetContent(
-			SNew(SWeakWidget).PossiblyNullContent(MainMenuUI.ToSharedRef())
-			);
+		// Create the collection of option menu items including RESOLUTION and FULL SCREEN
+		SAssignNew(OptionsMenuUI, SOptionsMenuUI)
+			.MenuHUD(TWeakObjectPtr<AMainMenuHUD>(this));
+
+		// Show the main menu on the screen
+		PushMenu(MainMenuUI);
 	}
 }
 
-/** Called by SMainMenu whenever the Host button has been clicked. */
-void AMainMenuHUD::HostClicked()
+/** Drills down from the current menu into the specified menu. */
+void AMainMenuHUD::PushMenu(TSharedPtr<class SCompoundWidget> Menu)
 {
+	UGameViewportClient* Viewport = GEngine->GameViewport;
 
+	if (MenuStack.Num() > 0)
+	{
+		Viewport->RemoveViewportWidgetContent(MenuStack[MenuStack.Num() - 1]);
+	}
+	
+	MenuStack.Add(SNew(SWeakWidget).PossiblyNullContent(Menu));
+
+	Viewport->AddViewportWidgetContent(MenuStack[MenuStack.Num() - 1]);
 }
 
-/** Called by SMainMenu whenever the Options button has been clicked. */
-void AMainMenuHUD::OptionsClicked()
+/** Returns to the previous menu. */
+void AMainMenuHUD::PopMenu()
 {
+	UGameViewportClient* Viewport = GEngine->GameViewport;
 
-}
+	if (MenuStack.Num() > 0)
+	{
+		Viewport->RemoveViewportWidgetContent(MenuStack[MenuStack.Num() - 1]);
+		MenuStack.Pop();
+	}
 
-/** Called by SMainMenu whenever the Quit button has been clicked. */
-void AMainMenuHUD::QuitClicked()
-{
-
+	if (MenuStack.Num() > 0)
+	{
+		Viewport->AddViewportWidgetContent(MenuStack[MenuStack.Num() - 1]);
+	}
 }

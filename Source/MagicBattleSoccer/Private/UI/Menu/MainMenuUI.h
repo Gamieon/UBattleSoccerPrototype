@@ -1,9 +1,4 @@
-/**
-MainMenuUI.h - Provides an implementation of the Slate UI representing the main menu.
--------
-Written by Minalien as part of a Slate UI Tutorial - http://minalien.com/
-DWYW License [Do Whatever You Want]
-**/
+/** MainMenuUI.h - This widget implements all of the root level main menu items. */
 
 #pragma once
 

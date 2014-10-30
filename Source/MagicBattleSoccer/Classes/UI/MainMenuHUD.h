@@ -17,20 +17,24 @@ class AMainMenuHUD : public AHUD
 {
 	GENERATED_UCLASS_BODY()
 
+private:
+	/** The current menu stack. MainMenuUI should always be at the bottom. */
+	TArray<TSharedRef<class SWidget>> MenuStack;
+
+public:
+	/** The top level menu. This object contains menu items including HOST, OPTIONS, QUIT, etc. */
+	TSharedPtr<class SMainMenuUI> MainMenuUI;
+
+	/** The options menu. This object contains menu times including RESOLUTION, QUALITY, etc. */
+	TSharedPtr<class SOptionsMenuUI> OptionsMenuUI;
+
 public:
 	/* Initializes the Slate UI and adds it as widget content to the game viewport. */
 	virtual void PostInitializeComponents() override;
 
-	/** Called by SMainMenu whenever the Host button has been clicked. */
-	void HostClicked();
+	/** Drills down from the current menu into the specified menu. */
+	void PushMenu(TSharedPtr<class SCompoundWidget> Menu);
 
-	/** Called by SMainMenu whenever the Options button has been clicked. */
-	void OptionsClicked();
-
-	/** Called by SMainMenu whenever the Quit Game button has been clicked. */
-	void QuitClicked();
-
-private:
-	/** The top level menu. This object contains menu items including HOST, OPTIONS, QUIT, etc.  */
-	TSharedPtr<class SMainMenuUI> MainMenuUI;
+	/** Returns to the previous menu. */
+	void PopMenu();
 };

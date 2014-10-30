@@ -1,48 +1,55 @@
-/** MenuBackgroundWidgetStyle.h - This is the base class for background style widget blueprints accessed in the Unreal Editor. */
+/** MenuBackgroundWidgetStyle.h - This is the base class for menu item style widget blueprints accessed in the Unreal Editor. */
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
 #include "SlateWidgetStyleContainerBase.h"
-#include "MenuBackgroundWidgetStyle.generated.h"
+#include "MenuItemWidgetStyle.generated.h"
 
 /**
 * Represents the appearance of an FMenuItem
 */
 USTRUCT()
-struct FMenuBackgroundStyle : public FSlateWidgetStyle
+struct FMenuItemStyle : public FSlateWidgetStyle
 {
 	GENERATED_USTRUCT_BODY()
 
-	FMenuBackgroundStyle();
-	virtual ~FMenuBackgroundStyle();
+	FMenuItemStyle();
+	virtual ~FMenuItemStyle();
 
 	// FSlateWidgetStyle
 	virtual void GetResources(TArray<const FSlateBrush*>& OutBrushes) const override;
 	static const FName TypeName;
 	virtual const FName GetTypeName() const override { return TypeName; };
-	static const FMenuBackgroundStyle& GetDefault();
+	static const FMenuItemStyle& GetDefault();
 
 	/**
-	* The brush used for the menu background
+	* The image used for the left arrow
 	*/
 	UPROPERTY(EditAnywhere, Category = Appearance)
-	FSlateBrush BackgroundBrush;
-	FMenuBackgroundStyle& SetBackgroundBrush(const FSlateBrush& InBackgroundBrush) { BackgroundBrush = InBackgroundBrush; return *this; }
+	FSlateBrush LeftArrowImage;
+	FMenuItemStyle& SetLeftArrowImage(const FSlateBrush& InLeftArrowImage) { LeftArrowImage = InLeftArrowImage; return *this; }
+
+	/**
+	* The image used for the right arrow
+	*/
+	UPROPERTY(EditAnywhere, Category = Appearance)
+	FSlateBrush RightArrowImage;
+	FMenuItemStyle& SetRightArrowImage(const FSlateBrush& InRightArrowImage) { RightArrowImage = InRightArrowImage; return *this; }
 };
 
 
 /**
 */
 UCLASS(hidecategories = Object, MinimalAPI)
-class UMenuBackgroundWidgetStyle : public USlateWidgetStyleContainerBase
+class UMenuItemWidgetStyle : public USlateWidgetStyleContainerBase
 {
 	GENERATED_UCLASS_BODY()
 
 public:
 	/** The actual data describing the menu's appearance. */
 	UPROPERTY(Category = Appearance, EditAnywhere, meta = (ShowOnlyInnerProperties))
-	FMenuBackgroundStyle BackgroundStyle;
+	FMenuItemStyle BackgroundStyle;
 
 	virtual const struct FSlateWidgetStyle* const GetStyle() const override
 	{

@@ -1,11 +1,9 @@
-/**
-Written by Minalien as part of a Slate UI Tutorial - http://minalien.com/
-DWYW License [Do Whatever You Want]
-**/
+/** MainMenuUI.cpp - This widget implements all of the root level main menu items. */
 
 #include "MagicBattleSoccer.h"
 #include "MainMenuHUD.h"
 #include "MainMenuUI.h"
+#include "OptionsMenuUI.h"
 #include "MagicBattleSoccerStyles.h"
 #include "MenuBackgroundWidgetStyle.h"
 
@@ -18,27 +16,33 @@ void SMainMenuUI::Construct(const FArguments& args)
 
 	ChildSlot
 	[
+		// Overlay level
 		SNew(SOverlay)
 		+ SOverlay::Slot()
 		.HAlign(HAlign_Left)
 		.VAlign(VAlign_Bottom)
-		.Padding(FMargin(100,0,0,200))
+		.Padding(FMargin(100,0,0,80))
 		[
+			// Border level (fills overlay with background image)
 			SNew(SBorder)
 			.BorderImage(&BackgroundStyle->BackgroundBrush)
 			[
+				// Vertical margins (space between menu items and border) level
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
 				.Padding(FMargin(0,15,0,15))
 				[
+					// Horizontal margins (space between menu items and border) level
 					SNew(SHorizontalBox)
 					+ SHorizontalBox::Slot()
 					.Padding(FMargin(15,0,15,0))
 					[
+						// Vertical box containing menu items
 						SNew(SVerticalBox)
 						+ SVerticalBox::Slot()
-						.Padding(0.0f)
+						.Padding(10.0f)
 						[
+							// Host button
 							SNew(SButton)
 							.HAlign(HAlign_Center)
 							.VAlign(VAlign_Center)
@@ -49,8 +53,9 @@ void SMainMenuUI::Construct(const FArguments& args)
 							.OnClicked(this, &SMainMenuUI::HostClicked)
 						]
 						+ SVerticalBox::Slot()
-						.Padding(0.0f)
+						.Padding(10.0f)
 						[
+							// Options button
 							SNew(SButton)
 							.HAlign(HAlign_Center)
 							.VAlign(VAlign_Center)
@@ -61,8 +66,9 @@ void SMainMenuUI::Construct(const FArguments& args)
 							.OnClicked(this, &SMainMenuUI::OptionsClicked)
 						]
 						+ SVerticalBox::Slot()
-						.Padding(0.0f)
+						.Padding(10.0f)
 						[
+							// Quit button
 							SNew(SButton)
 							.HAlign(HAlign_Center)
 							.VAlign(VAlign_Center)
@@ -80,24 +86,34 @@ void SMainMenuUI::Construct(const FArguments& args)
 	];
 }
 
-
 /** Click handler for the Host button - Calls MenuHUD's HostClicked() event. */
 FReply SMainMenuUI::HostClicked()
 {
-	MenuHUD->HostClicked();
+	/*
+	if (ensure(GameInstance.IsValid()) && GetPlayerOwner() != NULL)
+	{
+		FString const StartURL = FString::Printf(TEXT("/Game/Maps/test_multiplayer"));
+		FString const GameType = TEXT("");
+
+		// TODO: Game instance needs to handle success, failure and dialogs
+		GameInstance->HostGame(GetPlayerOwner(), GameType, StartURL);
+	}*/
 	return FReply::Handled();
 }
 
 /** Click handler for the Options button - Calls MenuHUD's OptionsClicked() event. */
 FReply SMainMenuUI::OptionsClicked()
 {
-	MenuHUD->OptionsClicked();
+	// Push the Options menu onto the menu stack
+	MenuHUD->PushMenu(MenuHUD->OptionsMenuUI);
 	return FReply::Handled();
 }
 
 /** Click handler for the Quit button - Calls MenuHUD's QuitClicked() event. */
 FReply SMainMenuUI::QuitClicked()
 {
-	MenuHUD->QuitClicked();
+	// Quit the game
+	UGameViewportClient* Viewport = GEngine->GameViewport;
+	Viewport->ConsoleCommand("quit");
 	return FReply::Handled();
 }
