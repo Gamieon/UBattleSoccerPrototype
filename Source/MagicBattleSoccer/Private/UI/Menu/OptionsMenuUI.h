@@ -1,4 +1,8 @@
-/** OptionsMenuUI.h - This widget implements all of the option menu items. */
+/** OptionsMenuUI.h - This widget implements all of the option menu items. 
+*
+* For a basic tutorial on creating menus with Slate, visit http://minalien.com/unreal-engine-4-creating-menus-with-slatec-part-1/
+*
+*/
 
 #pragma once
 
@@ -11,7 +15,7 @@ const FIntPoint DefaultResolutions[] = { FIntPoint(1024, 768), FIntPoint(1280, 7
 const int32 DefaultResolutionCount = ARRAY_COUNT(DefaultResolutions);
 
 /**
-* Lays out and controls the Main Menu UI for our tutorial.
+* Lays out and controls the Options Menu UI.
 **/
 class SOptionsMenuUI : public SCompoundWidget
 {
@@ -58,7 +62,7 @@ private:
 	/**
 	* Stores a weak reference to the HUD controlling this class.
 	**/
-	TWeakObjectPtr<class AMainMenuHUD> MenuHUD;
+	TWeakObjectPtr<class AMagicBattleSoccerHUD> MenuHUD;
 
 	/** User settings pointer */
 	class UMagicBattleSoccerUserSettings* UserSettings;

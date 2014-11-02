@@ -1,5 +1,8 @@
-/** MenuBackgroundWidgetStyle.h - This is the base class for background style widget blueprints accessed in the Unreal Editor. */
-// Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
+/** MenuBackgroundWidgetStyle.h - This is the base class for background style widget blueprints accessed in the Unreal Editor.
+*
+* For a basic tutorial on creating menus with Slate, visit http://minalien.com/unreal-engine-4-creating-menus-with-slatec-part-1/
+*
+*/
 
 #pragma once
 

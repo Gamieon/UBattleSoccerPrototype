@@ -1,4 +1,8 @@
-/** MenuBackgroundWidgetStyle.cpp - This is the base class for background style widget blueprints accessed in the Unreal Editor. */
+/** MenuBackgroundWidgetStyle.cpp - This is the base class for background style widget blueprints accessed in the Unreal Editor.
+*
+* For a basic tutorial on creating menus with Slate, visit http://minalien.com/unreal-engine-4-creating-menus-with-slatec-part-1/
+*
+*/
 
 #include "MagicBattleSoccer.h"
 #include "MenuBackgroundWidgetStyle.h"

@@ -5,6 +5,7 @@ MagicBattleSoccerGameMode_Menu.cpp - The game mode class for the main menu
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameMode_Menu.h"
 #include "MagicBattleSoccerPlayerController_Menu.h"
+#include "MagicBattleSoccerGameSession.h"
 #include "MainMenuPawn.h"
 #include "MainMenuHUD.h"
 
@@ -25,4 +26,10 @@ AMagicBattleSoccerGameMode_Menu::AMagicBattleSoccerGameMode_Menu(const class FPo
 void AMagicBattleSoccerGameMode_Menu::RestartPlayer(class AController* NewPlayer)
 {
 	// don't restart
+}
+
+/** Returns game session class to use */
+TSubclassOf<AGameSession> AMagicBattleSoccerGameMode_Menu::GetGameSessionClass() const
+{
+	return AMagicBattleSoccerGameSession::StaticClass();
 }

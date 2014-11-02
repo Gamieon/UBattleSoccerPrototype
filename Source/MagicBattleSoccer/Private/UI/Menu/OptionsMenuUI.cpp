@@ -1,4 +1,8 @@
-/** OptionsMenuUI.cpp - This widget implements all of the option menu items. */
+/** OptionsMenuUI.cpp - This widget implements all of the option menu items. 
+*
+* For a basic tutorial on creating menus with Slate, visit http://minalien.com/unreal-engine-4-creating-menus-with-slatec-part-1/
+*
+*/
 
 #include "MagicBattleSoccer.h"
 #include "MainMenuHUD.h"

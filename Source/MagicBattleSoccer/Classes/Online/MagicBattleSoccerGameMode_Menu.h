@@ -22,5 +22,7 @@ public:
 	/** skip it, menu doesn't require player start or pawn */
 	virtual void RestartPlayer(class AController* NewPlayer) override;
 
+	/** Returns game session class to use */
+	virtual TSubclassOf<AGameSession> GetGameSessionClass() const override;
 	// End AGameMode interface
 };

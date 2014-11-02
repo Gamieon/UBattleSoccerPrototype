@@ -5,7 +5,7 @@ complete collection of menus for the Main Menu; including HOST, OPTIONS, QUIT, e
 
 #pragma once
 
-#include "GameFramework/HUD.h"
+#include "MagicBattleSoccerHUD.h"
 #include "MainMenuHUD.generated.h"
 
 /**
@@ -13,13 +13,9 @@ complete collection of menus for the Main Menu; including HOST, OPTIONS, QUIT, e
 * within SMainMenuUI.
 **/
 UCLASS()
-class AMainMenuHUD : public AHUD
+class AMainMenuHUD : public AMagicBattleSoccerHUD
 {
 	GENERATED_UCLASS_BODY()
-
-private:
-	/** The current menu stack. MainMenuUI should always be at the bottom. */
-	TArray<TSharedRef<class SWidget>> MenuStack;
 
 public:
 	/** The top level menu. This object contains menu items including HOST, OPTIONS, QUIT, etc. */
@@ -31,10 +27,4 @@ public:
 public:
 	/* Initializes the Slate UI and adds it as widget content to the game viewport. */
 	virtual void PostInitializeComponents() override;
-
-	/** Drills down from the current menu into the specified menu. */
-	void PushMenu(TSharedPtr<class SCompoundWidget> Menu);
-
-	/** Returns to the previous menu. */
-	void PopMenu();
 };

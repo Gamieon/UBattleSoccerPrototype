@@ -16,6 +16,7 @@ public class MagicBattleSoccer : ModuleRules
                 ,"MagicBattleSoccer/Classes/UI"
                 ,"MagicBattleSoccer/Private/UI/Menu"
                 ,"MagicBattleSoccer/Private/UI/Style"
+                ,"MagicBattleSoccer/Private/UI/Widgets"
             }
         );
 
@@ -23,6 +24,8 @@ public class MagicBattleSoccer : ModuleRules
             "Core", 
             "CoreUObject", 
             "Engine", 
+			"OnlineSubsystem",
+			"OnlineSubsystemUtils",
             "InputCore", 
             "AIModule" });
 
@@ -34,13 +37,22 @@ public class MagicBattleSoccer : ModuleRules
             "SlateCore" });
 		
 		// Uncomment if you are using online features
-		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
-		// if ((Target.Platform == UnrealTargetPlatform.Win32) || (Target.Platform == UnrealTargetPlatform.Win64))
-		// {
-		//		if (UEBuildConfiguration.bCompileSteamOSS == true)
-		//		{
-		//			DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
-		//		}
-		// }
+        if ((Target.Platform == UnrealTargetPlatform.Win32) || (Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Linux) || (Target.Platform == UnrealTargetPlatform.Mac))
+        {
+            if (UEBuildConfiguration.bCompileSteamOSS == true)
+            {
+                DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
+            }
+
+            DynamicallyLoadedModuleNames.Add("OnlineSubsystemNull");
+        }
+        else if (Target.Platform == UnrealTargetPlatform.PS4)
+        {
+            DynamicallyLoadedModuleNames.Add("OnlineSubsystemPS4");
+        }
+        else if (Target.Platform == UnrealTargetPlatform.XboxOne)
+        {
+            DynamicallyLoadedModuleNames.Add("OnlineSubsystemLive");
+        }
 	}
 }

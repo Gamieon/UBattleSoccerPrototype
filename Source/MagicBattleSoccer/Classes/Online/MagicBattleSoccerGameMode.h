@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 #include "GameFramework/GameMode.h"
@@ -43,4 +41,11 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameMode : public AGameMode
 	virtual void ReceiveEndPlay(EEndPlayReason::Type EndPlayReason) override;
 
 	//End AActor interface
+
+	//Begin AGameMode interface
+
+	/** Returns game session class to use */
+	virtual TSubclassOf<AGameSession> GetGameSessionClass() const override;
+
+	//End AGameMode interface
 };

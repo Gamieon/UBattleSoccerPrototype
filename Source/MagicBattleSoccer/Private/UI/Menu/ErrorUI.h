@@ -9,16 +9,16 @@
 #include "Slate.h"
 
 /**
-* Lays out and controls the Main Menu UI.
+* Lays out and controls the error message UI.
 **/
-class SMainMenuUI : public SCompoundWidget
+class SErrorUI : public SCompoundWidget
 {
-	SLATE_BEGIN_ARGS(SMainMenuUI)
+	SLATE_BEGIN_ARGS(SErrorUI)
 		: _MenuHUD()
 	{
 	}
 
-	SLATE_ARGUMENT(TWeakObjectPtr<class AMainMenuHUD>, MenuHUD);
+	SLATE_ARGUMENT(TWeakObjectPtr<class AMagicBattleSoccerHUD>, MenuHUD);
 
 	SLATE_END_ARGS()
 
@@ -30,18 +30,15 @@ public:
 	**/
 	void Construct(const FArguments& args);
 
-private:
-	/** Click handler for the Host button - Calls MenuHUD's HostClicked() event. */
-	FReply HostClicked();
-
-	/** Click handler for the Options button - Calls MenuHUD's OptionsClicked() event. */
-	FReply OptionsClicked();
-
-	/** Click handler for the Quit button - Calls MenuHUD's QuitClicked() event. */
-	FReply QuitClicked();
-
 	/**
 	* Stores a weak reference to the HUD controlling this class.
 	**/
-	TWeakObjectPtr<class AMainMenuHUD> MenuHUD;
+	TWeakObjectPtr<class AMagicBattleSoccerHUD> MenuHUD;
+
+private:
+	/** Gets the most recent engine error string */
+	FString GetLastErrorString() const;
+
+	/** Called when the user presses OK */
+	FReply OnOK();
 };

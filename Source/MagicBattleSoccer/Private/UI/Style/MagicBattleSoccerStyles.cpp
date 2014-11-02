@@ -1,4 +1,8 @@
-/** MagicBattleSoccerStyles.cpp - Provides an interface to blueprint styles from C++ code. You may also create your own styles; such as text formatting. */
+/** MagicBattleSoccerStyles.cpp - Provides an interface to blueprint styles from C++ code. You may also create your own styles; such as text formatting.
+*
+* For a basic tutorial on creating menus with Slate, visit http://minalien.com/unreal-engine-4-creating-menus-with-slatec-part-1/
+*
+*/
 
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerStyles.h"

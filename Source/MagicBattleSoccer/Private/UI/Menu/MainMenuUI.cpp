@@ -1,4 +1,8 @@
-/** MainMenuUI.cpp - This widget implements all of the root level main menu items. */
+/** MainMenuUI.cpp - This widget implements all of the root level main menu items. 
+*
+* For a basic tutorial on creating menus with Slate, visit http://minalien.com/unreal-engine-4-creating-menus-with-slatec-part-1/
+*
+*/
 
 #include "MagicBattleSoccer.h"
 #include "MainMenuHUD.h"
@@ -6,6 +10,7 @@
 #include "OptionsMenuUI.h"
 #include "MagicBattleSoccerStyles.h"
 #include "MenuBackgroundWidgetStyle.h"
+#include "MagicBattleSoccerInstance.h"
 
 void SMainMenuUI::Construct(const FArguments& args)
 {
@@ -89,15 +94,22 @@ void SMainMenuUI::Construct(const FArguments& args)
 /** Click handler for the Host button - Calls MenuHUD's HostClicked() event. */
 FReply SMainMenuUI::HostClicked()
 {
-	/*
-	if (ensure(GameInstance.IsValid()) && GetPlayerOwner() != NULL)
+	// Don't host from the Editor
+#if WITH_EDITOR
+	if (GIsEditor == true)
 	{
-		FString const StartURL = FString::Printf(TEXT("/Game/Maps/test_multiplayer"));
-		FString const GameType = TEXT("");
+		return FReply::Handled();
+	}
+#endif
 
-		// TODO: Game instance needs to handle success, failure and dialogs
-		GameInstance->HostGame(GetPlayerOwner(), GameType, StartURL);
-	}*/
+	UMagicBattleSoccerInstance *GameInstance = Cast<UMagicBattleSoccerInstance>(GEngine->GameViewport->GetGameInstance());
+	ULocalPlayer* PlayerOwner = GEngine->GetFirstGamePlayer(GEngine->GameViewport);
+	FString const GameType = TEXT("Normal");
+	FString const StartURL = FString::Printf(TEXT("/Game/Maps/test_multiplayer?game=%s"), *GameType);
+
+	// Game instance will handle success, failure and dialogs
+	GameInstance->HostGame(PlayerOwner, GameType, StartURL);
+
 	return FReply::Handled();
 }
 

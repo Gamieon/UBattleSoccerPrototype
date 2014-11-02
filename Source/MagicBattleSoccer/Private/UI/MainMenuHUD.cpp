@@ -4,6 +4,7 @@ complete collection of menus for the Main Menu; including HOST, OPTIONS, QUIT, e
 **/
 
 #include "MagicBattleSoccer.h"
+#include "MagicBattleSoccerEngine.h"
 #include "MainMenuHUD.h"
 #include "MainMenuUI.h"
 #include "OptionsMenuUI.h"
@@ -22,9 +23,6 @@ void AMainMenuHUD::PostInitializeComponents()
 	{
 		UGameViewportClient* Viewport = GEngine->GameViewport;
 
-		// We need to do this if we're in the editor.
-		FMagicBattleSoccerStyles::Initialize();
-
 		// Create the collection of top level menu items; including HOST, OPTIONS and QUIT.
 		SAssignNew(MainMenuUI, SMainMenuUI)
 			.MenuHUD(TWeakObjectPtr<AMainMenuHUD>(this));
@@ -35,37 +33,14 @@ void AMainMenuHUD::PostInitializeComponents()
 
 		// Show the main menu on the screen
 		PushMenu(MainMenuUI);
-	}
-}
 
-/** Drills down from the current menu into the specified menu. */
-void AMainMenuHUD::PushMenu(TSharedPtr<class SCompoundWidget> Menu)
-{
-	UGameViewportClient* Viewport = GEngine->GameViewport;
-
-	if (MenuStack.Num() > 0)
-	{
-		Viewport->RemoveViewportWidgetContent(MenuStack[MenuStack.Num() - 1]);
-	}
-	
-	MenuStack.Add(SNew(SWeakWidget).PossiblyNullContent(Menu));
-
-	Viewport->AddViewportWidgetContent(MenuStack[MenuStack.Num() - 1]);
-}
-
-/** Returns to the previous menu. */
-void AMainMenuHUD::PopMenu()
-{
-	UGameViewportClient* Viewport = GEngine->GameViewport;
-
-	if (MenuStack.Num() > 0)
-	{
-		Viewport->RemoveViewportWidgetContent(MenuStack[MenuStack.Num() - 1]);
-		MenuStack.Pop();
-	}
-
-	if (MenuStack.Num() > 0)
-	{
-		Viewport->AddViewportWidgetContent(MenuStack[MenuStack.Num() - 1]);
+		// See if the engine has an error string. If it does, it means we just came from an arbitrary scene
+		// to the main menu due to an error condition. We need to present this error condition to the user.
+		UMagicBattleSoccerEngine* Engine = Cast<UMagicBattleSoccerEngine>(GEngine);
+		const FString& LastErrorString = Engine->GetLastErrorString();
+		if (!LastErrorString.IsEmpty())
+		{
+			ShowLastEngineErrorScreen();
+		}
 	}
 }
