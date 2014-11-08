@@ -1,5 +1,7 @@
 /** MagicBattleSoccerEngine.h - The one and only game application engine */
 
+#pragma once
+
 #include "Engine/GameEngine.h"
 #include "MagicBattleSoccerEngine.generated.h"
 

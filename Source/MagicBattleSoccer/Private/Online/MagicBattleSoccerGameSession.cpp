@@ -14,8 +14,40 @@ AMagicBattleSoccerGameSession::AMagicBattleSoccerGameSession(const class FPostCo
 	{
 		OnCreateSessionCompleteDelegate = FOnCreateSessionCompleteDelegate::CreateUObject(this, &AMagicBattleSoccerGameSession::OnCreateSessionComplete);
 		OnDestroySessionCompleteDelegate = FOnDestroySessionCompleteDelegate::CreateUObject(this, &AMagicBattleSoccerGameSession::OnDestroySessionComplete);
+
+		OnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &AMagicBattleSoccerGameSession::OnFindSessionsComplete);
+
 	}
 }
+
+EOnlineAsyncTaskState::Type AMagicBattleSoccerGameSession::GetSearchResultStatus(int32& SearchResultIdx, int32& NumSearchResults)
+{
+	SearchResultIdx = 0;
+	NumSearchResults = 0;
+
+	if (SearchSettings.IsValid())
+	{
+		if (SearchSettings->SearchState == EOnlineAsyncTaskState::Done)
+		{
+			SearchResultIdx = CurrentSessionParams.BestSessionIdx;
+			NumSearchResults = SearchSettings->SearchResults.Num();
+		}
+		return SearchSettings->SearchState;
+	}
+
+	return EOnlineAsyncTaskState::NotStarted;
+}
+
+/**
+* Get the search results.
+*
+* @return Search results
+*/
+const TArray<FOnlineSessionSearchResult> & AMagicBattleSoccerGameSession::GetSearchResults() const
+{
+	return SearchSettings->SearchResults;
+};
+
 
 /**
 * Delegate fired when a session create request has completed
@@ -122,4 +154,56 @@ bool AMagicBattleSoccerGameSession::HostSession(TSharedPtr<FUniqueNetId> UserId,
 #endif
 
 	return false;
+}
+
+void AMagicBattleSoccerGameSession::OnFindSessionsComplete(bool bWasSuccessful)
+{
+	UE_LOG(LogOnlineGame, Verbose, TEXT("OnFindSessionsComplete bSuccess: %d"), bWasSuccessful);
+
+	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
+	if (OnlineSub)
+	{
+		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();
+		if (Sessions.IsValid())
+		{
+			Sessions->ClearOnFindSessionsCompleteDelegate(OnFindSessionsCompleteDelegate);
+
+			UE_LOG(LogOnlineGame, Verbose, TEXT("Num Search Results: %d"), SearchSettings->SearchResults.Num());
+			for (int32 SearchIdx = 0; SearchIdx < SearchSettings->SearchResults.Num(); SearchIdx++)
+			{
+				const FOnlineSessionSearchResult& SearchResult = SearchSettings->SearchResults[SearchIdx];
+				DumpSession(&SearchResult.Session);
+			}
+
+			OnFindSessionsComplete().Broadcast(bWasSuccessful);
+		}
+	}
+}
+
+void AMagicBattleSoccerGameSession::FindSessions(TSharedPtr<FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence)
+{
+	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
+	if (OnlineSub)
+	{
+		CurrentSessionParams.SessionName = SessionName;
+		CurrentSessionParams.bIsLAN = bIsLAN;
+		CurrentSessionParams.bIsPresence = bIsPresence;
+		CurrentSessionParams.UserId = UserId;
+
+		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();
+		if (Sessions.IsValid() && CurrentSessionParams.UserId.IsValid())
+		{
+			SearchSettings = MakeShareable(new FMagicBattleSoccerOnlineSearchSettings(bIsLAN, bIsPresence));
+			SearchSettings->QuerySettings.Set(SEARCH_KEYWORDS, CustomMatchKeyword, EOnlineComparisonOp::Equals);
+
+			TSharedRef<FOnlineSessionSearch> SearchSettingsRef = SearchSettings.ToSharedRef();
+
+			Sessions->AddOnFindSessionsCompleteDelegate(OnFindSessionsCompleteDelegate);
+			Sessions->FindSessions(*CurrentSessionParams.UserId, SearchSettingsRef);
+		}
+	}
+	else
+	{
+		OnFindSessionsComplete(false);
+	}
 }

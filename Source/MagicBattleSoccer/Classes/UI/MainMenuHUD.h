@@ -21,7 +21,16 @@ public:
 	/** The top level menu. This object contains menu items including HOST, OPTIONS, QUIT, etc. */
 	TSharedPtr<class SMainMenuUI> MainMenuUI;
 
-	/** The options menu. This object contains menu times including RESOLUTION, QUALITY, etc. */
+	/** The join menu. This object contains an interface to join a game */
+	TSharedPtr<class SJoinMenuUI> JoinMenuUI;
+
+	/** The manual join menu. This object contains an interface to join a game */
+	TSharedPtr<class SManualJoinMenuUI> ManualJoinMenuUI;
+
+	/** The profile menu. This object contains menu items including NAME, etc. */
+	TSharedPtr<class SProfileMenuUI> ProfileMenuUI;
+
+	/** The options menu. This object contains menu items including RESOLUTION, QUALITY, etc. */
 	TSharedPtr<class SOptionsMenuUI> OptionsMenuUI;
 
 public:

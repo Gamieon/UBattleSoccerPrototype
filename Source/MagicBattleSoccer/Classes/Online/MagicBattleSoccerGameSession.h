@@ -36,11 +36,15 @@ protected:
 	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
 	/** Delegate for destroying a session */
 	FOnDestroySessionCompleteDelegate OnDestroySessionCompleteDelegate;
+	/** Delegate for searching for sessions */
+	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
 
 	/** Transient properties of a session during game creation/matchmaking */
 	FMagicBattleSoccerSessionParams CurrentSessionParams;
 	/** Current host settings */
 	TSharedPtr<class FMagicBattleSoccerOnlineSessionSettings> HostSettings;
+	/** Current search settings */
+	TSharedPtr<class FMagicBattleSoccerOnlineSearchSettings> SearchSettings;
 
 	/**
 	* Delegate fired when a session create request has completed
@@ -49,6 +53,13 @@ protected:
 	* @param bWasSuccessful true if the async action completed without error, false if there was an error
 	*/
 	virtual void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+
+	/**
+	* Delegate fired when a session search query has completed
+	*
+	* @param bWasSuccessful true if the async action completed without error, false if there was an error
+	*/
+	void OnFindSessionsComplete(bool bWasSuccessful);
 
 	/**
 	* Delegate fired when a destroying an online session has completed
@@ -72,6 +83,12 @@ protected:
 	DECLARE_EVENT_TwoParams(AMagicBattleSoccerGameSession, FOnCreatePresenceSessionComplete, FName /*SessionName*/, bool /*bWasSuccessful*/);
 	FOnCreatePresenceSessionComplete CreatePresenceSessionCompleteEvent;
 
+	/*
+	* Event triggered after session search completes
+	*/
+	DECLARE_EVENT_OneParam(AMagicBattleSoccerGameSession, FOnFindSessionsComplete, bool /*bWasSuccessful*/);
+	FOnFindSessionsComplete FindSessionsCompleteEvent;
+
 public:
 	/** Default number of players allowed in a game */
 	static const int32 DEFAULT_NUM_PLAYERS = 8;
@@ -89,6 +106,36 @@ public:
 	*/
 	bool HostSession(TSharedPtr<FUniqueNetId> UserId, FName SessionName, const FString & GameType, const FString & MapName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
 
+	/**
+	* Find an online session
+	*
+	* @param UserId user that initiated the request
+	* @param SessionName name of session this search will generate
+	* @param bIsLAN are we searching LAN matches
+	* @param bIsPresence are we searching presence sessions
+	*/
+	void FindSessions(TSharedPtr<FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence);
+
+	/**
+	* Get the search results found and the current search result being probed
+	*
+	* @param SearchResultIdx idx of current search result accessed
+	* @param NumSearchResults number of total search results found in FindGame()
+	*
+	* @return State of search result query
+	*/
+	EOnlineAsyncTaskState::Type GetSearchResultStatus(int32& SearchResultIdx, int32& NumSearchResults);
+
+	/**
+	* Get the search results.
+	*
+	* @return Search results
+	*/
+	const TArray<FOnlineSessionSearchResult> & GetSearchResults() const;
+
 	/** @return the delegate fired when creating a presence session */
 	FOnCreatePresenceSessionComplete& OnCreatePresenceSessionComplete() { return CreatePresenceSessionCompleteEvent; }
+
+	/** @return the delegate fired when search of session completes */
+	FOnFindSessionsComplete& OnFindSessionsComplete() { return FindSessionsCompleteEvent; }
 };

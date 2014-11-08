@@ -31,17 +31,23 @@ public:
 	void Construct(const FArguments& args);
 
 private:
+	/**
+	* Stores a weak reference to the HUD controlling this class.
+	**/
+	TWeakObjectPtr<class AMainMenuHUD> MenuHUD;
+
 	/** Click handler for the Host button - Calls MenuHUD's HostClicked() event. */
 	FReply HostClicked();
+
+	/** Click handler for the Join button - Calls MenuHUD's JoinClicked() event. */
+	FReply JoinClicked();
+
+	/** Click handler for the Profile button - Calls MenuHUD's ProfileClicked() event. */
+	FReply ProfileClicked();
 
 	/** Click handler for the Options button - Calls MenuHUD's OptionsClicked() event. */
 	FReply OptionsClicked();
 
 	/** Click handler for the Quit button - Calls MenuHUD's QuitClicked() event. */
 	FReply QuitClicked();
-
-	/**
-	* Stores a weak reference to the HUD controlling this class.
-	**/
-	TWeakObjectPtr<class AMainMenuHUD> MenuHUD;
 };

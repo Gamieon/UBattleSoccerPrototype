@@ -7,6 +7,9 @@ complete collection of menus for the Main Menu; including HOST, OPTIONS, QUIT, e
 #include "MagicBattleSoccerEngine.h"
 #include "MainMenuHUD.h"
 #include "MainMenuUI.h"
+#include "JoinMenuUI.h"
+#include "ManualJoinMenuUI.h"
+#include "ProfileMenuUI.h"
 #include "OptionsMenuUI.h"
 #include "MagicBattleSoccerStyles.h"
 
@@ -23,13 +26,25 @@ void AMainMenuHUD::PostInitializeComponents()
 	{
 		UGameViewportClient* Viewport = GEngine->GameViewport;
 
-		// Create the collection of top level menu items; including HOST, OPTIONS and QUIT.
+		// Create the collection of top level menu items; including HOST, OPTIONS and QUIT
 		SAssignNew(MainMenuUI, SMainMenuUI)
 			.MenuHUD(TWeakObjectPtr<AMainMenuHUD>(this));
 
+		// Create the JOIN menu
+		SAssignNew(JoinMenuUI, SJoinMenuUI)
+			.MenuHUD(TWeakObjectPtr<AMagicBattleSoccerHUD>(this));
+
+		// Create the manual JOIN menu
+		SAssignNew(ManualJoinMenuUI, SManualJoinMenuUI)
+			.MenuHUD(TWeakObjectPtr<AMagicBattleSoccerHUD>(this));
+
+		// Create the collection of profile menu items including NAME
+		SAssignNew(ProfileMenuUI, SProfileMenuUI)
+			.MenuHUD(TWeakObjectPtr<AMagicBattleSoccerHUD>(this));
+
 		// Create the collection of option menu items including RESOLUTION and FULL SCREEN
 		SAssignNew(OptionsMenuUI, SOptionsMenuUI)
-			.MenuHUD(TWeakObjectPtr<AMainMenuHUD>(this));
+			.MenuHUD(TWeakObjectPtr<AMagicBattleSoccerHUD>(this));
 
 		// Show the main menu on the screen
 		PushMenu(MainMenuUI);
@@ -37,10 +52,17 @@ void AMainMenuHUD::PostInitializeComponents()
 		// See if the engine has an error string. If it does, it means we just came from an arbitrary scene
 		// to the main menu due to an error condition. We need to present this error condition to the user.
 		UMagicBattleSoccerEngine* Engine = Cast<UMagicBattleSoccerEngine>(GEngine);
-		const FString& LastErrorString = Engine->GetLastErrorString();
-		if (!LastErrorString.IsEmpty())
+		if (nullptr == Engine)
 		{
-			ShowLastEngineErrorScreen();
+			// We're probably running from the Editor
+		}
+		else
+		{
+			const FString& LastErrorString = Engine->GetLastErrorString();
+			if (!LastErrorString.IsEmpty())
+			{
+				ShowLastEngineErrorScreen();
+			}
 		}
 	}
 }

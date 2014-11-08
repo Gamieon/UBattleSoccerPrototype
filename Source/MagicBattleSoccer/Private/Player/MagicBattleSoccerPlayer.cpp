@@ -469,13 +469,21 @@ void AMagicBattleSoccerPlayer::Tick(float DeltaSeconds)
 	}
 }
 
-/** This occurs when play begins */
+/** This occurs when play begins for a character */
 void AMagicBattleSoccerPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Add ourselves to the game mode cache
-	GetGameMode()->SoccerPlayers.Add(this);
+	if (ROLE_Authority == Role)
+	{
+		// Servers should add this character to the game mode cache
+		GetGameMode()->SoccerPlayers.Add(this);
+	}
+	else
+	{
+		// Clients don't apply to this as they are not managing the game and therefore have no game mode.
+		// See https://forums.unrealengine.com/showthread.php?7870-Does-GameMode-only-run-on-server for details.
+	}
 
 	// Reset the hitpoint count
 	Hitpoints = MaxHitpoints;
@@ -502,19 +510,22 @@ void AMagicBattleSoccerPlayer::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason
 {
 	Super::ReceiveEndPlay(EndPlayReason);
 
-	// Remove ourselves from the game mode cache
-	GetGameMode()->SoccerPlayers.Remove(this);
+	if (ROLE_Authority == Role)
+	{
+		// Remove this character from the game mode cache
+		GetGameMode()->SoccerPlayers.Remove(this);
+	}
+	else
+	{
+		// Clients don't apply to this as they are not managing the game and therefore have no game mode.
+		// See https://forums.unrealengine.com/showthread.php?7870-Does-GameMode-only-run-on-server for details.
+	}
 }
 
 /** This occurs when the player is destroyed */
 void AMagicBattleSoccerPlayer::Destroyed()
 {
-	if (NULL == GetGameMode())
-	{
-		// If we get here we're not in a game. We're being destroyed in the editor
-		// so don't do any game tasks.
-	}
-	else
+	if (ROLE_Authority == Role)
 	{
 		if (NULL != this->SpawnPoint)
 		{
@@ -531,7 +542,21 @@ void AMagicBattleSoccerPlayer::Destroyed()
 			this->CurrentWeapon->Destroy();
 		}
 
-		GetGameMode()->SoccerPlayers.Remove(this);
+		if (NULL == GetGameMode())
+		{
+			// If we get here we're not in a game. We're being destroyed in the editor
+			// so don't do any game tasks.
+		}
+		else
+		{
+			// Remove this character from the game mode cache
+			GetGameMode()->SoccerPlayers.Remove(this);
+		}
+	}
+	else
+	{
+		// Clients don't apply to this as they are not managing the game and therefore have no game mode.
+		// See https://forums.unrealengine.com/showthread.php?7870-Does-GameMode-only-run-on-server for details.
 	}
 
 	Super::Destroyed();

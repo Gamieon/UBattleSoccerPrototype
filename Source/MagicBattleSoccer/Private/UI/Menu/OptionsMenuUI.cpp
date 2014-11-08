@@ -5,7 +5,7 @@
 */
 
 #include "MagicBattleSoccer.h"
-#include "MainMenuHUD.h"
+#include "MagicBattleSoccerHUD.h"
 #include "OptionsMenuUI.h"
 #include "MagicBattleSoccerStyles.h"
 #include "MenuBackgroundWidgetStyle.h"
@@ -19,10 +19,8 @@ void SOptionsMenuUI::Construct(const FArguments& args)
 	BuildResolutionList();
 
 	UserSettings = CastChecked<UMagicBattleSoccerUserSettings>(GEngine->GetGameUserSettings());
-#if PLATFORM_DESKTOP
 	ResolutionOpt = UserSettings->GetScreenResolution();
 	FullScreenOpt = UserSettings->GetFullscreenMode();
-#endif
 
 	const FMenuBackgroundStyle* BackgroundStyle = &FMagicBattleSoccerStyles::Get().GetWidgetStyle<FMenuBackgroundStyle>("DefaultMenuBackgroundStyle");
 	const FMenuItemStyle* ItemStyle = &FMagicBattleSoccerStyles::Get().GetWidgetStyle<FMenuItemStyle>("DefaultMenuItemStyle");
@@ -259,8 +257,6 @@ FString SOptionsMenuUI::GetFullScreenText() const
 	return (FullScreenOpt == EWindowMode::Windowed) ? FString("NO") : FString("YES");
 }
 
-#pragma region Button Handlers
-
 /** Click handlers for the Resolution button. */
 FReply SOptionsMenuUI::OnPrevResolution(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
@@ -292,10 +288,9 @@ FReply SOptionsMenuUI::OnToggleFullScreen(const FGeometry& MyGeometry, const FPo
 /** Click handler for the Save button. */
 FReply SOptionsMenuUI::OnSave()
 {
-#if PLATFORM_DESKTOP
 	UserSettings->SetScreenResolution(ResolutionOpt);
 	UserSettings->SetFullscreenMode(FullScreenOpt);
-#endif
+
 	// ApplySettings also updates the resolution and full screen mode real-time
 	UserSettings->ApplySettings(false);
 	MenuHUD->PopMenu();
@@ -305,8 +300,8 @@ FReply SOptionsMenuUI::OnSave()
 /** Click handler for the Cancel button. */
 FReply SOptionsMenuUI::OnCancel()
 {
+	ResolutionOpt = UserSettings->GetScreenResolution();
+	FullScreenOpt = UserSettings->GetFullscreenMode();
 	MenuHUD->PopMenu();
 	return FReply::Handled();
 }
-
-#pragma endregion

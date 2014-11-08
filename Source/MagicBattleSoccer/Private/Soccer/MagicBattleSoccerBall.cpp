@@ -10,11 +10,19 @@ AMagicBattleSoccerBall::AMagicBattleSoccerBall(const class FPostConstructInitial
 	Possessor = NULL;
 	LastReleaseTime = 0.0f;
 	NegDistanceTravelled = 0.0f;
-	this->SetActorTickEnabled(true);
-	PrimaryActorTick.bCanEverTick = true;
+	if (ROLE_Authority == Role)
+	{
+		this->SetActorTickEnabled(true);
+		PrimaryActorTick.bCanEverTick = true;
+	}
+	else
+	{
+		this->SetActorTickEnabled(false);
+		PrimaryActorTick.bCanEverTick = false;
+	}
 }
 
-/** True if the ball has no possessor and is not in a goal. */
+/** True if the ball has no possessor and is not in a goal. Should only be called by the authority entity. */
 bool AMagicBattleSoccerBall::IsFree()
 {
 	AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -23,24 +31,38 @@ bool AMagicBattleSoccerBall::IsFree()
 
 void AMagicBattleSoccerBall::MoveWithPossessor()
 {
-	if (NULL != Possessor)
+	if (ROLE_Authority == Role)
 	{
-		NegDistanceTravelled += Possessor->GetVelocity().Size() * -0.01f;
-		SetActorLocationAndRotation( Possessor->GetActorLocation() + Possessor->GetActorForwardVector() * 90.0f + FVector(0.0f, 0.0f, -60.0f), 
-			FRotator(NegDistanceTravelled, Possessor->GetActorRotation().Yaw, 0.0f));
+		if (NULL != Possessor)
+		{
+			NegDistanceTravelled += Possessor->GetVelocity().Size() * -0.01f;
+			SetActorLocationAndRotation(Possessor->GetActorLocation() + Possessor->GetActorForwardVector() * 90.0f + FVector(0.0f, 0.0f, -60.0f),
+				FRotator(NegDistanceTravelled, Possessor->GetActorRotation().Yaw, 0.0f));
+		}
+	}
+	else
+	{
+		// Safety check. Only authority entities should drive the ball.
 	}
 }
 
 /** Kicks this ball with a given force */
 void AMagicBattleSoccerBall::Kick(const FVector& Force)
 {
-	// Reset the possessor
-	SetPossessor(NULL);
+	if (ROLE_Authority == Role)
+	{
+		// Reset the possessor
+		SetPossessor(NULL);
 
-	// Now apply the force
-	TArray<UPrimitiveComponent*> PrimitiveComponents;
-	this->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
-	PrimitiveComponents[0]->AddForce(Force);
+		// Now apply the force
+		TArray<UPrimitiveComponent*> PrimitiveComponents;
+		this->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
+		PrimitiveComponents[0]->AddForce(Force);
+	}
+	else
+	{
+		// Safety check. Only authority entities should drive the ball.
+	}
 }
 
 /** This occurs when play begins */
@@ -48,62 +70,84 @@ void AMagicBattleSoccerBall::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Add ourselves to the game mode cache
-	AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	GameMode->SoccerBall = this;
+	if (ROLE_Authority == Role)
+	{
+		// Servers should add this soccer ball to the game mode cache
+		AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		GameMode->SoccerBall = this;
+	}
+	else
+	{
+		// Clients don't apply to this as they are not managing the game and therefore have no game mode.
+		// See https://forums.unrealengine.com/showthread.php?7870-Does-GameMode-only-run-on-server for details.
+	}
 }
 
 void AMagicBattleSoccerBall::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (NULL != Possessor)
+	if (ROLE_Authority == Role)
 	{
-		MoveWithPossessor();
+		if (NULL != Possessor)
+		{
+			MoveWithPossessor();
+		}
+	}
+	else
+	{
+		// Safety check. Only authority entities should drive the ball.
 	}
 }
 
 /** Sets the current ball possessor */
 void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 {
-	float GameTimeInSeconds = GetWorld()->TimeSeconds;
-
-	// We only allow a possession change if there is no new possessor or if we just didn't recently unassign possession
-	if (NULL == Player || GameTimeInSeconds > LastReleaseTime + 0.2f)
+	if (ROLE_Authority == Role)
 	{
-		AMagicBattleSoccerPlayer *OldPossessor = Possessor;
+		float GameTimeInSeconds = GetWorld()->TimeSeconds;
 
-		// Assign the new possessor
-		if (NULL == Player)
+		// We only allow a possession change if there is no new possessor or if we just didn't recently unassign possession
+		if (NULL == Player || GameTimeInSeconds > LastReleaseTime + 0.2f)
 		{
-			LastReleaseTime = GameTimeInSeconds;
-		}
-		Possessor = Player;
+			AMagicBattleSoccerPlayer *OldPossessor = Possessor;
 
-		// Update the old possessor's walking speed
-		if (NULL != OldPossessor)
-		{
-			OldPossessor->UpdateMovementSpeed();
-		}
+			// Assign the new possessor
+			if (NULL == Player)
+			{
+				LastReleaseTime = GameTimeInSeconds;
+			}
+			Possessor = Player;
 
-		// Toggle physics
-		TArray<UPrimitiveComponent*> PrimitiveComponents;
-		this->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
-		if (NULL != Possessor)
-		{
-			Possessor->CeaseFire();
-			PrimitiveComponents[0]->PutRigidBodyToSleep();
-			PrimitiveComponents[0]->SetSimulatePhysics(false);
-			SetActorEnableCollision(false);
-			MoveWithPossessor();
-			// Slow the possessor down for game balancing
-			Possessor->UpdateMovementSpeed();
+			// Update the old possessor's walking speed
+			if (NULL != OldPossessor)
+			{
+				OldPossessor->UpdateMovementSpeed();
+			}
+
+			// Toggle physics
+			TArray<UPrimitiveComponent*> PrimitiveComponents;
+			this->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
+			if (NULL != Possessor)
+			{
+				Possessor->CeaseFire();
+				PrimitiveComponents[0]->PutRigidBodyToSleep();
+				PrimitiveComponents[0]->SetSimulatePhysics(false);
+				SetActorEnableCollision(false);
+				MoveWithPossessor();
+				// Slow the possessor down for game balancing
+				Possessor->UpdateMovementSpeed();
+			}
+			else
+			{
+				PrimitiveComponents[0]->SetSimulatePhysics(true);
+				SetActorEnableCollision(true);
+				PrimitiveComponents[0]->PutRigidBodyToSleep();
+			}
 		}
-		else
-		{
-			PrimitiveComponents[0]->SetSimulatePhysics(true);
-			SetActorEnableCollision(true);
-			PrimitiveComponents[0]->PutRigidBodyToSleep();
-		}
-	}	
+	}
+	else
+	{
+		// Safety check. Only authority entities should drive the ball.
+	}
 }

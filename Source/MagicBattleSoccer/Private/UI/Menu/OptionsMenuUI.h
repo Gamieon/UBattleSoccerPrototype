@@ -24,7 +24,7 @@ class SOptionsMenuUI : public SCompoundWidget
 	{
 	}
 
-	SLATE_ARGUMENT(TWeakObjectPtr<class AMainMenuHUD>, MenuHUD);
+	SLATE_ARGUMENT(TWeakObjectPtr<class AMagicBattleSoccerHUD>, MenuHUD);
 
 	SLATE_END_ARGS()
 
@@ -45,6 +45,28 @@ private:
 	FString GetFullScreenText() const;
 
 private:
+	/**
+	* Stores a weak reference to the HUD controlling this class.
+	**/
+	TWeakObjectPtr<class AMagicBattleSoccerHUD> MenuHUD;
+
+	/** User settings pointer */
+	class UMagicBattleSoccerUserSettings* UserSettings;
+
+	/** resolution setting set in options */
+	FIntPoint ResolutionOpt;
+
+	/** full screen setting set in options */
+	EWindowMode::Type FullScreenOpt;
+
+	/**
+	* Contains the list of all supported resolutions
+	**/
+	TArray<FText> ResolutionList;
+
+	/** available resolutions list */
+	TArray<FIntPoint> Resolutions;
+
 	/** Click handlers for the Resolution button. */
 	FReply OnPrevResolution(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent);
 	FReply OnNextResolution(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent);
@@ -57,29 +79,4 @@ private:
 
 	/** Click handler for the Cancel button. */
 	FReply OnCancel();
-
-private:
-	/**
-	* Stores a weak reference to the HUD controlling this class.
-	**/
-	TWeakObjectPtr<class AMagicBattleSoccerHUD> MenuHUD;
-
-	/** User settings pointer */
-	class UMagicBattleSoccerUserSettings* UserSettings;
-
-#if PLATFORM_DESKTOP
-	/** resolution setting set in options */
-	FIntPoint ResolutionOpt;
-
-	/** full screen setting set in options */
-	EWindowMode::Type FullScreenOpt;
-#endif
-
-	/**
-	* Contains the list of all supported resolutions
-	**/
-	TArray<FText> ResolutionList;
-
-	/** available resolutions list */
-	TArray<FIntPoint> Resolutions;
 };

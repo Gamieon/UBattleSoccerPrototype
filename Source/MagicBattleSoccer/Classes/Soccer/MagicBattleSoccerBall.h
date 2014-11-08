@@ -17,7 +17,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerBall : public AActor
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
 	AMagicBattleSoccerPlayer *Possessor;
 
-	/** True if the ball has no possessor and is not in a goal. */
+	/** True if the ball has no possessor and is not in a goal. Should only be called by the authority entity. */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	bool IsFree();
 

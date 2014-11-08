@@ -1,5 +1,7 @@
 /** MagicBattleSoccerUserSettings.h - Implements user options */
 
+#pragma once
+
 #include "MagicBattleSoccerUserSettings.generated.h"
 
 UCLASS()
@@ -15,4 +17,9 @@ class UMagicBattleSoccerUserSettings : public UGameUserSettings
 
 	// interface UGameUserSettings
 	virtual void SetToDefaults() override;
+
+public:
+	/** The player name */
+	UPROPERTY(config)
+	FString PlayerName;
 };

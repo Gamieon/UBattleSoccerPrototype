@@ -89,6 +89,39 @@ void UMagicBattleSoccerInstance::OnCreatePresenceSessionComplete(FName SessionNa
 	}
 }
 
+/** Initiates the session searching */
+bool UMagicBattleSoccerInstance::FindSessions(ULocalPlayer* PlayerOwner, bool bFindLAN)
+{
+	bool bResult = false;
+
+	check(PlayerOwner != nullptr);
+	if (PlayerOwner)
+	{
+		AMagicBattleSoccerGameSession* const GameSession = GetGameSession();
+		if (GameSession)
+		{
+			GameSession->OnFindSessionsComplete().RemoveAll(this);
+			GameSession->OnFindSessionsComplete().AddUObject(this, &UMagicBattleSoccerInstance::OnSearchSessionsComplete);
+
+			GameSession->FindSessions(PlayerOwner->GetPreferredUniqueNetId(), GameSessionName, bFindLAN, true);
+
+			bResult = true;
+		}
+	}
+
+	return bResult;
+}
+
+/** Callback which is intended to be called upon finding sessions */
+void UMagicBattleSoccerInstance::OnSearchSessionsComplete(bool bWasSuccessful)
+{
+	AMagicBattleSoccerGameSession* const Session = GetGameSession();
+	if (Session)
+	{
+		Session->OnFindSessionsComplete().RemoveUObject(this, &UMagicBattleSoccerInstance::OnSearchSessionsComplete);
+	}
+}
+
 void UMagicBattleSoccerInstance::FinishSessionCreation(EOnJoinSessionCompleteResult::Type Result)
 {
 	if (Result == EOnJoinSessionCompleteResult::Success)

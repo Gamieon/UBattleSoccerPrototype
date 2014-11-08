@@ -7,6 +7,9 @@
 #include "MagicBattleSoccer.h"
 #include "MainMenuHUD.h"
 #include "MainMenuUI.h"
+#include "JoinMenuUI.h"
+#include "ManualJoinMenuUI.h"
+#include "ProfileMenuUI.h"
 #include "OptionsMenuUI.h"
 #include "MagicBattleSoccerStyles.h"
 #include "MenuBackgroundWidgetStyle.h"
@@ -58,6 +61,32 @@ void SMainMenuUI::Construct(const FArguments& args)
 							.OnClicked(this, &SMainMenuUI::HostClicked)
 						]
 						+ SVerticalBox::Slot()
+							.Padding(10.0f)
+							[
+								// Join button
+								SNew(SButton)
+								.HAlign(HAlign_Center)
+								.VAlign(VAlign_Center)
+								.ButtonStyle(ButtonStyle)
+								.ContentPadding(FMargin(80.0, 2.0))
+								.TextStyle(FMagicBattleSoccerStyles::Get(), "MagicBattleSoccer.ButtonTextStyle")
+								.Text(FText::FromString("JOIN"))
+								.OnClicked(this, &SMainMenuUI::JoinClicked)
+							]
+						+ SVerticalBox::Slot()
+						.Padding(10.0f)
+						[
+							// Options button
+							SNew(SButton)
+							.HAlign(HAlign_Center)
+							.VAlign(VAlign_Center)
+							.ButtonStyle(ButtonStyle)
+							.ContentPadding(FMargin(80.0, 2.0))
+							.TextStyle(FMagicBattleSoccerStyles::Get(), "MagicBattleSoccer.ButtonTextStyle")
+							.Text(FText::FromString("PROFILE"))
+							.OnClicked(this, &SMainMenuUI::ProfileClicked)
+						]
+						+ SVerticalBox::Slot()
 						.Padding(10.0f)
 						[
 							// Options button
@@ -102,14 +131,42 @@ FReply SMainMenuUI::HostClicked()
 	}
 #endif
 
-	UMagicBattleSoccerInstance *GameInstance = Cast<UMagicBattleSoccerInstance>(GEngine->GameViewport->GetGameInstance());
+	/** This code joins manually */
+	UMagicBattleSoccerInstance *GI = Cast<UMagicBattleSoccerInstance>(GEngine->GameViewport->GetGameInstance());
+	APlayerController *Controller = GI->GetFirstLocalPlayerController();
+	FString CommandString = FString::Printf(TEXT("open test_multiplayer?listen"));
+	Controller->ConsoleCommand(CommandString);
+
+
+	/** Uncomment this code to use sessions */
+	/*
+	UMagicBattleSoccerInstance *GI = Cast<UMagicBattleSoccerInstance>(GEngine->GameViewport->GetGameInstance());
 	ULocalPlayer* PlayerOwner = GEngine->GetFirstGamePlayer(GEngine->GameViewport);
 	FString const GameType = TEXT("Normal");
 	FString const StartURL = FString::Printf(TEXT("/Game/Maps/test_multiplayer?game=%s"), *GameType);
 
 	// Game instance will handle success, failure and dialogs
-	GameInstance->HostGame(PlayerOwner, GameType, StartURL);
+	GI->HostGame(PlayerOwner, GameType, StartURL);
+	*/
 
+	return FReply::Handled();
+}
+
+/** Click handler for the Join button - Calls MenuHUD's JoinClicked() event. */
+FReply SMainMenuUI::JoinClicked()
+{
+	// Push the Join menu onto the menu stack
+	//MenuHUD->JoinMenuUI->BeginServerSearch(false, "ANY");
+	//MenuHUD->PushMenu(MenuHUD->JoinMenuUI);
+	MenuHUD->PushMenu(MenuHUD->ManualJoinMenuUI);
+	return FReply::Handled();
+}
+
+/** Click handler for the Profile button - Calls MenuHUD's ProfileClicked() event. */
+FReply SMainMenuUI::ProfileClicked()
+{
+	// Push the Profile menu onto the menu stack
+	MenuHUD->PushMenu(MenuHUD->ProfileMenuUI);
 	return FReply::Handled();
 }
 

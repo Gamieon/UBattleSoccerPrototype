@@ -1,5 +1,7 @@
 /** MagicBattleSoccerInstance.h - The one and only game application instance */
 
+#pragma once
+
 #include "Engine/GameInstance.h"
 #include "Online.h"
 #include "MagicBattleSoccerInstance.generated.h"
@@ -24,8 +26,14 @@ public:
 	/** Callback which is intended to be called upon session creation */
 	void OnCreatePresenceSessionComplete(FName SessionName, bool bWasSuccessful);
 
+	/** Initiates the session searching */
+	bool FindSessions(ULocalPlayer* PlayerOwner, bool bFindLAN);
+
 	/** Called after all the local players are registered */
 	void FinishSessionCreation(EOnJoinSessionCompleteResult::Type Result);
+
+	/** Callback which is intended to be called upon finding sessions */
+	void OnSearchSessionsComplete(bool bWasSuccessful);
 
 public:
 	/** Gets the game session */

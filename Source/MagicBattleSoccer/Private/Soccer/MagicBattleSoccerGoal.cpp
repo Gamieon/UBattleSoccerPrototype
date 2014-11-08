@@ -22,14 +22,22 @@ void AMagicBattleSoccerGoal::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Add ourselves to the game mode cache
-	AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (1 == TeamNumber)
+	if (ROLE_Authority == Role)
 	{
-		GameMode->Team1Goal = this;
+		// Servers should add this goal to the game mode cache
+		AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (1 == TeamNumber)
+		{
+			GameMode->Team1Goal = this;
+		}
+		else if (2 == TeamNumber)
+		{
+			GameMode->Team2Goal = this;
+		}
 	}
-	else if (2 == TeamNumber)
+	else
 	{
-		GameMode->Team2Goal = this;
+		// Clients don't apply to this as they are not managing the game and therefore have no game mode.
+		// See https://forums.unrealengine.com/showthread.php?7870-Does-GameMode-only-run-on-server for details.
 	}
 }

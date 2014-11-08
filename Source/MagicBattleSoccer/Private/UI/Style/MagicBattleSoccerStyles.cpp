@@ -46,6 +46,13 @@ TSharedRef<FSlateStyleSet> FMagicBattleSoccerStyles::Create()
 		.SetShadowOffset(FIntPoint(-1, 1))
 		);
 
+	// Fonts still need to be specified in code for now
+	Style.Set("MagicBattleSoccer.MenuServerListTextStyle", FTextBlockStyle()
+		.SetFont(TTF_FONT("Fonts/Roboto-Black", 14))
+		.SetColorAndOpacity(FLinearColor::White)
+		.SetShadowOffset(FIntPoint(-1, 1))
+		);
+
 	return StyleRef;
 }
 
