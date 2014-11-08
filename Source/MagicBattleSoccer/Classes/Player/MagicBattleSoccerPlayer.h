@@ -8,6 +8,7 @@ class AMagicBattleSoccerBall;
 class AMagicBattleSoccerGameMode;
 class AMagicBattleSoccerWeapon;
 class AMagicBattleSoccerSpawnPoint;
+class AMagicBattleSoccerGameState;
 class ATriggerBox;
 
 /**
@@ -58,8 +59,11 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	AMagicBattleSoccerWeapon* CurrentWeapon;
 
-	/** Gets the game mode */
+	/** Gets the game mode (only the authority instance should be interested in this) */
 	AMagicBattleSoccerGameMode* GetGameMode();
+
+	/** Gets the game state (all instances should be interested in this) */
+	AMagicBattleSoccerGameState* GetGameState();
 
 	/** Gets the soccer ball */
 	AMagicBattleSoccerBall* GetSoccerBall();

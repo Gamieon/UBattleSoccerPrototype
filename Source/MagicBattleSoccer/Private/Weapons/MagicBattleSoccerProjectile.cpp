@@ -12,7 +12,7 @@ void AMagicBattleSoccerProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UPrimitiveComponent *Root = GetRootPrimitiveComponent();
+	UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
 	Root->OnComponentHit.AddDynamic(this, &AMagicBattleSoccerProjectile::Hit);
 
 	// Limit our life span

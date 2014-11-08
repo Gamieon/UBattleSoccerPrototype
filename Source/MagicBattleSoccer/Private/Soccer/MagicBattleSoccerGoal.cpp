@@ -9,6 +9,13 @@ AMagicBattleSoccerGoal::AMagicBattleSoccerGoal(const class FPostConstructInitial
 {
 }
 
+/** Gets the game state (all instances should be interested in this) */
+AMagicBattleSoccerGameState* AMagicBattleSoccerGoal::GetGameState()
+{
+	UWorld *World = GetWorld();
+	return World->GetGameState<AMagicBattleSoccerGameState>();
+}
+
 /** Gets the ideal point for a player to run to when approaching the goal */
 FVector AMagicBattleSoccerGoal::GetIdealRunLocation(AMagicBattleSoccerPlayer* Player)
 {
@@ -25,14 +32,14 @@ void AMagicBattleSoccerGoal::BeginPlay()
 	if (ROLE_Authority == Role)
 	{
 		// Servers should add this goal to the game mode cache
-		AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		AMagicBattleSoccerGameState* GameState = GetGameState();
 		if (1 == TeamNumber)
 		{
-			GameMode->Team1Goal = this;
+			GameState->Team1Goal = this;
 		}
 		else if (2 == TeamNumber)
 		{
-			GameMode->Team2Goal = this;
+			GameState->Team2Goal = this;
 		}
 	}
 	else

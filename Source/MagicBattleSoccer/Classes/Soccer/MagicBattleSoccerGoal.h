@@ -3,8 +3,6 @@
 #include "GameFramework/Actor.h"
 #include "MagicBattleSoccerGoal.generated.h"
 
-class AMagicBattleSoccerPlayer;
-
 /**
 *
 */
@@ -13,9 +11,12 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGoal : public AActor
 {
 	GENERATED_UCLASS_BODY()
 
+	/** Gets the game state (all instances should be interested in this) */
+	class AMagicBattleSoccerGameState* GetGameState();
+
 	/** Gets the ideal point for a player to run to when approaching the goal */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	FVector GetIdealRunLocation(AMagicBattleSoccerPlayer* Player);
+	FVector GetIdealRunLocation(class AMagicBattleSoccerPlayer* Player);
 
 	/** The goal's team number */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)

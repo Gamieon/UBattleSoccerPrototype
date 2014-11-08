@@ -3,6 +3,7 @@
 #include "MagicBattleSoccerBall.h"
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerGameMode.h"
+#include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerPlayer.h"
 #include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerProjectile.h"
@@ -21,22 +22,29 @@ AMagicBattleSoccerPlayer::AMagicBattleSoccerPlayer(const class FPostConstructIni
 	StunReleaseTime = 0;
 }
 
-/** Gets the game mode */
+/** Gets the game mode (only the authority instance should be interested in this) */
 AMagicBattleSoccerGameMode* AMagicBattleSoccerPlayer::GetGameMode()
 {
 	return Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 }
 
+/** Gets the game state (all instances should be interested in this) */
+AMagicBattleSoccerGameState* AMagicBattleSoccerPlayer::GetGameState()
+{
+	UWorld *World = GetWorld();
+	return World->GetGameState<AMagicBattleSoccerGameState>();
+}
+
 /** Gets the soccer ball */
 AMagicBattleSoccerBall* AMagicBattleSoccerPlayer::GetSoccerBall()
 {
-	return GetGameMode()->SoccerBall;
+	return GetGameState()->SoccerBall;
 }
 
 /** Gets all the teammates of this player */
 TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerPlayer::GetTeammates()
 {
-	const TArray<AMagicBattleSoccerPlayer*>& Players = GetGameMode()->SoccerPlayers;
+	const TArray<AMagicBattleSoccerPlayer*>& Players = GetGameState()->SoccerPlayers;
 	TArray<AMagicBattleSoccerPlayer*> Teammates;
 
 	for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Players.CreateConstIterator()); It; ++It)
@@ -55,7 +63,7 @@ TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerPlayer::GetTeammates()
 /** Gets all the opponents of this player */
 TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerPlayer::GetOpponents()
 {
-	const TArray<AMagicBattleSoccerPlayer*>& Players = GetGameMode()->SoccerPlayers;
+	const TArray<AMagicBattleSoccerPlayer*>& Players = GetGameState()->SoccerPlayers;
 	TArray<AMagicBattleSoccerPlayer*> Opponents;
 
 	for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Players.CreateConstIterator()); It; ++It)
@@ -477,7 +485,7 @@ void AMagicBattleSoccerPlayer::BeginPlay()
 	if (ROLE_Authority == Role)
 	{
 		// Servers should add this character to the game mode cache
-		GetGameMode()->SoccerPlayers.Add(this);
+		GetGameState()->SoccerPlayers.Add(this);
 	}
 	else
 	{
@@ -513,7 +521,7 @@ void AMagicBattleSoccerPlayer::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason
 	if (ROLE_Authority == Role)
 	{
 		// Remove this character from the game mode cache
-		GetGameMode()->SoccerPlayers.Remove(this);
+		GetGameState()->SoccerPlayers.Remove(this);
 	}
 	else
 	{
@@ -550,7 +558,7 @@ void AMagicBattleSoccerPlayer::Destroyed()
 		else
 		{
 			// Remove this character from the game mode cache
-			GetGameMode()->SoccerPlayers.Remove(this);
+			GetGameState()->SoccerPlayers.Remove(this);
 		}
 	}
 	else

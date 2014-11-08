@@ -22,6 +22,13 @@ AMagicBattleSoccerBall::AMagicBattleSoccerBall(const class FPostConstructInitial
 	}
 }
 
+/** Gets the game state (all instances should be interested in this) */
+AMagicBattleSoccerGameState* AMagicBattleSoccerBall::GetGameState()
+{
+	UWorld *World = GetWorld();
+	return World->GetGameState<AMagicBattleSoccerGameState>();
+}
+
 /** True if the ball has no possessor and is not in a goal. Should only be called by the authority entity. */
 bool AMagicBattleSoccerBall::IsFree()
 {
@@ -55,9 +62,8 @@ void AMagicBattleSoccerBall::Kick(const FVector& Force)
 		SetPossessor(NULL);
 
 		// Now apply the force
-		TArray<UPrimitiveComponent*> PrimitiveComponents;
-		this->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
-		PrimitiveComponents[0]->AddForce(Force);
+		UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
+		Root->AddForce(Force);
 	}
 	else
 	{
@@ -73,8 +79,8 @@ void AMagicBattleSoccerBall::BeginPlay()
 	if (ROLE_Authority == Role)
 	{
 		// Servers should add this soccer ball to the game mode cache
-		AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-		GameMode->SoccerBall = this;
+		AMagicBattleSoccerGameState* GameState = GetGameState();
+		GameState->SoccerBall = this;
 	}
 	else
 	{
@@ -126,13 +132,13 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 			}
 
 			// Toggle physics
-			TArray<UPrimitiveComponent*> PrimitiveComponents;
-			this->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
+			UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
 			if (NULL != Possessor)
 			{
 				Possessor->CeaseFire();
-				PrimitiveComponents[0]->PutRigidBodyToSleep();
-				PrimitiveComponents[0]->SetSimulatePhysics(false);
+				Root->PutRigidBodyToSleep();
+				Root->SetSimulatePhysics(false);
+				Root->SetEnableGravity(false);
 				SetActorEnableCollision(false);
 				MoveWithPossessor();
 				// Slow the possessor down for game balancing
@@ -140,9 +146,10 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 			}
 			else
 			{
-				PrimitiveComponents[0]->SetSimulatePhysics(true);
+				Root->SetSimulatePhysics(true);
+				Root->SetEnableGravity(true);
 				SetActorEnableCollision(true);
-				PrimitiveComponents[0]->PutRigidBodyToSleep();
+				Root->PutRigidBodyToSleep();
 			}
 		}
 	}

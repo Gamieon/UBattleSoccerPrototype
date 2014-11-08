@@ -3,8 +3,6 @@
 #include "GameFramework/Actor.h"
 #include "MagicBattleSoccerBall.generated.h"
 
-class AMagicBattleSoccerPlayer;
-
 /**
 *
 */
@@ -13,9 +11,12 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerBall : public AActor
 {
 	GENERATED_UCLASS_BODY()
 
+	/** Gets the game state (all instances should be interested in this) */
+	class AMagicBattleSoccerGameState* GetGameState();
+
 	/** The player that possesses this soccer ball */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
-	AMagicBattleSoccerPlayer *Possessor;
+	class AMagicBattleSoccerPlayer *Possessor;
 
 	/** True if the ball has no possessor and is not in a goal. Should only be called by the authority entity. */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
@@ -28,7 +29,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerBall : public AActor
 	float NegDistanceTravelled;
 
 	/** Sets the current ball possessor */
-	void SetPossessor(AMagicBattleSoccerPlayer* Player);
+	void SetPossessor(class AMagicBattleSoccerPlayer* Player);
 
 	/** Kicks this ball with a given force */
 	void Kick(const FVector& Force);
