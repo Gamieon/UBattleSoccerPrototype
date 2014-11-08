@@ -32,8 +32,7 @@ AMagicBattleSoccerGameState* AMagicBattleSoccerBall::GetGameState()
 /** True if the ball has no possessor and is not in a goal. Should only be called by the authority entity. */
 bool AMagicBattleSoccerBall::IsFree()
 {
-	AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	return (NULL == Possessor && NULL == GameMode->PenetratedGoal);
+	return (NULL == Possessor && NULL == GetGameState()->PenetratedGoal);
 }
 
 void AMagicBattleSoccerBall::MoveWithPossessor()
