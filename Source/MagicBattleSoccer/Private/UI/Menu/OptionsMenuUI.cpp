@@ -212,7 +212,9 @@ void SOptionsMenuUI::BuildResolutionList()
 	FSlateApplication::Get().GetInitialDisplayMetrics(DisplayMetrics);
 
 	bool bAddedNativeResolution = false;
+	bool bAddedSmallResolution = false;
 	const FIntPoint NativeResolution(DisplayMetrics.PrimaryDisplayWidth, DisplayMetrics.PrimaryDisplayHeight);
+	const FIntPoint SmallResolution(800, 600);
 
 	for (int32 i = 0; i < DefaultResolutionCount; i++)
 	{
@@ -222,6 +224,7 @@ void SOptionsMenuUI::BuildResolutionList()
 			Resolutions.Add(DefaultResolutions[i]);
 
 			bAddedNativeResolution = bAddedNativeResolution || (DefaultResolutions[i] == NativeResolution);
+			bAddedSmallResolution = bAddedSmallResolution || (DefaultResolutions[i] == SmallResolution);
 		}
 	}
 
@@ -230,6 +233,13 @@ void SOptionsMenuUI::BuildResolutionList()
 	{
 		ResolutionList.Add(FText::Format(FText::FromString("{0}x{1}"), FText::FromString(FString::FromInt(NativeResolution.X)), FText::FromString(FString::FromInt(NativeResolution.Y))));
 		Resolutions.Add(NativeResolution);
+	}
+
+	// Add the small resolution
+	if (!bAddedSmallResolution)
+	{
+		ResolutionList.Add(FText::Format(FText::FromString("{0}x{1}"), FText::FromString(FString::FromInt(SmallResolution.X)), FText::FromString(FString::FromInt(SmallResolution.Y))));
+		Resolutions.Add(SmallResolution);
 	}
 }
 

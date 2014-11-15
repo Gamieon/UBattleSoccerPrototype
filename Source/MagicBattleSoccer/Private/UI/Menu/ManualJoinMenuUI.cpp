@@ -14,7 +14,7 @@
 void SManualJoinMenuUI::Construct(const FArguments& args)
 {
 	MenuHUD = args._MenuHUD;
-	ServerIP = TEXT("192.168.1.4");
+	ServerIP = TEXT("127.0.0.1"); //TEXT("192.168.1.4");
 
 	const FMenuBackgroundStyle* BackgroundStyle = &FMagicBattleSoccerStyles::Get().GetWidgetStyle<FMenuBackgroundStyle>("DefaultMenuBackgroundStyle");
 	const FMenuItemStyle* ItemStyle = &FMagicBattleSoccerStyles::Get().GetWidgetStyle<FMenuItemStyle>("DefaultMenuItemStyle");
@@ -64,6 +64,7 @@ void SManualJoinMenuUI::Construct(const FArguments& args)
 							.Padding(10.0f)
 							[
 								SNew(SEditableTextBox)
+								.MinDesiredWidth(250)
 								.Style(EditableTextBoxStyle)
 								.Text(this, &SManualJoinMenuUI::GetServerIP)
 								.OnTextCommitted(this, &SManualJoinMenuUI::SetServerIP)

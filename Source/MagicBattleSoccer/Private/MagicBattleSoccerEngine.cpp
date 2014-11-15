@@ -45,8 +45,7 @@ void UMagicBattleSoccerEngine::HandleNetworkFailure(UWorld *World, UNetDriver *N
 	// Assign the error string
 	LastErrorString = ErrorString;
 
-	// Go to the main menu
-	GoToMainMenu();
+	// We don't need to back go to the main menu; the super class will handle that
 }
 
 /**
@@ -64,6 +63,5 @@ void UMagicBattleSoccerEngine::HandleTravelFailure(UWorld* InWorld, ETravelFailu
 	// Assign the error string
 	LastErrorString = ErrorString;
 
-	// Go to the main menu
-	GoToMainMenu();
+	// We don't need to back go to the main menu; the super class will handle that
 }

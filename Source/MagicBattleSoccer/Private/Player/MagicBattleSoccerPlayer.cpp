@@ -8,6 +8,7 @@
 #include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerProjectile.h"
 #include "MagicBattleSoccerSpawnPoint.h"
+#include "MagicBattleSoccerPlayerController.h"
 #include "AIController.h"
 #include "Engine/TriggerBox.h"
 
@@ -17,10 +18,512 @@ AMagicBattleSoccerPlayer::AMagicBattleSoccerPlayer(const class FPostConstructIni
 	this->OnActorBeginOverlap.AddDynamic(this, &AMagicBattleSoccerPlayer::OnBeginOverlap);
 	this->OnActorEndOverlap.AddDynamic(this, &AMagicBattleSoccerPlayer::OnEndOverlap);
 	this->SetActorTickEnabled(true);
+
+	CapsuleComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	CapsuleComponent->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
+	CapsuleComponent->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
+
+	CurrentWeapon = nullptr;
 	IsAttacking = false;
-	IsStunned = false;
-	StunReleaseTime = 0;
+	bWantsToFire = false;
+	LastTakeHitTimeTimeout = 0;
 }
+
+void AMagicBattleSoccerPlayer::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (Role == ROLE_Authority)
+	{
+		// Reset the health count
+		Health = MaxHealth;
+
+		// Give this player their default weapons
+		SpawnDefaultInventory();
+	}
+}
+
+void AMagicBattleSoccerPlayer::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTracker)
+{
+	Super::PreReplication(ChangedPropertyTracker);
+
+	// Only replicate this property for a short duration after it changes so join in progress players don't get spammed with fx when joining late
+	DOREPLIFETIME_ACTIVE_OVERRIDE(AMagicBattleSoccerPlayer, LastTakeHitInfo, GetWorld() && GetWorld()->GetTimeSeconds() < LastTakeHitTimeTimeout);
+}
+
+void AMagicBattleSoccerPlayer::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Replicate to everyone
+	DOREPLIFETIME(AMagicBattleSoccerPlayer, EnemyGoal);
+	DOREPLIFETIME(AMagicBattleSoccerPlayer, SpawnPoint);
+	DOREPLIFETIME(AMagicBattleSoccerPlayer, MaxHealth);
+	DOREPLIFETIME(AMagicBattleSoccerPlayer, Health);
+	DOREPLIFETIME(AMagicBattleSoccerPlayer, CurrentMovementSpeed);
+	DOREPLIFETIME(AMagicBattleSoccerPlayer, CurrentWeapon);
+}
+
+void AMagicBattleSoccerPlayer::OnRep_CurrentWeapon(AMagicBattleSoccerWeapon* LastWeapon)
+{
+	SetCurrentWeapon(CurrentWeapon, LastWeapon);
+}
+
+/** Called on clients when the server changes this character's default
+movement speed */
+void AMagicBattleSoccerPlayer::OnRep_CurrentMovementSpeed()
+{
+	// Update the default movement speed of the movement component
+	// with the replicated value
+	UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
+	MovementComponent->MaxWalkSpeed = CurrentMovementSpeed;
+}
+
+/** play hit or death on client */
+void AMagicBattleSoccerPlayer::OnRep_LastTakeHitInfo()
+{
+	if (LastTakeHitInfo.bKilled)
+	{
+		OnDeath(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
+	}
+	else
+	{
+		PlayHit(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
+	}
+}
+
+/** This occurs when play begins for a character */
+void AMagicBattleSoccerPlayer::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (ROLE_Authority == Role)
+	{
+		// Servers should add this character to the game mode cache
+		GetGameState()->SoccerPlayers.Add(this);
+
+		// Assign the character max walk speed to the default movement speed
+		UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
+		DefaultMovementSpeed = CurrentMovementSpeed = MovementComponent->MaxWalkSpeed;
+	}
+	else
+	{
+		// The server manages the game state; the player list will be replicated to us.
+	}
+}
+
+void AMagicBattleSoccerPlayer::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Servers should manage ball assignments
+	if (ROLE_Authority == Role)
+	{
+		// If the ball is overlapping us and doesn't presently have a possessor, try to assign ourselves
+		// possession. This can fail if we just had possession moments ago (otherwise we could kick the ball
+		// and immediately take possession again)
+		if (NULL != OverlappingBall && NULL == OverlappingBall->Possessor)
+		{
+			OverlappingBall->SetPossessor(this);
+		}
+	}
+}
+
+/** This occurs when play ends */
+void AMagicBattleSoccerPlayer::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason)
+{
+	Super::ReceiveEndPlay(EndPlayReason);
+
+	if (ROLE_Authority == Role)
+	{
+		// Remove this character from the game mode cache
+		GetGameState()->SoccerPlayers.Remove(this);
+	}
+	else
+	{
+		// The server manages the game state; the player list will be replicated to us.
+	}
+}
+
+/** This occurs when the player is destroyed */
+void AMagicBattleSoccerPlayer::Destroyed()
+{
+	if (ROLE_Authority != Role)
+	{
+		// The server manages the game state; the player list will be replicated to us.
+	}
+	else
+	{
+		if (NULL != this->SpawnPoint)
+		{
+			this->SpawnPoint->SpawnedPlayerBeingDestroyed(this);
+		}
+
+		if (NULL != GetGameState())
+		{
+			// Release the ball
+			if (PossessesBall())
+			{
+				GetSoccerBall()->SetPossessor(NULL);
+			}
+
+			// Remove this character from the game mode cache
+			GetGameState()->SoccerPlayers.Remove(this);
+		}
+	}
+
+	Super::Destroyed();
+	DestroyInventory();
+}
+
+void AMagicBattleSoccerPlayer::OnBeginOverlap(AActor* OtherActor)
+{
+	AMagicBattleSoccerBall *Ball = Cast<AMagicBattleSoccerBall>(OtherActor);
+	if (NULL != Ball)
+	{
+		OverlappingBall = Ball;
+	}
+	else
+	{
+		/*
+		// Handle projectile collisions
+		AMagicBattleSoccerProjectile* Projectile = Cast<AMagicBattleSoccerProjectile>(OtherActor);
+		if (NULL != Projectile)
+		{
+			bool ignore = false;
+
+			// Ignore the event if the owner is on our team
+			const AMagicBattleSoccerPlayer *spawnedByPlayer = Cast<AMagicBattleSoccerPlayer>(Projectile->SpawnedByActor);
+			if (NULL != spawnedByPlayer)
+			{
+				const AMagicBattleSoccerGoal *owningPlayerEnemyGoal = spawnedByPlayer->EnemyGoal;
+				if (owningPlayerEnemyGoal == EnemyGoal)
+				{
+					ignore = true;
+				}
+			}
+
+			if (!ignore)
+			{
+				// Destroy the projectile
+				OtherActor->Destroy();
+
+				if ((Health -= Projectile->Damage) <= 0)
+				{
+					Destroy();
+				}
+			}
+		}*/
+	}
+}
+
+void AMagicBattleSoccerPlayer::OnEndOverlap(AActor* OtherActor)
+{
+	AMagicBattleSoccerBall *Ball = Cast<AMagicBattleSoccerBall>(OtherActor);
+	if (NULL != Ball)
+	{
+		OverlappingBall = NULL;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Damage & death
+
+float AMagicBattleSoccerPlayer::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
+{
+	AMagicBattleSoccerPlayerController* MyPC = Cast<AMagicBattleSoccerPlayerController>(Controller);
+
+	if (Health <= 0.f)
+	{
+		return 0.f;
+	}
+
+	// Modify based on game rules.
+	AMagicBattleSoccerGameMode* const Game = GetWorld()->GetAuthGameMode<AMagicBattleSoccerGameMode>();
+	Damage = Game ? Game->ModifyDamage(Damage, this, DamageEvent, EventInstigator, DamageCauser) : 0.f;
+
+	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	if (ActualDamage > 0.f)
+	{
+		Health -= ActualDamage;
+		if (Health <= 0.f)
+		{
+			Die(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+		}
+		else
+		{
+			PlayHit(ActualDamage, DamageEvent, EventInstigator ? EventInstigator->GetPawn() : NULL, DamageCauser);
+		}
+	}
+
+	return ActualDamage;
+}
+
+bool AMagicBattleSoccerPlayer::CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const
+{
+	if (IsPendingKill()								// already destroyed
+		|| Role != ROLE_Authority						// not authority
+		|| GetWorld()->GetAuthGameMode() == NULL
+		|| GetWorld()->GetAuthGameMode()->GetMatchState() == MatchState::LeavingMap)	// level transition occurring
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool AMagicBattleSoccerPlayer::Die(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser)
+{
+	if (!CanDie(KillingDamage, DamageEvent, Killer, DamageCauser))
+	{
+		return false;
+	}
+
+	Health = FMath::Min(0.0f, Health);
+
+	// if this is an environmental death then refer to the previous killer so that they receive credit (knocked into lava pits, etc)
+	UDamageType const* const DamageType = DamageEvent.DamageTypeClass ? DamageEvent.DamageTypeClass->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
+	Killer = GetDamageInstigator(Killer, *DamageType);
+
+	AController* const KilledPlayer = (Controller != NULL) ? Controller : Cast<AController>(GetOwner());
+	GetWorld()->GetAuthGameMode<AMagicBattleSoccerGameMode>()->Killed(Killer, KilledPlayer, this, DamageType);
+
+	NetUpdateFrequency = GetDefault<AMagicBattleSoccerPlayer>()->NetUpdateFrequency;
+	CharacterMovement->ForceReplicationUpdate();
+
+	OnDeath(KillingDamage, DamageEvent, Killer ? Killer->GetPawn() : NULL, DamageCauser);
+	return true;
+}
+
+void AMagicBattleSoccerPlayer::OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser)
+{
+	bReplicateMovement = false;
+	bTearOff = true;
+
+	if (Role == ROLE_Authority)
+	{
+		ReplicateHit(KillingDamage, DamageEvent, PawnInstigator, DamageCauser, true);
+	}
+
+	// remove all weapons
+	DestroyInventory();
+
+	// now destroy the player
+	Destroy();
+}
+
+void AMagicBattleSoccerPlayer::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser)
+{
+	if (Role == ROLE_Authority)
+	{
+		ReplicateHit(DamageTaken, DamageEvent, PawnInstigator, DamageCauser, false);
+	}
+
+	if (DamageTaken > 0.f)
+	{
+		ApplyDamageMomentum(DamageTaken, DamageEvent, PawnInstigator, DamageCauser);
+	}
+
+	AMagicBattleSoccerPlayerController* MyPC = Cast<AMagicBattleSoccerPlayerController>(Controller);
+	/*AShooterHUD* MyHUD = MyPC ? Cast<AShooterHUD>(MyPC->GetHUD()) : NULL;
+	if (MyHUD)
+	{
+		MyHUD->NotifyHit(DamageTaken, DamageEvent, PawnInstigator);
+	}*/
+
+	if (PawnInstigator && PawnInstigator != this && PawnInstigator->IsLocallyControlled())
+	{
+		AMagicBattleSoccerPlayerController* InstigatorPC = Cast<AMagicBattleSoccerPlayerController>(PawnInstigator->Controller);
+		/*AShooterHUD* InstigatorHUD = InstigatorPC ? Cast<AShooterHUD>(InstigatorPC->GetHUD()) : NULL;
+		if (InstigatorHUD)
+		{
+			InstigatorHUD->NotifyEnemyHit();
+		}*/
+	}
+}
+
+void AMagicBattleSoccerPlayer::ReplicateHit(float Damage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser, bool bKilled)
+{
+	const float TimeoutTime = GetWorld()->GetTimeSeconds() + 0.5f;
+
+	FDamageEvent const& LastDamageEvent = LastTakeHitInfo.GetDamageEvent();
+	if ((PawnInstigator == LastTakeHitInfo.PawnInstigator.Get()) && (LastDamageEvent.DamageTypeClass == LastTakeHitInfo.DamageTypeClass) && (LastTakeHitTimeTimeout == TimeoutTime))
+	{
+		// same frame damage
+		if (bKilled && LastTakeHitInfo.bKilled)
+		{
+			// Redundant death take hit, just ignore it
+			return;
+		}
+
+		// otherwise, accumulate damage done this frame
+		Damage += LastTakeHitInfo.ActualDamage;
+	}
+
+	LastTakeHitInfo.ActualDamage = Damage;
+	LastTakeHitInfo.PawnInstigator = Cast<AMagicBattleSoccerPlayer>(PawnInstigator);
+	LastTakeHitInfo.DamageCauser = DamageCauser;
+	LastTakeHitInfo.SetDamageEvent(DamageEvent);
+	LastTakeHitInfo.bKilled = bKilled;
+	LastTakeHitInfo.EnsureReplication();
+
+	LastTakeHitTimeTimeout = TimeoutTime;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Inventory and weapons
+
+void AMagicBattleSoccerPlayer::SetCurrentWeapon(AMagicBattleSoccerWeapon* NewWeapon, AMagicBattleSoccerWeapon* LastWeapon)
+{
+	AMagicBattleSoccerWeapon* LocalLastWeapon = NULL;
+
+	if (LastWeapon != NULL)
+	{
+		LocalLastWeapon = LastWeapon;
+	}
+	else if (NewWeapon != CurrentWeapon)
+	{
+		LocalLastWeapon = CurrentWeapon;
+	}
+
+	// unequip previous
+	if (LocalLastWeapon)
+	{
+		LocalLastWeapon->OnUnEquip();
+	}
+
+	CurrentWeapon = NewWeapon;
+
+	// equip new one
+	if (NewWeapon)
+	{
+		NewWeapon->SetOwningPawn(this);	// Make sure weapon's MyPawn is pointing back to us. During replication, we can't guarantee APawn::CurrentWeapon will rep after AWeapon::MyPawn!
+		NewWeapon->OnEquip();
+	}
+}
+
+void AMagicBattleSoccerPlayer::SpawnDefaultInventory()
+{
+	if (Role < ROLE_Authority)
+	{
+		return;
+	}
+
+	int32 NumWeaponClasses = DefaultInventoryClasses.Num();
+	for (int32 i = 0; i < NumWeaponClasses; i++)
+	{
+		if (DefaultInventoryClasses[i])
+		{
+			FActorSpawnParameters SpawnInfo;
+			SpawnInfo.bNoCollisionFail = true;
+			AMagicBattleSoccerWeapon* NewWeapon = GetWorld()->SpawnActor<AMagicBattleSoccerWeapon>(DefaultInventoryClasses[i], SpawnInfo);
+			AddWeapon(NewWeapon);
+		}
+	}
+
+	// equip first weapon in inventory
+	if (Inventory.Num() > 0)
+	{
+		EquipWeapon(Inventory[0]);
+	}
+}
+
+void AMagicBattleSoccerPlayer::DestroyInventory()
+{
+	if (Role < ROLE_Authority)
+	{
+		return;
+	}
+
+	// remove all weapons from inventory and destroy them
+	for (int32 i = Inventory.Num() - 1; i >= 0; i--)
+	{
+		AMagicBattleSoccerWeapon* Weapon = Inventory[i];
+		if (Weapon)
+		{
+			RemoveWeapon(Weapon);
+			Weapon->Destroy();
+		}
+	}
+}
+
+bool AMagicBattleSoccerPlayer::ServerEquipWeapon_Validate(AMagicBattleSoccerWeapon* Weapon)
+{
+	return true;
+}
+
+void AMagicBattleSoccerPlayer::ServerEquipWeapon_Implementation(AMagicBattleSoccerWeapon* Weapon)
+{
+	EquipWeapon(Weapon);
+}
+
+void AMagicBattleSoccerPlayer::AddWeapon(AMagicBattleSoccerWeapon* Weapon)
+{
+	if (Weapon && Role == ROLE_Authority)
+	{
+		Weapon->OnEnterInventory(this);
+		Inventory.AddUnique(Weapon);
+	}
+}
+
+void AMagicBattleSoccerPlayer::RemoveWeapon(AMagicBattleSoccerWeapon* Weapon)
+{
+	if (Weapon && Role == ROLE_Authority)
+	{
+		Weapon->OnLeaveInventory();
+		Inventory.RemoveSingle(Weapon);
+	}
+}
+
+void AMagicBattleSoccerPlayer::EquipWeapon(AMagicBattleSoccerWeapon* Weapon)
+{
+	if (Weapon)
+	{
+		if (Role == ROLE_Authority)
+		{
+			SetCurrentWeapon(Weapon);
+		}
+		else
+		{
+			ServerEquipWeapon(Weapon);
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Weapon usage
+
+void AMagicBattleSoccerPlayer::StartWeaponFire()
+{
+	if (!bWantsToFire)
+	{
+		bWantsToFire = true;
+		if (CurrentWeapon)
+		{
+			CurrentWeapon->StartFire();
+		}
+	}
+}
+
+void AMagicBattleSoccerPlayer::StopWeaponFire()
+{
+	if (bWantsToFire)
+	{
+		bWantsToFire = false;
+		if (CurrentWeapon)
+		{
+			CurrentWeapon->StopFire();
+		}
+	}
+}
+
+bool AMagicBattleSoccerPlayer::CanFire() const
+{
+	return IsAlive();
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Player attributes
 
 /** Gets the game mode (only the authority instance should be interested in this) */
 AMagicBattleSoccerGameMode* AMagicBattleSoccerPlayer::GetGameMode()
@@ -79,6 +582,11 @@ TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerPlayer::GetOpponents()
 	return Opponents;
 }
 
+bool AMagicBattleSoccerPlayer::IsAlive() const
+{
+	return Health > 0;
+}
+
 /** True if this player possesses the ball */
 bool AMagicBattleSoccerPlayer::PossessesBall()
 {
@@ -86,29 +594,21 @@ bool AMagicBattleSoccerPlayer::PossessesBall()
 	return (this == Possessor);
 }
 
-/** True if the player can be pursued */
-bool AMagicBattleSoccerPlayer::CanBePursued()
-{
-	return !IsStunned;
-}
+//////////////////////////////////////////////////////////////////////////
+// Player actions
 
-/** Updates the movement speed based on conditions (ball possessor, stunned, etc) */
+/** Updates the movement speed based on conditions (ball possessor, etc) */
 void AMagicBattleSoccerPlayer::UpdateMovementSpeed()
 {
 	UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
 	AMagicBattleSoccerBall *Ball = GetSoccerBall();
-	float NewSpeed = DefaultMovementSpeed;
 
-	if (IsStunned)
+	if (Ball->Possessor == this)
 	{
-		NewSpeed = 0;
-	}
-	else if (Ball->Possessor == this)
-	{
-		NewSpeed *= 0.75f;
+		CurrentMovementSpeed = DefaultMovementSpeed * 0.75f;
 	}
 
-	MovementComponent->MaxWalkSpeed = NewSpeed;
+	MovementComponent->MaxWalkSpeed = CurrentMovementSpeed;
 }
 
 /** Kicks the ball in the forward direction */
@@ -117,7 +617,7 @@ void AMagicBattleSoccerPlayer::KickBallForward()
 {
 	AMagicBattleSoccerBall *Ball = GetSoccerBall();
 	FVector BallLocation = Ball->GetActorLocation();
-	const float KickForce = 28000.0f;	
+	const float KickForce = 28000.0f;
 	Ball->Kick(GetActorForwardVector() * KickForce);
 }
 
@@ -155,7 +655,27 @@ bool AMagicBattleSoccerPlayer::KickBallToGoal()
 	{
 		KickBallToLocation(EnemyGoal->GetActorLocation());
 		return true;
-	}		
+	}
+}
+
+/** Stops attacking */
+void AMagicBattleSoccerPlayer::CeaseFire()
+{
+	if (IsAttacking && NULL != CurrentWeapon)
+	{
+		CurrentWeapon->StopFire();
+		IsAttacking = false;
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// AI
+
+/** True if the player can be pursued by AI */
+bool AMagicBattleSoccerPlayer::CanBePursued()
+{
+	return true;
 }
 
 /** Clips the value n so that it will be within o+d and o-d */
@@ -293,7 +813,7 @@ AActor* AMagicBattleSoccerPlayer::GetIdealPursuitTarget()
 	// Find out the closest obstructing actor
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(SoccerBall);
-	// Ignore stunned players
+	// Ignore players that cannot be pursued
 	const TArray<AMagicBattleSoccerPlayer*>& Opponents = GetOpponents();
 	for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Opponents.CreateConstIterator()); It; ++It)
 	{
@@ -348,224 +868,13 @@ void AMagicBattleSoccerPlayer::AttackPlayer(AMagicBattleSoccerPlayer* Target)
 		// Face the target
 		SetActorRotation(faceRot);
 
+		/*
 		// Start attacking the player if we haven't already
 		if (!IsAttacking)
 		{
-			CurrentWeapon->BeginFire();
+			CurrentWeapon->StartFire();
 			IsAttacking = true;
-		}
+		}*/
 	}
 
-	/*
-	AMagicBattleSoccerBall *Ball = GetSoccerBall();
-	if (NULL != Target)
-	{
-		// Stun the target for half a second
-		if (!Target->IsStunned)
-		{
-			Target->Stun(1.0f);
-		}
-
-		// Kick the ball away from the target if they possess the ball
-		if (Target == Ball->Possessor)
-		{
-			Ball->Kick(FVector(FMath::FRandRange(-35000.0f, 35000.0f), FMath::FRandRange(-35000.0f, 35000.0f), 0.0f));
-		}
-	}*/
-}
-
-/** Stops attacking */
-void AMagicBattleSoccerPlayer::CeaseFire()
-{
-	if (IsAttacking && NULL != CurrentWeapon)
-	{
-		CurrentWeapon->CeaseFire();
-		IsAttacking = false;
-	}
-}
-
-/** Gives a weapon to the player */
-void AMagicBattleSoccerPlayer::GiveWeapon(AMagicBattleSoccerWeapon* Weapon)
-{
-	if (NULL != CurrentWeapon)
-	{
-		CurrentWeapon->Destroy();
-	}
-	if (NULL != (CurrentWeapon = Weapon))
-	{
-		USkeletalMeshComponent* SkeletalMesh = Cast<USkeletalMeshComponent>(GetComponentByClass(USkeletalMeshComponent::StaticClass()));
-		Weapon->SetOwner(this);
-		Weapon->AttachRootComponentTo(SkeletalMesh, FName(TEXT("RightHand")), EAttachLocation::SnapToTarget);
-	}
-}
-
-/** Stuns this player */
-void AMagicBattleSoccerPlayer::Stun(float Duration)
-{
-	/*
-	StunReleaseTime = GetWorld()->TimeSeconds + Duration;
-	IsStunned = true;
-	UpdateMovementSpeed();*/
-}
-
-void AMagicBattleSoccerPlayer::OnBeginOverlap(AActor* OtherActor)
-{
-	AMagicBattleSoccerBall *Ball = Cast<AMagicBattleSoccerBall>(OtherActor);
-	if (NULL != Ball)
-	{
-		OverlappingBall = Ball;
-	}
-	else
-	{
-		// Handle projectile collisions
-		AMagicBattleSoccerProjectile* Projectile = Cast<AMagicBattleSoccerProjectile>(OtherActor);
-		if (NULL != Projectile)
-		{
-			bool ignore = false;
-
-			// Ignore the event if the owner is on our team
-			const AMagicBattleSoccerPlayer *spawnedByPlayer = Cast<AMagicBattleSoccerPlayer>(Projectile->SpawnedByActor);
-			if (NULL != spawnedByPlayer)
-			{
-				const AMagicBattleSoccerGoal *owningPlayerEnemyGoal = spawnedByPlayer->EnemyGoal;
-				if (owningPlayerEnemyGoal == EnemyGoal)
-				{
-					ignore = true;
-				}
-			}
-
-			if (!ignore)
-			{
-				// Destroy the projectile
-				OtherActor->Destroy();
-
-				if ((Hitpoints -= Projectile->Damage) <= 0)
-				{
-					Destroy();
-				}
-			}
-		}
-	}
-}
-
-void AMagicBattleSoccerPlayer::OnEndOverlap(AActor* OtherActor)
-{
-	AMagicBattleSoccerBall *Ball = Cast<AMagicBattleSoccerBall>(OtherActor);
-	if (NULL != Ball)
-	{
-		OverlappingBall = NULL;
-	}
-}
-
-void AMagicBattleSoccerPlayer::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-	// If we're stunned then try to expire the stun timer
-	if (IsStunned && GetWorld()->TimeSeconds > StunReleaseTime)
-	{
-		IsStunned = false;
-		UpdateMovementSpeed();
-	}
-
-	// If the ball is overlapping us and doesn't presently have a possessor, try to assign ourselves
-	// possession. This can fail if we just had possession moments ago (otherwise we could kick the ball
-	// and immediately take possession again)
-	if (NULL != OverlappingBall && NULL == OverlappingBall->Possessor && !IsStunned)
-	{
-		OverlappingBall->SetPossessor(this);
-	}
-}
-
-/** This occurs when play begins for a character */
-void AMagicBattleSoccerPlayer::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (ROLE_Authority == Role)
-	{
-		// Servers should add this character to the game mode cache
-		GetGameState()->SoccerPlayers.Add(this);
-	}
-	else
-	{
-		// Clients don't apply to this as they are not managing the game and therefore have no game mode.
-		// See https://forums.unrealengine.com/showthread.php?7870-Does-GameMode-only-run-on-server for details.
-	}
-
-	// Reset the hitpoint count
-	Hitpoints = MaxHitpoints;
-
-	// Retain the current walk speed as the default movement speed
-	UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
-	DefaultMovementSpeed = MovementComponent->MaxWalkSpeed;
-
-	// Assign the player's default weapon
-	if (NULL != DefaultWeaponBlueprint)
-	{
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.bNoCollisionFail = true;
-		SpawnParameters.Owner = this;
-		SpawnParameters.Instigator = this->Instigator;
-		SpawnParameters.bDeferConstruction = false;
-		GiveWeapon(GetWorld()->SpawnActor<AMagicBattleSoccerWeapon>(DefaultWeaponBlueprint->GeneratedClass, SpawnParameters));
-	}
-
-}
-
-/** This occurs when play ends */
-void AMagicBattleSoccerPlayer::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason)
-{
-	Super::ReceiveEndPlay(EndPlayReason);
-
-	if (ROLE_Authority == Role)
-	{
-		// Remove this character from the game mode cache
-		GetGameState()->SoccerPlayers.Remove(this);
-	}
-	else
-	{
-		// Clients don't apply to this as they are not managing the game and therefore have no game mode.
-		// See https://forums.unrealengine.com/showthread.php?7870-Does-GameMode-only-run-on-server for details.
-	}
-}
-
-/** This occurs when the player is destroyed */
-void AMagicBattleSoccerPlayer::Destroyed()
-{
-	if (ROLE_Authority == Role)
-	{
-		if (NULL != this->SpawnPoint)
-		{
-			this->SpawnPoint->SpawnedPlayerBeingDestroyed(this);
-		}
-
-		if (PossessesBall())
-		{
-			GetSoccerBall()->SetPossessor(NULL);
-		}
-
-		if (NULL != this->CurrentWeapon)
-		{
-			this->CurrentWeapon->Destroy();
-		}
-
-		if (NULL == GetGameMode())
-		{
-			// If we get here we're not in a game. We're being destroyed in the editor
-			// so don't do any game tasks.
-		}
-		else
-		{
-			// Remove this character from the game mode cache
-			GetGameState()->SoccerPlayers.Remove(this);
-		}
-	}
-	else
-	{
-		// Clients don't apply to this as they are not managing the game and therefore have no game mode.
-		// See https://forums.unrealengine.com/showthread.php?7870-Does-GameMode-only-run-on-server for details.
-	}
-
-	Super::Destroyed();
 }

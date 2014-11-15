@@ -67,6 +67,7 @@ void SProfileMenuUI::Construct(const FArguments& args)
 							.Padding(10.0f)
 							[
 								SNew(SEditableTextBox)
+								.MinDesiredWidth(300)
 								.Style(EditableTextBoxStyle)
 								.Text(this, &SProfileMenuUI::GetPlayerName)
 								.OnTextCommitted(this, &SProfileMenuUI::SetPlayerName)

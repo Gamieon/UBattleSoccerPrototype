@@ -35,4 +35,16 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameMode : public AGameMode
 	virtual TSubclassOf<AGameSession> GetGameSessionClass() const override;
 
 	//End AGameMode interface
+
+	//////////////////////////////////////////////////////////////////////////
+	// Damage & death
+
+	/** prevents friendly fire */
+	virtual float ModifyDamage(float Damage, AActor* DamagedActor, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const;
+
+	/** can players damage each other? */
+	virtual bool CanDealDamage(class AMagicBattleSoccerPlayerState* DamageInstigator, class AMagicBattleSoccerPlayerState* DamagedPlayer) const;
+
+	/** notify about kills */
+	virtual void Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType);
 };

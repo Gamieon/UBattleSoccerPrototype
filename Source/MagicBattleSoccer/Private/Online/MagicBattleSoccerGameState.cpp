@@ -4,6 +4,7 @@
 
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameState.h"
+#include "MagicBattleSoccerInstance.h"
 #include "UnrealNetwork.h"
 
 AMagicBattleSoccerGameState::AMagicBattleSoccerGameState(const class FPostConstructInitializeProperties& PCIP)

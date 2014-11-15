@@ -12,6 +12,51 @@ AMagicBattleSoccerPlayerController::AMagicBattleSoccerPlayerController(const cla
 
 }
 
+void AMagicBattleSoccerPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	// UI input
+	InputComponent->BindAxis("MoveForward", this, &AMagicBattleSoccerPlayerController::OnMoveForward);
+	InputComponent->BindAxis("MoveRight", this, &AMagicBattleSoccerPlayerController::OnMoveRight);
+	InputComponent->BindAction("PrimaryAction", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnStartPrimaryAction);
+	InputComponent->BindAction("PrimaryAction", IE_Released, this, &AMagicBattleSoccerPlayerController::OnStopPrimaryAction);
+	InputComponent->BindAction("Suicide", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnSuicide);
+}
+
+void AMagicBattleSoccerPlayerController::SetPawn(APawn* inPawn)
+{
+	Super::SetPawn(inPawn);
+
+	if (nullptr != inPawn)
+	{
+		AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(inPawn);
+
+		// For now default to team 1
+		for (TObjectIterator<AMagicBattleSoccerGoal> It; It; ++It)
+		{
+			if (2 == It->TeamNumber)
+			{
+				PlayerPawn->EnemyGoal = *It;
+				break;
+			}
+		}
+	}
+}
+
+void AMagicBattleSoccerPlayerController::PawnPendingDestroy(APawn* inPawn)
+{
+	LastDeathLocation = inPawn->GetActorLocation();
+	FVector CameraLocation = LastDeathLocation + FVector(0, 0, 600.0f);
+	FRotator CameraRotation(-90.0f, 0.0f, 0.0f);
+	FindDeathCameraSpot(CameraLocation, CameraRotation);
+
+	Super::PawnPendingDestroy(inPawn);
+
+	SetInitialLocationAndRotation(CameraLocation, CameraRotation);
+	SetViewTarget(this);
+}
+
 bool AMagicBattleSoccerPlayerController::FindDeathCameraSpot(FVector& CameraLocation, FRotator& CameraRotation)
 {
 	const FVector PawnLocation = GetPawn()->GetActorLocation();
@@ -42,11 +87,14 @@ bool AMagicBattleSoccerPlayerController::FindDeathCameraSpot(FVector& CameraLoca
 	return false;
 }
 
+//////////////////////////////////////////////////////////////////////////
+// Input handlers
+
 /** Player move forward event */
 void AMagicBattleSoccerPlayerController::OnMoveForward(float axisValue)
 {
 	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
-	if (NULL != PlayerPawn)
+	if (nullptr != PlayerPawn)
 	{
 		PlayerPawn->AddMovementInput(FVector(1, 0, 0), axisValue);
 	}
@@ -56,37 +104,44 @@ void AMagicBattleSoccerPlayerController::OnMoveForward(float axisValue)
 void AMagicBattleSoccerPlayerController::OnMoveRight(float axisValue)
 {
 	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
-	if (NULL != PlayerPawn)
+	if (nullptr != PlayerPawn)
 	{
 		PlayerPawn->AddMovementInput(FVector(0, 1, 0), axisValue);
 	}
 }
 
 /** Player primary action event */
-void AMagicBattleSoccerPlayerController::OnPrimaryAction()
+void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 {
 	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
-	if (NULL != PlayerPawn)
+	if (nullptr != PlayerPawn)
 	{
-
 		if (PlayerPawn->PossessesBall())
 		{
 			PlayerPawn->KickBallForward();
 		}
-		else if (!PlayerPawn->IsAttacking)
+		else if (nullptr != PlayerPawn->CurrentWeapon)
 		{
-			if (NULL != PlayerPawn->CurrentWeapon)
-			{
-				FHitResult hitResult;
-				GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, hitResult);
-				FVector hitLocation = FVector(hitResult.Location.X, hitResult.Location.Y, PlayerPawn->GetActorLocation().Z);
-				FRotator lookAtRotation = (hitLocation - PlayerPawn->GetActorLocation()).Rotation();
-				PlayerPawn->CurrentWeapon->BeginFire();
-				PlayerPawn->CurrentWeapon->CeaseFire();
-			}
+			//FHitResult hitResult;
+			//GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, hitResult);
+			//FVector hitLocation = FVector(hitResult.Location.X, hitResult.Location.Y, PlayerPawn->GetActorLocation().Z);
+			//FRotator lookAtRotation = (hitLocation - PlayerPawn->GetActorLocation()).Rotation();
+
+			PlayerPawn->StartWeaponFire();
 		}
 	}
 }
+
+/** Player primary action event */
+void AMagicBattleSoccerPlayerController::OnStopPrimaryAction()
+{
+	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	if (nullptr != PlayerPawn)
+	{
+		PlayerPawn->StopWeaponFire();
+	}
+}
+
 
 /** Player suicide event */
 void AMagicBattleSoccerPlayerController::OnSuicide()
@@ -94,48 +149,3 @@ void AMagicBattleSoccerPlayerController::OnSuicide()
 	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
 	PlayerPawn->Destroy();
 }
-
-void AMagicBattleSoccerPlayerController::SetupInputComponent()
-{
-	Super::SetupInputComponent();
-
-	// UI input
-	InputComponent->BindAxis("MoveForward", this, &AMagicBattleSoccerPlayerController::OnMoveForward);
-	InputComponent->BindAxis("MoveRight", this, &AMagicBattleSoccerPlayerController::OnMoveRight);
-	InputComponent->BindAction("PrimaryAction", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnPrimaryAction);
-	InputComponent->BindAction("Suicide", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnSuicide);
-}
-
-void AMagicBattleSoccerPlayerController::SetPawn(APawn* inPawn)
-{
-	Super::SetPawn(inPawn);
-
-	if (NULL != inPawn)
-	{
-		AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(inPawn);
-
-		// For now default to team 1
-		for (TObjectIterator<AMagicBattleSoccerGoal> It; It; ++It)
-		{
-			if (2 == It->TeamNumber)
-			{
-				PlayerPawn->EnemyGoal = *It;
-				break;
-			}
-		}
-	}
-}
-
-void AMagicBattleSoccerPlayerController::PawnPendingDestroy(APawn* inPawn)
-{
-	LastDeathLocation = inPawn->GetActorLocation();
-	FVector CameraLocation = LastDeathLocation + FVector(0, 0, 600.0f);
-	FRotator CameraRotation(-90.0f, 0.0f, 0.0f);
-	FindDeathCameraSpot(CameraLocation, CameraRotation);
-
-	Super::PawnPendingDestroy(inPawn);
-
-	SetInitialLocationAndRotation(CameraLocation, CameraRotation);
-	SetViewTarget(this);
-}
-

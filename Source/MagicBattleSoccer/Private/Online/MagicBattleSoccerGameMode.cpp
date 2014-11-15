@@ -36,3 +36,46 @@ TSubclassOf<AGameSession> AMagicBattleSoccerGameMode::GetGameSessionClass() cons
 	return AMagicBattleSoccerGameSession::StaticClass();
 }
 
+float AMagicBattleSoccerGameMode::ModifyDamage(float Damage, AActor* DamagedActor, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const
+{
+	float ActualDamage = Damage;
+
+	AMagicBattleSoccerPlayer* DamagedPawn = Cast<AMagicBattleSoccerPlayer>(DamagedActor);
+	if (DamagedPawn && EventInstigator)
+	{
+		AMagicBattleSoccerPlayerState* DamagedPlayerState = Cast<AMagicBattleSoccerPlayerState>(DamagedPawn->PlayerState);
+		AMagicBattleSoccerPlayerState* InstigatorPlayerState = Cast<AMagicBattleSoccerPlayerState>(EventInstigator->PlayerState);
+
+		// disable friendly fire
+		if (!CanDealDamage(InstigatorPlayerState, DamagedPlayerState))
+		{
+			ActualDamage = 0.0f;
+		}
+	}
+
+	return ActualDamage;
+}
+
+bool AMagicBattleSoccerGameMode::CanDealDamage(class AMagicBattleSoccerPlayerState* DamageInstigator, class AMagicBattleSoccerPlayerState* DamagedPlayer) const
+{
+	return true; // free for all until we assign players to teams
+}
+
+void AMagicBattleSoccerGameMode::Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType)
+{
+	/*
+	AMagicBattleSoccerPlayerState* KillerPlayerState = Killer ? Cast<AMagicBattleSoccerPlayerState>(Killer->PlayerState) : NULL;
+	AMagicBattleSoccerPlayerState* VictimPlayerState = KilledPlayer ? Cast<AMagicBattleSoccerPlayerState>(KilledPlayer->PlayerState) : NULL;
+
+	if (KillerPlayerState && KillerPlayerState != VictimPlayerState)
+	{
+		KillerPlayerState->ScoreKill(VictimPlayerState, KillScore);
+		KillerPlayerState->InformAboutKill(KillerPlayerState, DamageType, VictimPlayerState);
+	}
+
+	if (VictimPlayerState)
+	{
+		VictimPlayerState->ScoreDeath(KillerPlayerState, DeathScore);
+		VictimPlayerState->BroadcastDeath(KillerPlayerState, DamageType, VictimPlayerState);
+	}*/
+}

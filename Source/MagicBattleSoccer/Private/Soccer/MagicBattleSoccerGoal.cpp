@@ -44,7 +44,6 @@ void AMagicBattleSoccerGoal::BeginPlay()
 	}
 	else
 	{
-		// Clients don't apply to this as they are not managing the game and therefore have no game mode.
-		// See https://forums.unrealengine.com/showthread.php?7870-Does-GameMode-only-run-on-server for details.
+		// The server manages the game state; the goals will be replicated to us.
 	}
 }
