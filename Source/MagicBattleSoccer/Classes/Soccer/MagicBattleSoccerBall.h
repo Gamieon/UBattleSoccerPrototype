@@ -36,30 +36,10 @@ private:
 	int proxyStateCount;
 
 private:
-	uint64 timeServerTimeRequestWasPlaced;
-	int64 timeOffsetFromServer;
-	bool timeOffsetIsValid;
-
-private:
-	/** Gets the current system time in milliseconds */
-	uint64 GetLocalTime();
-
-	/** Gets the approximate current network time in milliseconds. */
-	uint64 GetNetworkTime();
-
-private:
 	/** Simulates the free movement of the ball based on proxy states */
 	void ClientSimulatePhysicsMovement();
 
 public:
-	/** Sent from a client to the server to get the server's system time */
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_GetServerTime();
-
-	/** Sent from the server to a client to give them the server's system time */
-	UFUNCTION(Client, Reliable)
-	void Client_GetServerTime(uint64 time);
-
 	//Begin AActor interface
 
 	/** This occurs when play begins */

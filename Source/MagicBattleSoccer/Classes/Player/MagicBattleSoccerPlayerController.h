@@ -13,13 +13,31 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayerController : public APlayerC
 {
 	GENERATED_UCLASS_BODY()
 
+private:
+	int64 timeServerTimeRequestWasPlaced;
+	int64 timeOffsetFromServer;
+	bool timeOffsetIsValid;
+
+public:
 	/** stores pawn location at last player death, used where player scores a kill after they died **/
 	FVector LastDeathLocation;
+
+	/** True if the network time is valid. */
+	bool IsNetworkTimeValid();
+
+	/** Gets the current system time in milliseconds */
+	static int64 GetLocalTime();
+
+	/** Gets the approximate current network time in milliseconds. */
+	int64 GetNetworkTime();
 
 	//Begin AController interface
 
 	/** sets up input */
 	virtual void SetupInputComponent() override;
+
+	/** This occurs when play begins */
+	virtual void BeginPlay() override;
 
 	/** Sets the pawn */
 	virtual void SetPawn(APawn* inPawn) override;
@@ -50,4 +68,12 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayerController : public APlayerC
 	/** Player suicide event */
 	void OnSuicide();
 
+protected:
+	/** Sent from a client to the server to get the server's system time */
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerGetServerTime();
+
+	/** Sent from the server to a client to give them the server's system time */
+	UFUNCTION(reliable, client)
+	void ClientGetServerTime(int64 serverTime);
 };

@@ -18,6 +18,7 @@ AMagicBattleSoccerPlayer::AMagicBattleSoccerPlayer(const class FPostConstructIni
 	this->OnActorBeginOverlap.AddDynamic(this, &AMagicBattleSoccerPlayer::OnBeginOverlap);
 	this->OnActorEndOverlap.AddDynamic(this, &AMagicBattleSoccerPlayer::OnEndOverlap);
 	this->SetActorTickEnabled(true);
+	PrimaryActorTick.bCanEverTick = true;
 
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	CapsuleComponent->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
@@ -148,7 +149,7 @@ void AMagicBattleSoccerPlayer::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason
 /** This occurs when the player is destroyed */
 void AMagicBattleSoccerPlayer::Destroyed()
 {
-	if (ROLE_Authority != Role)
+	if (Role < ROLE_Authority)
 	{
 		// The server manages the game state; the player list will be replicated to us.
 	}

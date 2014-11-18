@@ -3,6 +3,7 @@
 #include "MagicBattleSoccerBall.h"
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerPlayerController.h"
 
 
 AMagicBattleSoccerBall::AMagicBattleSoccerBall(const class FPostConstructInitializeProperties& PCIP)
@@ -12,9 +13,6 @@ AMagicBattleSoccerBall::AMagicBattleSoccerBall(const class FPostConstructInitial
 	LastReleaseTime = 0.0f;
 	NegDistanceTravelled = 0.0f;
 	proxyStateCount = 0;
-	timeServerTimeRequestWasPlaced = 0;
-	timeOffsetFromServer = 0;
-	timeOffsetIsValid = false;
 	this->SetActorTickEnabled(true);
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -51,31 +49,11 @@ void AMagicBattleSoccerBall::OnRep_ServerPhysicsState()
 	}		
 }
 
-/** Gets the current system time in milliseconds */
-uint64 AMagicBattleSoccerBall::GetLocalTime()
-{
-	FILETIME ft;
-	GetSystemTimeAsFileTime(&ft);
-
-	// Filetime in 100 nanosecond resolution
-	uint64 fileTimeNano100;
-	fileTimeNano100 = (((uint64)ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
-
-	// To milliseconds and unix windows epoche offset removed
-	uint64 posixTime = fileTimeNano100 / 10000 - 11644473600000;
-	return posixTime;
-}
-
-/** Gets the approximate current network time in milliseconds. */
-uint64 AMagicBattleSoccerBall::GetNetworkTime()
-{
-	return GetLocalTime() + timeOffsetFromServer;
-}
-
 /** Simulates the free movement of the ball based on proxy states */
 void AMagicBattleSoccerBall::ClientSimulatePhysicsMovement()
 {
-	if (!timeOffsetIsValid || 0 == proxyStateCount)
+	AMagicBattleSoccerPlayerController* MyPC = Cast<AMagicBattleSoccerPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (!MyPC->IsNetworkTimeValid() || 0 == proxyStateCount || nullptr == MyPC)
 	{
 		// We don't know yet know what the time is on the server yet so the timestamps
 		// of the proxy states mean nothing; that or we simply don't have any proxy
@@ -88,7 +66,7 @@ void AMagicBattleSoccerBall::ClientSimulatePhysicsMovement()
 		uint64 extrapolationLimit = 500;
 
 		// This is the target playback time of the rigid body
-		uint64 interpolationTime = GetNetworkTime() - interpolationBackTime;
+		uint64 interpolationTime = MyPC->GetNetworkTime() - interpolationBackTime;
 
 		// Use interpolation if the target playback time is present in the buffer
 		if (proxyStates[0].timestamp > interpolationTime)
@@ -108,10 +86,6 @@ void AMagicBattleSoccerBall::ClientSimulatePhysicsMovement()
 					double t = 0.0F;
 					// As the time difference gets closer to 100 ms t gets closer to 1 in
 					// which case rhs is only used
-					// Example:
-					// Time is 10.000, so sampleTime is 9.900
-					// lhs.time is 9.910 rhs.time is 9.980 length is 0.070
-					// t is 9.900 - 9.910 / 0.070 = 0.14. So it uses 14% of rhs, 86% of lhs
 					if (length > 1)
 						t = (double)(interpolationTime - lhs.timestamp) / (double)length;
 
@@ -129,7 +103,7 @@ void AMagicBattleSoccerBall::ClientSimulatePhysicsMovement()
 			FSmoothPhysicsState latest = proxyStates[0];
 
 			uint64 extrapolationLength = interpolationTime - latest.timestamp;
-			// Don't extrapolation for more than 500 ms, you would need to do that carefully
+			// Don't extrapolate for more than [extrapolationLimit] milliseconds, you would need to do that carefully
 			if (extrapolationLength < extrapolationLimit)
 			{
 				FVector pos = latest.pos + latest.vel * ((float)extrapolationLength * 0.001f);
@@ -140,56 +114,12 @@ void AMagicBattleSoccerBall::ClientSimulatePhysicsMovement()
 	}
 }
 
-/** Sent from a client to the server to get the server's system time */
-void AMagicBattleSoccerBall::Server_GetServerTime_Implementation()
-{
-	Client_GetServerTime(GetLocalTime());
-}
-
-bool AMagicBattleSoccerBall::Server_GetServerTime_Validate()
-{
-	return true;
-}
-
-/** Sent from the server to a client to give them the server's system time */
-void AMagicBattleSoccerBall::Client_GetServerTime_Implementation(uint64 time)
-{
-	APlayerState* MyState = GetGameState()->PlayerArray[0];
-	float ping = MyState->ExactPing;
-
-	// Calculate the server's system time at the moment we actually sent the
-	// request for it.
-	time -= (int64)(ping * 1000.0f);
-
-	// Now calculate the difference between the two values
-	if (timeServerTimeRequestWasPlaced > time)
-	{
-		// We are in the "future," so the offset should be negative
-		timeOffsetFromServer = -(int64)(timeServerTimeRequestWasPlaced - time);
-	}
-	else
-	{
-		// We are in the "past" (or "present"), so the offset should be non-negative
-		timeOffsetFromServer = (time - timeServerTimeRequestWasPlaced);
-	}
-
-	// Now we can safely say that the following is true
-	//
-	// time = timeServerTimeRequestWasPlaced + timeOffsetFromServer
-	//
-	// which is another way of saying
-	//
-	// NetworkTime = LocalTime + timeOffsetFromServer
-
-	timeOffsetIsValid = true;
-}
-
 /** This occurs when play begins */
 void AMagicBattleSoccerBall::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (ROLE_Authority != Role)
+	if (Role < ROLE_Authority)
 	{
 		// The server manages the game state; the soccer ball will be replicated to us.
 
@@ -200,21 +130,6 @@ void AMagicBattleSoccerBall::BeginPlay()
 		Root->SetSimulatePhysics(false);
 		Root->SetEnableGravity(false);
 		SetActorEnableCollision(false);
-
-		// Ask the server for its current time
-		if (ROLE_AutonomousProxy == Role)
-		{
-			// Autonomous proxies need to use RPC calls
-			timeServerTimeRequestWasPlaced = GetLocalTime();
-			Server_GetServerTime();
-		}
-		else
-		{
-			// Simulated proxies are treated as the server (we're probably in the editor). 
-			// Make sure the time offset is zero.
-			timeOffsetFromServer = 0;
-			timeOffsetIsValid = true;
-		}
 	}
 	else
 	{
@@ -238,7 +153,7 @@ void AMagicBattleSoccerBall::Tick(float DeltaSeconds)
 	else
 	{
 		// No possessor. The ball is freely moving.
-		if (ROLE_Authority != Role)
+		if (Role < ROLE_Authority)
 		{
 			// Clients should update its local position based on where it is on the server
 			ClientSimulatePhysicsMovement();
@@ -250,7 +165,7 @@ void AMagicBattleSoccerBall::Tick(float DeltaSeconds)
 			ServerPhysicsState.pos = GetActorLocation();
 			ServerPhysicsState.rot = GetActorRotation();
 			ServerPhysicsState.vel = Root->GetComponentVelocity();
-			ServerPhysicsState.timestamp = GetLocalTime();
+			ServerPhysicsState.timestamp = AMagicBattleSoccerPlayerController::GetLocalTime();
 		}
 	}
 }
@@ -281,7 +196,7 @@ void AMagicBattleSoccerBall::MoveWithPossessor()
 /** Kicks this ball with a given force */
 void AMagicBattleSoccerBall::Kick(const FVector& Force)
 {
-	if (ROLE_Authority != Role)
+	if (Role < ROLE_Authority)
 	{
 		// Safety check. Only authority entities should drive the ball.
 	}
@@ -299,7 +214,7 @@ void AMagicBattleSoccerBall::Kick(const FVector& Force)
 /** Sets the current ball possessor */
 void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 {
-	if (ROLE_Authority != Role)
+	if (Role < ROLE_Authority)
 	{
 		// Safety check. Only authority entities should drive the ball.
 	}
@@ -352,6 +267,6 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 		ServerPhysicsState.pos = GetActorLocation();
 		ServerPhysicsState.rot = GetActorRotation();
 		ServerPhysicsState.vel = Root->GetComponentVelocity();
-		ServerPhysicsState.timestamp = GetLocalTime();
+		ServerPhysicsState.timestamp = AMagicBattleSoccerPlayerController::GetLocalTime();
 	}
 }
