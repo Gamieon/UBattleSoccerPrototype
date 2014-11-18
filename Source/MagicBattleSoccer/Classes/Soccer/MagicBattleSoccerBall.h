@@ -62,10 +62,10 @@ public:
 	/** Sets the current ball possessor */
 	void SetPossessor(class AMagicBattleSoccerPlayer* Player);
 
-	/** Kicks this ball with a given force */
-	void Kick(const FVector& Force);
-
 	/** Move with the possessing player */
 	void MoveWithPossessor();
+
+	/** Kicks this ball with a given force */
+	void Kick(const FVector& Force);
 };
 

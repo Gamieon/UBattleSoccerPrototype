@@ -34,7 +34,7 @@ void AMagicBattleSoccerPlayer::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	if (Role == ROLE_Authority)
+	if (ROLE_Authority == Role)
 	{
 		// Reset the health count
 		Health = MaxHealth;
@@ -301,7 +301,7 @@ void AMagicBattleSoccerPlayer::OnDeath(float KillingDamage, struct FDamageEvent 
 	bReplicateMovement = false;
 	bTearOff = true;
 
-	if (Role == ROLE_Authority)
+	if (ROLE_Authority == Role)
 	{
 		ReplicateHit(KillingDamage, DamageEvent, PawnInstigator, DamageCauser, true);
 	}
@@ -315,7 +315,7 @@ void AMagicBattleSoccerPlayer::OnDeath(float KillingDamage, struct FDamageEvent 
 
 void AMagicBattleSoccerPlayer::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser)
 {
-	if (Role == ROLE_Authority)
+	if (ROLE_Authority == Role)
 	{
 		ReplicateHit(DamageTaken, DamageEvent, PawnInstigator, DamageCauser, false);
 	}
@@ -492,8 +492,9 @@ void AMagicBattleSoccerPlayer::EquipWeapon(AMagicBattleSoccerWeapon* Weapon)
 }
 
 //////////////////////////////////////////////////////////////////////////
-// Weapon usage
+// Actions
 
+/** [local] starts weapon fire */
 void AMagicBattleSoccerPlayer::StartWeaponFire()
 {
 	if (!bWantsToFire)
@@ -506,6 +507,7 @@ void AMagicBattleSoccerPlayer::StartWeaponFire()
 	}
 }
 
+/** [local] stops weapon fire */
 void AMagicBattleSoccerPlayer::StopWeaponFire()
 {
 	if (bWantsToFire)
@@ -518,15 +520,104 @@ void AMagicBattleSoccerPlayer::StopWeaponFire()
 	}
 }
 
+/** check if pawn can fire weapon */
 bool AMagicBattleSoccerPlayer::CanFire() const
 {
 	return IsAlive();
 }
 
+/** [server] Updates the movement speed based on conditions (ball possessor, etc) */
+void AMagicBattleSoccerPlayer::UpdateMovementSpeed()
+{
+	UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
+	AMagicBattleSoccerBall *Ball = GetSoccerBall();
+
+	if (Ball->Possessor == this)
+	{
+		CurrentMovementSpeed = DefaultMovementSpeed * 0.75f;
+	}
+
+	MovementComponent->MaxWalkSpeed = CurrentMovementSpeed;
+}
+
+/** [local] Kicks the ball in the forward direction */
+UFUNCTION(BlueprintCallable, Category = Soccer)
+void AMagicBattleSoccerPlayer::KickBallForward()
+{
+	AMagicBattleSoccerBall *Ball = GetSoccerBall();
+	FVector BallLocation = Ball->GetActorLocation();
+	const float KickForce = 28000.0f;
+	KickBall(GetActorForwardVector() * KickForce);
+}
+
+/** [local] Kicks the ball to the specified location */
+UFUNCTION(BlueprintCallable, Category = Soccer)
+void AMagicBattleSoccerPlayer::KickBallToLocation(const FVector& Location)
+{
+	AMagicBattleSoccerBall *Ball = GetSoccerBall();
+	FVector BallLocation = Ball->GetActorLocation();
+	const float KickForce = 60.0f;
+	KickBall(FVector(Location.X - BallLocation.X, Location.Y - BallLocation.Y, 0.0f) * KickForce);
+}
+
+/** [local] Tries to kick ball into the goal. Returns true if the ball was kicked. */
+bool AMagicBattleSoccerPlayer::KickBallToGoal()
+{
+	AMagicBattleSoccerBall *Ball = GetSoccerBall();
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(EnemyGoal);
+	ActorsToIgnore.Add(GetSoccerBall());
+
+	if (this != Ball->Possessor)
+	{
+		return false;
+	}
+	else if (GetDistanceTo(EnemyGoal) > 1500.0f)
+	{
+		return false;
+	}
+	else if (NULL != GetClosestActorObstructingPoint(EnemyGoal->GetActorLocation() + FVector(0, 0, 100), ActorsToIgnore))
+	{
+		return false;
+	}
+	else
+	{
+		KickBallToLocation(EnemyGoal->GetActorLocation());
+		return true;
+	}
+}
+
+/** [local] Critical path for all kick functions */
+void AMagicBattleSoccerPlayer::KickBall(const FVector& Force)
+{
+	if (Role < ROLE_Authority)
+	{
+		ServerKickBall(Force);
+	}
+	else
+	{
+		AMagicBattleSoccerBall *Ball = GetSoccerBall();
+		Ball->Kick(Force);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Actions - server side
+
+bool AMagicBattleSoccerPlayer::ServerKickBall_Validate(FVector Force)
+{
+	return IsAlive();
+}
+
+void AMagicBattleSoccerPlayer::ServerKickBall_Implementation(FVector Force)
+{
+	KickBall(Force);
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Player attributes
 
-/** Gets the game mode (only the authority instance should be interested in this) */
+/** Gets the game mode (only the server should be interested in this) */
 AMagicBattleSoccerGameMode* AMagicBattleSoccerPlayer::GetGameMode()
 {
 	return Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -555,7 +646,10 @@ TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerPlayer::GetTeammates()
 	{
 		// We have to test labels because when a human player is assigned their goal, the pointer to the goal may
 		// not be the same as the pointer that a bot player retains although they are the same object.
-		if (this != *It && (*It)->EnemyGoal->TeamNumber == EnemyGoal->TeamNumber)
+		if (this != *It 
+			&& nullptr != EnemyGoal
+			&& nullptr != (*It)->EnemyGoal
+			&& (*It)->EnemyGoal->TeamNumber == EnemyGoal->TeamNumber)
 		{
 			Teammates.Add(*It);
 		}
@@ -574,7 +668,10 @@ TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerPlayer::GetOpponents()
 	{
 		// We have to test labels because when a human player is assigned their goal, the pointer to the goal may
 		// not be the same as the pointer that a bot player retains although they are the same object.
-		if (this != *It && (*It)->EnemyGoal->TeamNumber != EnemyGoal->TeamNumber)
+		if (this != *It 
+			&& nullptr != EnemyGoal
+			&& nullptr != (*It)->EnemyGoal
+			&& (*It)->EnemyGoal->TeamNumber != EnemyGoal->TeamNumber)
 		{
 			Opponents.Add(*It);
 		}
@@ -583,6 +680,7 @@ TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerPlayer::GetOpponents()
 	return Opponents;
 }
 
+/** check if pawn is still alive */
 bool AMagicBattleSoccerPlayer::IsAlive() const
 {
 	return Health > 0;
@@ -596,90 +694,15 @@ bool AMagicBattleSoccerPlayer::PossessesBall()
 }
 
 //////////////////////////////////////////////////////////////////////////
-// Player actions
-
-/** Updates the movement speed based on conditions (ball possessor, etc) */
-void AMagicBattleSoccerPlayer::UpdateMovementSpeed()
-{
-	UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
-	AMagicBattleSoccerBall *Ball = GetSoccerBall();
-
-	if (Ball->Possessor == this)
-	{
-		CurrentMovementSpeed = DefaultMovementSpeed * 0.75f;
-	}
-
-	MovementComponent->MaxWalkSpeed = CurrentMovementSpeed;
-}
-
-/** Kicks the ball in the forward direction */
-UFUNCTION(BlueprintCallable, Category = Soccer)
-void AMagicBattleSoccerPlayer::KickBallForward()
-{
-	AMagicBattleSoccerBall *Ball = GetSoccerBall();
-	FVector BallLocation = Ball->GetActorLocation();
-	const float KickForce = 28000.0f;
-	Ball->Kick(GetActorForwardVector() * KickForce);
-}
-
-/** Kicks the ball to the specified location */
-UFUNCTION(BlueprintCallable, Category = Soccer)
-void AMagicBattleSoccerPlayer::KickBallToLocation(const FVector& Location)
-{
-	AMagicBattleSoccerBall *Ball = GetSoccerBall();
-	FVector BallLocation = Ball->GetActorLocation();
-	const float KickForce = 60.0f;
-	Ball->Kick(FVector(Location.X - BallLocation.X, Location.Y - BallLocation.Y, 0.0f) * KickForce);
-}
-
-/** Tries to kick ball into the goal. Returns true if the ball was kicked. */
-bool AMagicBattleSoccerPlayer::KickBallToGoal()
-{
-	AMagicBattleSoccerBall *Ball = GetSoccerBall();
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(EnemyGoal);
-	ActorsToIgnore.Add(GetSoccerBall());
-
-	if (this != Ball->Possessor)
-	{
-		return false;
-	}
-	else if (GetDistanceTo(EnemyGoal) > 1500.0f)
-	{
-		return false;
-	}
-	else if (NULL != GetClosestActorObstructingPoint(EnemyGoal->GetActorLocation() + FVector(0, 0, 100), ActorsToIgnore))
-	{
-		return false;
-	}
-	else
-	{
-		KickBallToLocation(EnemyGoal->GetActorLocation());
-		return true;
-	}
-}
-
-/** Stops attacking */
-void AMagicBattleSoccerPlayer::CeaseFire()
-{
-	if (IsAttacking && NULL != CurrentWeapon)
-	{
-		CurrentWeapon->StopFire();
-		IsAttacking = false;
-	}
-}
-
-
-//////////////////////////////////////////////////////////////////////////
 // AI
 
-/** True if the player can be pursued by AI */
+/** [AI] True if the player can be pursued by AI */
 bool AMagicBattleSoccerPlayer::CanBePursued()
 {
 	return true;
 }
 
-/** Clips the value n so that it will be within o+d and o-d */
+/** [AI] Clips the value n so that it will be within o+d and o-d */
 void AMagicBattleSoccerPlayer::ClipAxe(float& n, float o, float d)
 {
 	if (n < o - d)
@@ -692,7 +715,7 @@ void AMagicBattleSoccerPlayer::ClipAxe(float& n, float o, float d)
 	}
 }
 
-/** If this player is in their action zone, call this function to ensure the location will not leave the zone bounds */
+/** [AI] If this player is in their action zone, call this function to ensure the location will not leave the zone bounds */
 FVector AMagicBattleSoccerPlayer::ClipToActionZone(const FVector& Location)
 {
 	FVector ClippedPoint = Location;
@@ -708,7 +731,7 @@ FVector AMagicBattleSoccerPlayer::ClipToActionZone(const FVector& Location)
 	return ClippedPoint;
 }
 
-/** Gets the closest actor between this player and a point */
+/** [AI] Gets the closest actor between this player and a point */
 AActor* AMagicBattleSoccerPlayer::GetClosestActorObstructingPoint(const FVector& Point, const TArray<AActor*>& ActorsToIgnore)
 {
 	if (NULL == EnemyGoal)
@@ -734,7 +757,7 @@ AActor* AMagicBattleSoccerPlayer::GetClosestActorObstructingPoint(const FVector&
 	}
 }
 
-/** Gets the closest enemy to this player that can be pursued */
+/** [AI] Gets the closest enemy to this player that can be pursued */
 AMagicBattleSoccerPlayer* AMagicBattleSoccerPlayer::GetClosestOpponent()
 {
 	const TArray<AMagicBattleSoccerPlayer*>& Opponents = GetOpponents();
@@ -751,7 +774,7 @@ AMagicBattleSoccerPlayer* AMagicBattleSoccerPlayer::GetClosestOpponent()
 	return ClosestOpponent;
 }
 
-/** Gets the ideal teammate to pass the soccer ball to, or NULL if there is none */
+/** [AI] Gets the ideal teammate to pass the soccer ball to, or NULL if there is none */
 AMagicBattleSoccerPlayer* AMagicBattleSoccerPlayer::GetIdealPassMate()
 {
 	const TArray<AMagicBattleSoccerPlayer*>& Teammates = GetTeammates();
@@ -804,7 +827,7 @@ AMagicBattleSoccerPlayer* AMagicBattleSoccerPlayer::GetIdealPassMate()
 	return IdealPassMate;
 }
 
-/** Gets the ideal object to run to if the player is idle */
+/** [AI] Gets the ideal object to run to if the player is idle */
 AActor* AMagicBattleSoccerPlayer::GetIdealPursuitTarget()
 {	
 	// By default we want to pursue the soccer ball
@@ -839,7 +862,7 @@ AActor* AMagicBattleSoccerPlayer::GetIdealPursuitTarget()
 	return PursuitTarget;
 }
 
-/** Gets the ideal point to run to when not chasing another actor while following the ball possessor */
+/** [AI] Gets the ideal point to run to when not chasing another actor while following the ball possessor */
 FVector AMagicBattleSoccerPlayer::GetIdealPossessorFollowLocation()
 {
 	AMagicBattleSoccerPlayer* Possessor = GetSoccerBall()->Possessor;
@@ -860,7 +883,7 @@ FVector AMagicBattleSoccerPlayer::GetIdealPossessorFollowLocation()
 	}
 }
 
-/** Attacks a soccer player */
+/** [AI] Attacks a soccer player */
 void AMagicBattleSoccerPlayer::AttackPlayer(AMagicBattleSoccerPlayer* Target)
 {
 	if (!PossessesBall() && NULL != CurrentWeapon)
@@ -869,13 +892,22 @@ void AMagicBattleSoccerPlayer::AttackPlayer(AMagicBattleSoccerPlayer* Target)
 		// Face the target
 		SetActorRotation(faceRot);
 
-		/*
 		// Start attacking the player if we haven't already
 		if (!IsAttacking)
 		{
-			CurrentWeapon->StartFire();
+			StartWeaponFire();
 			IsAttacking = true;
-		}*/
+		}
 	}
+}
 
+/** [AI] Stops attacking a soccer player */
+UFUNCTION(BlueprintCallable, Category = Soccer)
+void AMagicBattleSoccerPlayer::StopAttackingPlayer()
+{
+	if (IsAttacking)
+	{
+		StopWeaponFire();
+		IsAttacking = false;
+	}
 }

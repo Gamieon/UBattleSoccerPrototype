@@ -199,7 +199,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	void EquipWeapon(class AMagicBattleSoccerWeapon* Weapon);
 
 	//////////////////////////////////////////////////////////////////////////
-	// Weapon usage
+	// Actions
 
 	/** [local] starts weapon fire */
 	void StartWeaponFire();
@@ -210,11 +210,34 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	/** check if pawn can fire weapon */
 	bool CanFire() const;
 
-public:
+	/** [server] Updates the movement speed based on conditions (ball possessor, etc) */
+	void UpdateMovementSpeed();
+
+	/** [local] Kicks the ball in the forward direction */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	void KickBallForward();
+
+	/** [local] Kicks the ball to the specified location */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	void KickBallToLocation(const FVector& Location);
+
+	/** [local] Tries to kick ball into the goal. Returns true if the ball was kicked. */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	bool KickBallToGoal();
+
+	/** [local] Critical path for all kick functions */
+	void KickBall(const FVector& Force);
+
+	//////////////////////////////////////////////////////////////////////////
+	// Actions - server side
+
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerKickBall(FVector Force);
+
 	//////////////////////////////////////////////////////////////////////////
 	// Player attributes
 
-	/** Gets the game mode (only the authority instance should be interested in this) */
+	/** Gets the game mode (only the server should be interested in this) */
 	AMagicBattleSoccerGameMode* GetGameMode();
 
 	/** Gets the game state (all instances should be interested in this) */
@@ -237,28 +260,6 @@ public:
 	/** True if this player possesses the ball */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	bool PossessesBall();
-
-	//////////////////////////////////////////////////////////////////////////
-	// Player actions
-
-	/** Updates the movement speed based on conditions (ball possessor, etc) */
-	void UpdateMovementSpeed();
-
-	/** Kicks the ball in the forward direction */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void KickBallForward();
-
-	/** Kicks the ball to the specified location */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void KickBallToLocation(const FVector& Location);
-
-	/** Tries to kick ball into the goal. Returns true if the ball was kicked. */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	bool KickBallToGoal();
-
-	/** Stops attacking */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void CeaseFire();
 
 	//////////////////////////////////////////////////////////////////////////
 	// AI
@@ -297,5 +298,9 @@ public:
 	/** Attacks a soccer player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	void AttackPlayer(AMagicBattleSoccerPlayer* Target);
+
+	/** Stops attacking a soccer player */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	void StopAttackingPlayer();
 };
 
