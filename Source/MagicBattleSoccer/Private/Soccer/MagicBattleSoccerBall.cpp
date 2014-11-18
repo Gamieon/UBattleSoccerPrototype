@@ -193,24 +193,6 @@ void AMagicBattleSoccerBall::MoveWithPossessor()
 		FRotator(NegDistanceTravelled, Possessor->GetActorRotation().Yaw, 0.0f));
 }
 
-/** Kicks this ball with a given force */
-void AMagicBattleSoccerBall::Kick(const FVector& Force)
-{
-	if (Role < ROLE_Authority)
-	{
-		// Safety check. Only authority entities should drive the ball.
-	}
-	else
-	{
-		// Reset the possessor
-		SetPossessor(NULL);
-
-		// Now apply the force
-		UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
-		Root->AddForce(Force);
-	}
-}
-
 /** Sets the current ball possessor */
 void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 {
@@ -244,7 +226,7 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 			UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
 			if (NULL != Possessor)
 			{
-				Possessor->CeaseFire();
+				Possessor->StopWeaponFire();
 				Root->PutRigidBodyToSleep();
 				Root->SetSimulatePhysics(false);
 				Root->SetEnableGravity(false);
@@ -268,5 +250,26 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 		ServerPhysicsState.rot = GetActorRotation();
 		ServerPhysicsState.vel = Root->GetComponentVelocity();
 		ServerPhysicsState.timestamp = AMagicBattleSoccerPlayerController::GetLocalTime();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Input
+
+/** Kicks this ball with a given force */
+void AMagicBattleSoccerBall::Kick(const FVector& Force)
+{
+	if (nullptr == Possessor)
+	{
+		// Safety check. The possessor must be valid.
+	}
+	else
+	{
+		// Reset the possessor
+		SetPossessor(NULL);
+
+		// Now apply the force
+		UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
+		Root->AddForce(Force);
 	}
 }

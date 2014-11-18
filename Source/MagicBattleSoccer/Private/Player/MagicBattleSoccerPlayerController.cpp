@@ -6,6 +6,7 @@
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerGameState.h"
+#include "MagicBattleSoccerGameMode.h"
 #include <chrono>
 
 using namespace std::chrono;
@@ -49,6 +50,7 @@ void AMagicBattleSoccerPlayerController::SetupInputComponent()
 	InputComponent->BindAction("PrimaryAction", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnStartPrimaryAction);
 	InputComponent->BindAction("PrimaryAction", IE_Released, this, &AMagicBattleSoccerPlayerController::OnStopPrimaryAction);
 	InputComponent->BindAction("Suicide", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnSuicide);
+	InputComponent->BindAction("Respawn", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnRespawn);
 }
 
 void AMagicBattleSoccerPlayerController::BeginPlay()
@@ -161,11 +163,6 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 		}
 		else if (nullptr != PlayerPawn->CurrentWeapon)
 		{
-			//FHitResult hitResult;
-			//GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, hitResult);
-			//FVector hitLocation = FVector(hitResult.Location.X, hitResult.Location.Y, PlayerPawn->GetActorLocation().Z);
-			//FRotator lookAtRotation = (hitLocation - PlayerPawn->GetActorLocation()).Rotation();
-
 			PlayerPawn->StartWeaponFire();
 		}
 	}
@@ -187,6 +184,16 @@ void AMagicBattleSoccerPlayerController::OnSuicide()
 {
 	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
 	PlayerPawn->Destroy();
+}
+
+/** Player respawn event */
+void AMagicBattleSoccerPlayerController::OnRespawn()
+{
+	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	if (nullptr == PlayerPawn)
+	{
+		ServerRestartPlayer();
+	}
 }
 
 /** Sent from a client to the server to get the server's system time */

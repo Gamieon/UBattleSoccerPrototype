@@ -68,6 +68,9 @@ public:
 	/** Player suicide event */
 	void OnSuicide();
 
+	/** Player respawn event */
+	void OnRespawn();
+
 protected:
 	/** Sent from a client to the server to get the server's system time */
 	UFUNCTION(reliable, server, WithValidation)
