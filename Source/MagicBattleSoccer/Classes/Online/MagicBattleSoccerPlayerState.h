@@ -14,4 +14,8 @@ UCLASS()
 class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayerState : public APlayerState
 {
 	GENERATED_UCLASS_BODY()
+
+	/** The team number */
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	int32 TeamNumber;
 };

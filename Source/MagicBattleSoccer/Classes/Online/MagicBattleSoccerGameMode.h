@@ -43,7 +43,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameMode : public AGameMode
 	virtual float ModifyDamage(float Damage, AActor* DamagedActor, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const;
 
 	/** can players damage each other? */
-	virtual bool CanDealDamage(class AMagicBattleSoccerPlayerState* DamageInstigator, class AMagicBattleSoccerPlayerState* DamagedPlayer) const;
+	virtual bool CanDealDamage(class AMagicBattleSoccerPlayer* DamageInstigator, class AMagicBattleSoccerPlayer* DamagedPlayer) const;
 
 	/** notify about kills */
 	virtual void Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType);

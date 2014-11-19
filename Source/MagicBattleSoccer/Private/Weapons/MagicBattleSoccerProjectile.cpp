@@ -1,6 +1,8 @@
 
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerProjectile.h"
+#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerGameState.h"
 
 AMagicBattleSoccerProjectile::AMagicBattleSoccerProjectile(const class FPostConstructInitializeProperties& PCIP) : Super(PCIP)
 {
@@ -36,7 +38,23 @@ void AMagicBattleSoccerProjectile::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	MovementComp->OnProjectileStop.AddDynamic(this, &AMagicBattleSoccerProjectile::OnImpact);
-	CollisionComp->MoveIgnoreActors.Add(Instigator);
+	CollisionComp->IgnoreActorWhenMoving(Instigator, true);
+
+	AMagicBattleSoccerPlayer *InstigatorPlayer = Cast<AMagicBattleSoccerPlayer>(Instigator);
+	if (nullptr != InstigatorPlayer)
+	{
+		// Ignore instigator teammates
+		const TArray<AMagicBattleSoccerPlayer*>& Teammates = InstigatorPlayer->GetTeammates();
+		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Teammates.CreateConstIterator()); It; ++It)
+		{
+			CollisionComp->IgnoreActorWhenMoving(*It, true);
+			(*It)->CapsuleComponent->IgnoreActorWhenMoving(this, true);
+			if (nullptr != (*It)->CurrentWeapon)
+			{
+				CollisionComp->IgnoreActorWhenMoving((*It)->CurrentWeapon, true);
+			}
+		}
+	}
 
 	AMagicBattleSoccerWeapon_Projectile* OwnerWeapon = Cast<AMagicBattleSoccerWeapon_Projectile>(GetOwner());
 	if (OwnerWeapon)
@@ -65,6 +83,25 @@ void AMagicBattleSoccerProjectile::OnImpact(const FHitResult& HitResult)
 	}
 }
 
+/** This occurs when the object is destroyed */
+void AMagicBattleSoccerProjectile::Destroyed()
+{
+	// Don't leave ourselves lingering in the ignore lists of any soccer players
+	UWorld *World = GetWorld();
+	if (nullptr != World)
+	{
+		AMagicBattleSoccerGameState* Game = World->GetGameState<AMagicBattleSoccerGameState>();
+		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Game->SoccerPlayers.CreateConstIterator()); It; ++It)
+		{
+			(*It)->CapsuleComponent->IgnoreActorWhenMoving(this, false);
+			if (nullptr != (*It)->CurrentWeapon)
+			{
+				CollisionComp->IgnoreActorWhenMoving((*It)->CurrentWeapon, false);
+			}
+		}
+	}
+}
+
 void AMagicBattleSoccerProjectile::Explode(const FHitResult& Impact)
 {
 	// effects and damage origin shouldn't be placed inside mesh at impact point
@@ -86,13 +123,14 @@ void AMagicBattleSoccerProjectile::DisableAndDestroy()
 		ProjAudioComp->FadeOut(0.1f, 0.f);
 	}
 
-	MovementComp->StopMovementImmediately();
+	//MovementComp->StopMovementImmediately();
 
 	// give clients some time to show explosion
 	//SetLifeSpan(2.0f);
 
-	// hide right now because we have no explosion
-	SetLifeSpan(0.1f);
+	// Destroy ourselves now since we don't have any flashy special effects
+	// or explosions to show off.
+	Destroy();
 }
 
 void AMagicBattleSoccerProjectile::OnRep_Exploded()

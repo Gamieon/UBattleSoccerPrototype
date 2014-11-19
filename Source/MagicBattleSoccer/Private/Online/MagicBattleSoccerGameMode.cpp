@@ -13,6 +13,8 @@
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerPlayerController.h"
 #include "MagicBattleSoccerPlayerState.h"
+#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerGameSession.h"
 
 AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FPostConstructInitializeProperties& PCIP)
@@ -43,11 +45,11 @@ float AMagicBattleSoccerGameMode::ModifyDamage(float Damage, AActor* DamagedActo
 	AMagicBattleSoccerPlayer* DamagedPawn = Cast<AMagicBattleSoccerPlayer>(DamagedActor);
 	if (DamagedPawn && EventInstigator)
 	{
-		AMagicBattleSoccerPlayerState* DamagedPlayerState = Cast<AMagicBattleSoccerPlayerState>(DamagedPawn->PlayerState);
-		AMagicBattleSoccerPlayerState* InstigatorPlayerState = Cast<AMagicBattleSoccerPlayerState>(EventInstigator->PlayerState);
+		AMagicBattleSoccerPlayer* DamagedPlayer = Cast<AMagicBattleSoccerPlayer>(DamagedPawn);
+		AMagicBattleSoccerPlayer* InstigatorPlayer = Cast<AMagicBattleSoccerPlayer>(EventInstigator->GetPawn());
 
 		// disable friendly fire
-		if (!CanDealDamage(InstigatorPlayerState, DamagedPlayerState))
+		if (!CanDealDamage(InstigatorPlayer, DamagedPlayer))
 		{
 			ActualDamage = 0.0f;
 		}
@@ -56,9 +58,14 @@ float AMagicBattleSoccerGameMode::ModifyDamage(float Damage, AActor* DamagedActo
 	return ActualDamage;
 }
 
-bool AMagicBattleSoccerGameMode::CanDealDamage(class AMagicBattleSoccerPlayerState* DamageInstigator, class AMagicBattleSoccerPlayerState* DamagedPlayer) const
+bool AMagicBattleSoccerGameMode::CanDealDamage(AMagicBattleSoccerPlayer* DamageInstigator, AMagicBattleSoccerPlayer* DamagedPlayer) const
 {
-	return true; // free for all until we assign players to teams
+	// Prevent friendly damage
+	return (
+		nullptr == DamageInstigator
+		|| nullptr == DamageInstigator->EnemyGoal
+		|| nullptr == DamagedPlayer->EnemyGoal
+		|| (DamageInstigator->EnemyGoal->TeamNumber != DamagedPlayer->EnemyGoal->TeamNumber));
 }
 
 void AMagicBattleSoccerGameMode::Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType)

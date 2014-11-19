@@ -24,6 +24,9 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerProjectile : public AActor
 	UFUNCTION()
 	void OnImpact(const FHitResult& HitResult);
 
+	/** This occurs when the object is destroyed */
+	virtual void Destroyed() override;
+
 protected:
 
 	/** movement component */

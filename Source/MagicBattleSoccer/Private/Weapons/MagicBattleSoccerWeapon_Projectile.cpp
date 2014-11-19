@@ -14,7 +14,7 @@ AMagicBattleSoccerWeapon_Projectile::AMagicBattleSoccerWeapon_Projectile(const c
 void AMagicBattleSoccerWeapon_Projectile::FireWeapon()
 {
 	FVector ShootDir = GetAdjustedAim();
-	FVector Origin = GetMuzzleLocation();
+	FVector Origin = GetMuzzleLocation() + ShootDir * 50.0f;
 
 	//DrawDebugSphere(GetWorld(), Origin + ShootDir * 400.0f, 50.0f, 16, FColor::Red, true);
 
