@@ -23,11 +23,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	//////////////////////////////////////////////////////////////////////////
 	// Player attributes
 
-	/** The goal we want to kick the ball into. This should be replicated
-	so that clients can detect who their enemies are based on their goal. */
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Soccer)
-	AMagicBattleSoccerGoal* EnemyGoal;
-
 	/** The point where this player was spawned. This applies to all players
 	(TODO: It doesn't apply to human players yet) */
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Soccer)
@@ -102,15 +97,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 
 	//////////////////////////////////////////////////////////////////////////
 	// AI
-
-	/** The zone that this player is restricted to. This is only used for AI 
-	so only the server should care about this value. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
-	ATriggerBox* ActionZone;
-
-	/** True if this player is running the attack action */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
-	bool IsAttacking;
 
 	//Begin AActor interface
 
@@ -204,6 +190,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	*/
 	void EquipWeapon(class AMagicBattleSoccerWeapon* Weapon);
 
+	/** Called to change a player's outfit based on team */
+	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
+	void AssignUniform();
+
 	//////////////////////////////////////////////////////////////////////////
 	// Actions
 
@@ -227,10 +217,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	void KickBallToLocation(const FVector& Location);
 
-	/** [local] Tries to kick ball into the goal. Returns true if the ball was kicked. */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	bool KickBallToGoal();
-
 	/** [local] Critical path for all kick functions */
 	void KickBall(const FVector& Force);
 
@@ -252,14 +238,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	/** Gets the soccer ball */
 	AMagicBattleSoccerBall* GetSoccerBall();
 
-	/** Gets all the teammates of this player */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	TArray<AMagicBattleSoccerPlayer*> GetTeammates();
-
-	/** Gets all the opponents of this player */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	TArray<AMagicBattleSoccerPlayer*> GetOpponents();
-
 	/** check if pawn is still alive */
 	bool IsAlive() const;
 
@@ -267,46 +245,5 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	bool PossessesBall();
 
-	//////////////////////////////////////////////////////////////////////////
-	// AI
-
-	/** True if the player can be pursued */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	bool CanBePursued();
-
-	/** Clips the value n so that it will be within o+d and o-d */
-	void ClipAxe(float& n, float o, float d);
-
-	/** If this player is in their action zone, call this function to ensure the location will not leave the zone bounds */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	FVector ClipToActionZone(const FVector& Location);
-
-	/** Gets the closest actor between this player and a point */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	AActor* GetClosestActorObstructingPoint(const FVector& Point, const TArray<AActor*>& ActorsToIgnore);
-
-	/** Gets the closest enemy to this player that can be pursued */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	AMagicBattleSoccerPlayer* GetClosestOpponent();
-
-	/** Gets the ideal teammate to pass the soccer ball to */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	AMagicBattleSoccerPlayer* GetIdealPassMate();
-
-	/** Gets the ideal object to run to if the player is idle */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	AActor* GetIdealPursuitTarget();
-
-	/** Gets the ideal point to run to when not chasing another actor while following the ball possessor */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	FVector GetIdealPossessorFollowLocation();
-
-	/** Attacks a soccer player */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void AttackPlayer(AMagicBattleSoccerPlayer* Target);
-
-	/** Stops attacking a soccer player */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void StopAttackingPlayer();
 };
 

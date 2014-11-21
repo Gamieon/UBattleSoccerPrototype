@@ -97,9 +97,16 @@ void ASoccerGameHUD::DrawAllSoccerPlayerStats()
 	AMagicBattleSoccerGameState *Game = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
 	if (nullptr != Game)
 	{
-		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Game->SoccerPlayers.CreateConstIterator()); It; ++It)
+		APlayerController* MyPC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		TArray<AMagicBattleSoccerPlayer*> Teammates = Game->GetTeammates(Cast<AMagicBattleSoccerPlayerState>(MyPC->PlayerState));
+		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Teammates.CreateConstIterator()); It; ++It)
 		{
 			DrawSoccerPlayerStats(*It);
+		}
+
+		if (nullptr != MyPC->GetPawn())
+		{
+			DrawSoccerPlayerStats(Cast<AMagicBattleSoccerPlayer>(MyPC->GetPawn()));
 		}
 	}
 }

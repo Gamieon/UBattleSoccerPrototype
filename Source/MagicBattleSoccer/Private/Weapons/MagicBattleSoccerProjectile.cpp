@@ -1,8 +1,9 @@
 
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerProjectile.h"
-#include "MagicBattleSoccerPlayer.h"
 #include "MagicBattleSoccerGameState.h"
+#include "MagicBattleSoccerPlayerState.h"
+#include "MagicBattleSoccerPlayer.h"
 
 AMagicBattleSoccerProjectile::AMagicBattleSoccerProjectile(const class FPostConstructInitializeProperties& PCIP) : Super(PCIP)
 {
@@ -44,7 +45,8 @@ void AMagicBattleSoccerProjectile::PostInitializeComponents()
 	if (nullptr != InstigatorPlayer)
 	{
 		// Ignore instigator teammates
-		const TArray<AMagicBattleSoccerPlayer*>& Teammates = InstigatorPlayer->GetTeammates();
+		AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
+		const TArray<AMagicBattleSoccerPlayer*>& Teammates = GameState->GetTeammates(Cast<AMagicBattleSoccerPlayerState>(InstigatorPlayer->PlayerState));
 		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Teammates.CreateConstIterator()); It; ++It)
 		{
 			CollisionComp->IgnoreActorWhenMoving(*It, true);
@@ -91,12 +93,15 @@ void AMagicBattleSoccerProjectile::Destroyed()
 	if (nullptr != World)
 	{
 		AMagicBattleSoccerGameState* Game = World->GetGameState<AMagicBattleSoccerGameState>();
-		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Game->SoccerPlayers.CreateConstIterator()); It; ++It)
+		if (nullptr != Game)
 		{
-			(*It)->CapsuleComponent->IgnoreActorWhenMoving(this, false);
-			if (nullptr != (*It)->CurrentWeapon)
+			for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Game->SoccerPlayers.CreateConstIterator()); It; ++It)
 			{
-				CollisionComp->IgnoreActorWhenMoving((*It)->CurrentWeapon, false);
+				(*It)->CapsuleComponent->IgnoreActorWhenMoving(this, false);
+				if (nullptr != (*It)->CurrentWeapon)
+				{
+					CollisionComp->IgnoreActorWhenMoving((*It)->CurrentWeapon, false);
+				}
 			}
 		}
 	}

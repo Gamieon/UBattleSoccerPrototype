@@ -42,4 +42,11 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameMode : public AGameMode
 
 	/** notify about kills */
 	virtual void Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType);
+
+	//////////////////////////////////////////////////////////////////////////
+	// AI
+
+	/** Determines whether a soccer player can be pursued by a bot */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	bool CanBePursued(class AMagicBattleSoccerPlayer* Player);
 };

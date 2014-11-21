@@ -34,9 +34,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameState : public AGameState
 public:
 	/** Gets all the teammates of a specified player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	TArray<AMagicBattleSoccerPlayer*> GetTeammates(class AMagicBattleSoccerPlayer* Player);
+	TArray<class AMagicBattleSoccerPlayer*> GetTeammates(class AMagicBattleSoccerPlayerState* PlayerState);
 
 	/** Gets all the opponents of a specified player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	TArray<AMagicBattleSoccerPlayer*> GetOpponents(class AMagicBattleSoccerPlayer* Player);
+	TArray<class AMagicBattleSoccerPlayer*> GetOpponents(class AMagicBattleSoccerPlayerState* PlayerState);
+
+	/** Gets the closest opponent */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	class AMagicBattleSoccerPlayer* GetClosestOpponent(class AMagicBattleSoccerPlayer* Player);
 };

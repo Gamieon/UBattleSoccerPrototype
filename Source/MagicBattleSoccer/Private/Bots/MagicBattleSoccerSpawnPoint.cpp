@@ -6,7 +6,7 @@
 AMagicBattleSoccerSpawnPoint::AMagicBattleSoccerSpawnPoint(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
-	EnemyGoal = NULL;
+	BotTeamNumber = 0;
 	MaxPlayersOnField = 0;
 	NumberOfPlayersOnField = 0;
 }

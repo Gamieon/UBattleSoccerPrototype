@@ -21,7 +21,14 @@ FVector AMagicBattleSoccerGoal::GetIdealRunLocation(AMagicBattleSoccerPlayer* Pl
 {
 	FVector GoalLocation = GetActorLocation();
 	FVector FrontOfGoal = GoalLocation + GetActorRightVector() * 570.0f;
-	return FVector(FrontOfGoal.X, FrontOfGoal.Y, Player->GetActorLocation().Z);
+	if (nullptr == Player)
+	{
+		return FVector(FrontOfGoal.X, FrontOfGoal.Y, 0.f);
+	}
+	else
+	{
+		return FVector(FrontOfGoal.X, FrontOfGoal.Y, Player->GetActorLocation().Z);
+	}
 }
 
 /** This occurs when play begins */

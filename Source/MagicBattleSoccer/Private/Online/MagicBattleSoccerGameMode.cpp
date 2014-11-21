@@ -73,8 +73,8 @@ float AMagicBattleSoccerGameMode::ModifyDamage(float Damage, AActor* DamagedActo
 
 bool AMagicBattleSoccerGameMode::CanDealDamage(AMagicBattleSoccerPlayerState* DamageInstigator, AMagicBattleSoccerPlayerState* DamagedPlayer) const
 {
-	// Prevent friendly damage
-	return DamageInstigator && DamagedPlayer && (DamagedPlayer == DamageInstigator || DamagedPlayer->GetTeamNum() != DamageInstigator->GetTeamNum());
+	// Prevent friendly damage and self damage
+	return DamageInstigator && DamagedPlayer && (DamagedPlayer->GetTeamNum() != DamageInstigator->GetTeamNum());
 }
 
 void AMagicBattleSoccerGameMode::Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType)
@@ -94,4 +94,10 @@ void AMagicBattleSoccerGameMode::Killed(AController* Killer, AController* Killed
 		VictimPlayerState->ScoreDeath(KillerPlayerState, DeathScore);
 		VictimPlayerState->BroadcastDeath(KillerPlayerState, DamageType, VictimPlayerState);
 	}*/
+}
+
+/** Determines whether a soccer player can be pursued by a bot */
+bool AMagicBattleSoccerGameMode::CanBePursued(AMagicBattleSoccerPlayer* Player)
+{
+	return true;
 }

@@ -17,7 +17,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayerState : public APlayerState
 
 protected:
 	/** The team number */
-	UPROPERTY(Transient, Replicated, VisibleAnywhere, BlueprintReadWrite, Category = Soccer)
+	UPROPERTY(Transient, Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
 	int32 TeamNumber;
 
 public:
@@ -26,6 +26,7 @@ public:
 	*
 	* @param	NewTeamNumber	Team we want to be on.
 	*/
+	UFUNCTION(BlueprintCallable, Category = Soccer)
 	void SetTeamNum(int32 NewTeamNumber);
 
 	/** get current team */

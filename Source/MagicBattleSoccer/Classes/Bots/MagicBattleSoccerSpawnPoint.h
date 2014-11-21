@@ -17,7 +17,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerSpawnPoint : public ATargetPoint
 
 	/** The enemy goal to assign to the spawned soccer player */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
-	AMagicBattleSoccerGoal* EnemyGoal;
+	int32 BotTeamNumber;
 
 	/** The zone that the spawned player is restricted to */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)

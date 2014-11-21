@@ -13,11 +13,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerAIController : public AAIControlle
 {
 	GENERATED_UCLASS_BODY()
 
-	/** The goal we want to kick the ball into. This should be replicated
-	so that clients can detect who their enemies are based on their goal. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
-	class AMagicBattleSoccerGoal* EnemyGoal;
-
 	/** The zone that this player is restricted to. This is only used for AI
 	so only the server should care about this value. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
@@ -34,6 +29,10 @@ public:
 	/** True if the player can be pursued */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	bool CanBePursued();
+
+	/** The goal we want to kick the ball into */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	class AMagicBattleSoccerGoal* GetEnemyGoal();
 
 	/** Clips the value n so that it will be within o+d and o-d */
 	void ClipAxe(float& n, float o, float d);
@@ -77,4 +76,8 @@ public:
 	/** Stops attacking a soccer player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	void StopAttackingPlayer();
+
+	/** Tries to kick ball into the goal. Returns true if the ball was kicked. */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	bool KickBallToGoal();
 };
