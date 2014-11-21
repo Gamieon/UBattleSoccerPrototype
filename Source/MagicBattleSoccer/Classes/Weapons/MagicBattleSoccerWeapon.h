@@ -32,7 +32,7 @@ struct FWeaponData
 	FWeaponData()
 	{
 		TimeBetweenShots = 0.5f;
-		EffectiveRange = 200.0f;
+		EffectiveRange = 1400.0f;
 	}
 };
 

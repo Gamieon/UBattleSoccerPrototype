@@ -62,7 +62,7 @@ void AMagicBattleSoccerBall::ClientSimulatePhysicsMovement()
 	}
 	else
 	{
-		uint64 interpolationBackTime = 200;
+		uint64 interpolationBackTime = 100;
 		uint64 extrapolationLimit = 500;
 
 		// This is the target playback time of the rigid body
