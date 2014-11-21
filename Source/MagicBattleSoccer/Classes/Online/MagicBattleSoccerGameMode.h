@@ -22,17 +22,12 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameMode : public AGameMode
 {
 	GENERATED_UCLASS_BODY()
 
-	//Begin AActor interface
-
-	/** This occurs when play ends */
-	virtual void ReceiveEndPlay(EEndPlayReason::Type EndPlayReason) override;
-
-	//End AActor interface
-
 	//Begin AGameMode interface
 
 	/** Returns game session class to use */
 	virtual TSubclassOf<AGameSession> GetGameSessionClass() const override;
+
+	void PostLogin(APlayerController* NewPlayer) override;
 
 	//End AGameMode interface
 
@@ -43,7 +38,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameMode : public AGameMode
 	virtual float ModifyDamage(float Damage, AActor* DamagedActor, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const;
 
 	/** can players damage each other? */
-	virtual bool CanDealDamage(class AMagicBattleSoccerPlayer* DamageInstigator, class AMagicBattleSoccerPlayer* DamagedPlayer) const;
+	virtual bool CanDealDamage(class AMagicBattleSoccerPlayerState* DamageInstigator, class AMagicBattleSoccerPlayerState* DamagedPlayer) const;
 
 	/** notify about kills */
 	virtual void Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType);

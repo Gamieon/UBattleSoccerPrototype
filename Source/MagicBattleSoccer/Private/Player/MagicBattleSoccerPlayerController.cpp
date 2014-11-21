@@ -65,26 +65,6 @@ void AMagicBattleSoccerPlayerController::BeginPlay()
 	}
 }
 
-void AMagicBattleSoccerPlayerController::SetPawn(APawn* inPawn)
-{
-	Super::SetPawn(inPawn);
-
-	if (nullptr != inPawn)
-	{
-		AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(inPawn);
-
-		// For now default to team 1
-		for (TObjectIterator<AMagicBattleSoccerGoal> It; It; ++It)
-		{
-			if (2 == It->TeamNumber)
-			{
-				PlayerPawn->EnemyGoal = *It;
-				break;
-			}
-		}
-	}
-}
-
 void AMagicBattleSoccerPlayerController::PawnPendingDestroy(APawn* inPawn)
 {
 	LastDeathLocation = inPawn->GetActorLocation();
@@ -214,23 +194,14 @@ void AMagicBattleSoccerPlayerController::ClientGetServerTime_Implementation(int6
 
 	// Calculate the server's system time at the moment we actually sent the request for it.
 	int64 roundTripTime = localTime - timeServerTimeRequestWasPlaced;
-	serverTime -= roundTripTime;
+	serverTime -= roundTripTime / 2;
 
 	// Now calculate the difference between the two values
-	if (timeServerTimeRequestWasPlaced > serverTime)
-	{
-		// We are in the "future," so the offset should be negative
-		timeOffsetFromServer = -(int64)(timeServerTimeRequestWasPlaced - serverTime);
-	}
-	else
-	{
-		// We are in the "past" (or "present"), so the offset should be non-negative
-		timeOffsetFromServer = (serverTime - timeServerTimeRequestWasPlaced);
-	}
+	timeOffsetFromServer = serverTime - timeServerTimeRequestWasPlaced;
 
 	// Now we can safely say that the following is true
 	//
-	// time = timeServerTimeRequestWasPlaced + timeOffsetFromServer
+	// serverTime = timeServerTimeRequestWasPlaced + timeOffsetFromServer
 	//
 	// which is another way of saying
 	//

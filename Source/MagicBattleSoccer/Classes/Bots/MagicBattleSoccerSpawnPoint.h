@@ -28,7 +28,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerSpawnPoint : public ATargetPoint
 	int32 MaxPlayersOnField;
 
 	/** The current number of players on the field */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Soccer)
 	int32 NumberOfPlayersOnField;
 
 	/** Called by the GameMode object when a spawned player is about to be destroyed */

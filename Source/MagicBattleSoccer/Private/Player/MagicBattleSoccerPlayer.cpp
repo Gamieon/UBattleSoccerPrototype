@@ -93,6 +93,23 @@ void AMagicBattleSoccerPlayer::OnRep_LastTakeHitInfo()
 	}
 }
 
+void AMagicBattleSoccerPlayer::PossessedBy(class AController* InController)
+{
+	Super::PossessedBy(InController);
+
+	// [server] as soon as PlayerState is assigned, set team colors of this pawn for local player
+	// TODO
+}
+
+/** [client] perform PlayerState related setup */
+void AMagicBattleSoccerPlayer::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	// [client] as soon as PlayerState is assigned, set team colors of this pawn for local player
+	// TODO
+}
+
 /** This occurs when play begins for a character */
 void AMagicBattleSoccerPlayer::BeginPlay()
 {
@@ -183,38 +200,6 @@ void AMagicBattleSoccerPlayer::OnBeginOverlap(AActor* OtherActor)
 	if (NULL != Ball)
 	{
 		OverlappingBall = Ball;
-	}
-	else
-	{
-		/*
-		// Handle projectile collisions
-		AMagicBattleSoccerProjectile* Projectile = Cast<AMagicBattleSoccerProjectile>(OtherActor);
-		if (NULL != Projectile)
-		{
-			bool ignore = false;
-
-			// Ignore the event if the owner is on our team
-			const AMagicBattleSoccerPlayer *spawnedByPlayer = Cast<AMagicBattleSoccerPlayer>(Projectile->SpawnedByActor);
-			if (NULL != spawnedByPlayer)
-			{
-				const AMagicBattleSoccerGoal *owningPlayerEnemyGoal = spawnedByPlayer->EnemyGoal;
-				if (owningPlayerEnemyGoal == EnemyGoal)
-				{
-					ignore = true;
-				}
-			}
-
-			if (!ignore)
-			{
-				// Destroy the projectile
-				OtherActor->Destroy();
-
-				if ((Health -= Projectile->Damage) <= 0)
-				{
-					Destroy();
-				}
-			}
-		}*/
 	}
 }
 
@@ -639,45 +624,13 @@ AMagicBattleSoccerBall* AMagicBattleSoccerPlayer::GetSoccerBall()
 /** Gets all the teammates of this player */
 TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerPlayer::GetTeammates()
 {
-	const TArray<AMagicBattleSoccerPlayer*>& Players = GetGameState()->SoccerPlayers;
-	TArray<AMagicBattleSoccerPlayer*> Teammates;
-
-	for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Players.CreateConstIterator()); It; ++It)
-	{
-		// We have to test labels because when a human player is assigned their goal, the pointer to the goal may
-		// not be the same as the pointer that a bot player retains although they are the same object.
-		if (this != *It 
-			&& nullptr != EnemyGoal
-			&& nullptr != (*It)->EnemyGoal
-			&& (*It)->EnemyGoal->TeamNumber == EnemyGoal->TeamNumber)
-		{
-			Teammates.Add(*It);
-		}
-	}
-
-	return Teammates;
+	return GetGameState()->GetTeammates(this);
 }
 
 /** Gets all the opponents of this player */
 TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerPlayer::GetOpponents()
 {
-	const TArray<AMagicBattleSoccerPlayer*>& Players = GetGameState()->SoccerPlayers;
-	TArray<AMagicBattleSoccerPlayer*> Opponents;
-
-	for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Players.CreateConstIterator()); It; ++It)
-	{
-		// We have to test labels because when a human player is assigned their goal, the pointer to the goal may
-		// not be the same as the pointer that a bot player retains although they are the same object.
-		if (this != *It 
-			&& nullptr != EnemyGoal
-			&& nullptr != (*It)->EnemyGoal
-			&& (*It)->EnemyGoal->TeamNumber != EnemyGoal->TeamNumber)
-		{
-			Opponents.Add(*It);
-		}
-	}
-
-	return Opponents;
+	return GetGameState()->GetOpponents(this);
 }
 
 /** check if pawn is still alive */

@@ -30,4 +30,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameState : public AGameState
 	/** The penetrated goal */
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = Soccer)
 	AMagicBattleSoccerGoal *PenetratedGoal;
+
+public:
+	/** Gets all the teammates of a specified player */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	TArray<AMagicBattleSoccerPlayer*> GetTeammates(class AMagicBattleSoccerPlayer* Player);
+
+	/** Gets all the opponents of a specified player */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	TArray<AMagicBattleSoccerPlayer*> GetOpponents(class AMagicBattleSoccerPlayer* Player);
 };

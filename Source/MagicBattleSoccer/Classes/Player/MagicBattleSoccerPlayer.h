@@ -64,6 +64,12 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	because only the server does soccer ball collision detections. */
 	AMagicBattleSoccerBall* OverlappingBall;
 
+	/** [server] perform PlayerState related setup */
+	virtual void PossessedBy(class AController* C) override;
+
+	/** [client] perform PlayerState related setup */
+	virtual void OnRep_PlayerState() override;
+
 	//////////////////////////////////////////////////////////////////////////
 	// Damage & death
 

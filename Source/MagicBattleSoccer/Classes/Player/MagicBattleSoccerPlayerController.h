@@ -39,9 +39,6 @@ public:
 	/** This occurs when play begins */
 	virtual void BeginPlay() override;
 
-	/** Sets the pawn */
-	virtual void SetPawn(APawn* inPawn) override;
-
 	/** update camera when pawn dies */
 	virtual void PawnPendingDestroy(APawn* inPawn) override;
 

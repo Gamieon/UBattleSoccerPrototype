@@ -5,6 +5,8 @@
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerInstance.h"
+#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerGoal.h"
 #include "UnrealNetwork.h"
 
 AMagicBattleSoccerGameState::AMagicBattleSoccerGameState(const class FPostConstructInitializeProperties& PCIP)
@@ -26,4 +28,46 @@ void AMagicBattleSoccerGameState::GetLifetimeReplicatedProps(TArray< FLifetimePr
 	DOREPLIFETIME(AMagicBattleSoccerGameState, Team1Goal);
 	DOREPLIFETIME(AMagicBattleSoccerGameState, Team2Goal);
 	DOREPLIFETIME(AMagicBattleSoccerGameState, PenetratedGoal);
+}
+
+/** Gets all the teammates of a specified player */
+TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerGameState::GetTeammates(AMagicBattleSoccerPlayer* Player)
+{
+	TArray<AMagicBattleSoccerPlayer*> Teammates;
+
+	if (nullptr != Player && nullptr != Player->EnemyGoal)
+	{
+		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(SoccerPlayers.CreateConstIterator()); It; ++It)
+		{
+			if (Player != *It
+				&& nullptr != (*It)->EnemyGoal
+				&& (*It)->EnemyGoal->TeamNumber == Player->EnemyGoal->TeamNumber)
+			{
+				Teammates.Add(*It);
+			}
+		}
+	}
+
+	return Teammates;
+}
+
+/** Gets all the opponents of a specified player */
+TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerGameState::GetOpponents(AMagicBattleSoccerPlayer* Player)
+{
+	TArray<AMagicBattleSoccerPlayer*> Opponents;
+
+	if (nullptr != Player && nullptr != Player->EnemyGoal)
+	{
+		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(SoccerPlayers.CreateConstIterator()); It; ++It)
+		{
+			if (Player != *It
+				&& nullptr != (*It)->EnemyGoal
+				&& (*It)->EnemyGoal->TeamNumber != Player->EnemyGoal->TeamNumber)
+			{
+				Opponents.Add(*It);
+			}
+		}
+	}
+
+	return Opponents;
 }

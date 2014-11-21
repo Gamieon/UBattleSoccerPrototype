@@ -103,12 +103,17 @@ void AMagicBattleSoccerBall::ClientSimulatePhysicsMovement()
 			FSmoothPhysicsState latest = proxyStates[0];
 
 			uint64 extrapolationLength = interpolationTime - latest.timestamp;
-			// Don't extrapolate for more than [extrapolationLimit] milliseconds, you would need to do that carefully
+			// Don't extrapolate for more than [extrapolationLimit] milliseconds
 			if (extrapolationLength < extrapolationLimit)
 			{
 				FVector pos = latest.pos + latest.vel * ((float)extrapolationLength * 0.001f);
 				FRotator rot = latest.rot;
 				SetActorLocationAndRotation(pos, rot);
+			}
+			else
+			{
+				// Don't move. If we're this far away from the server, we must be pretty laggy.
+				// Wait to catch up with the server.
 			}
 		}
 	}

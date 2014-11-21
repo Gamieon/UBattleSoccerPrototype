@@ -16,6 +16,7 @@
 #include "MagicBattleSoccerPlayer.h"
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerGameSession.h"
+#include "MagicBattleSoccerHUD.h"
 
 AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
@@ -25,11 +26,9 @@ AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FPostConstruc
 
 	// Assign the player state class. Player-specific variables will persist during the game even if levels change
 	PlayerStateClass = AMagicBattleSoccerPlayerState::StaticClass();
-}
 
-/** This occurs when play ends */
-void AMagicBattleSoccerGameMode::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason)
-{
+	// Assign the HUD class
+	HUDClass = AMagicBattleSoccerHUD::StaticClass();
 }
 
 /** Returns game session class to use */
@@ -38,6 +37,20 @@ TSubclassOf<AGameSession> AMagicBattleSoccerGameMode::GetGameSessionClass() cons
 	return AMagicBattleSoccerGameSession::StaticClass();
 }
 
+void AMagicBattleSoccerGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	// Place player on a team before Super (VoIP team based init, findplayerstart, etc).
+	// This is never called for bots.
+	// TODO: Let the player choose their team
+	AMagicBattleSoccerPlayerState* NewPlayerState = CastChecked<AMagicBattleSoccerPlayerState>(NewPlayer->PlayerState);
+	NewPlayerState->SetTeamNum(1);
+
+	Super::PostLogin(NewPlayer);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Damage & death
+
 float AMagicBattleSoccerGameMode::ModifyDamage(float Damage, AActor* DamagedActor, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const
 {
 	float ActualDamage = Damage;
@@ -45,11 +58,11 @@ float AMagicBattleSoccerGameMode::ModifyDamage(float Damage, AActor* DamagedActo
 	AMagicBattleSoccerPlayer* DamagedPawn = Cast<AMagicBattleSoccerPlayer>(DamagedActor);
 	if (DamagedPawn && EventInstigator)
 	{
-		AMagicBattleSoccerPlayer* DamagedPlayer = Cast<AMagicBattleSoccerPlayer>(DamagedPawn);
-		AMagicBattleSoccerPlayer* InstigatorPlayer = Cast<AMagicBattleSoccerPlayer>(EventInstigator->GetPawn());
+		AMagicBattleSoccerPlayerState* DamagedPlayerState = Cast<AMagicBattleSoccerPlayerState>(DamagedPawn->PlayerState);
+		AMagicBattleSoccerPlayerState* InstigatorPlayerState = Cast<AMagicBattleSoccerPlayerState>(EventInstigator->PlayerState);
 
 		// disable friendly fire
-		if (!CanDealDamage(InstigatorPlayer, DamagedPlayer))
+		if (!CanDealDamage(InstigatorPlayerState, DamagedPlayerState))
 		{
 			ActualDamage = 0.0f;
 		}
@@ -58,14 +71,10 @@ float AMagicBattleSoccerGameMode::ModifyDamage(float Damage, AActor* DamagedActo
 	return ActualDamage;
 }
 
-bool AMagicBattleSoccerGameMode::CanDealDamage(AMagicBattleSoccerPlayer* DamageInstigator, AMagicBattleSoccerPlayer* DamagedPlayer) const
+bool AMagicBattleSoccerGameMode::CanDealDamage(AMagicBattleSoccerPlayerState* DamageInstigator, AMagicBattleSoccerPlayerState* DamagedPlayer) const
 {
 	// Prevent friendly damage
-	return (
-		nullptr == DamageInstigator
-		|| nullptr == DamageInstigator->EnemyGoal
-		|| nullptr == DamagedPlayer->EnemyGoal
-		|| (DamageInstigator->EnemyGoal->TeamNumber != DamagedPlayer->EnemyGoal->TeamNumber));
+	return DamageInstigator && DamagedPlayer && (DamagedPlayer == DamageInstigator || DamagedPlayer->GetTeamNum() != DamageInstigator->GetTeamNum());
 }
 
 void AMagicBattleSoccerGameMode::Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType)

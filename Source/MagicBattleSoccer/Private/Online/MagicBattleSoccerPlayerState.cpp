@@ -6,8 +6,7 @@
 AMagicBattleSoccerPlayerState::AMagicBattleSoccerPlayerState(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
-	// TODO: Let players choose their team. For now default all players to team 1.
-	TeamNumber = 1;
+	TeamNumber = 0;
 }
 
 void AMagicBattleSoccerPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
@@ -15,4 +14,14 @@ void AMagicBattleSoccerPlayerState::GetLifetimeReplicatedProps(TArray< FLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AMagicBattleSoccerPlayerState, TeamNumber);
+}
+
+void AMagicBattleSoccerPlayerState::SetTeamNum(int32 NewTeamNumber)
+{
+	TeamNumber = NewTeamNumber;
+}
+
+int32 AMagicBattleSoccerPlayerState::GetTeamNum() const
+{
+	return TeamNumber;
 }
