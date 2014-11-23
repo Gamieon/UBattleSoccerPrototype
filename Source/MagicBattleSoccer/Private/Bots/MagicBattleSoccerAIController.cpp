@@ -371,8 +371,23 @@ bool AMagicBattleSoccerAIController::KickBallToGoal()
 		}
 		else
 		{
-			MyBot->KickBallToLocation(EnemyGoal->GetActorLocation());
+			KickBallToLocation(EnemyGoal->GetActorLocation());
 			return true;
 		}
+	}
+}
+
+
+/** [local] Kicks the ball to the specified location */
+void AMagicBattleSoccerAIController::KickBallToLocation(const FVector& Location)
+{
+	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
+	if (nullptr != MyBot)
+	{
+		AMagicBattleSoccerBall *Ball = GameState->SoccerBall;
+		FVector BallLocation = Ball->GetActorLocation();
+		const float KickForce = 60.0f;
+		MyBot->KickBall(FVector(Location.X - BallLocation.X, Location.Y - BallLocation.Y, 0.0f) * KickForce);
 	}
 }

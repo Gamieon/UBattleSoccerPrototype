@@ -5,6 +5,8 @@
 #include "MagicBattleSoccerPlayer.h"
 #include "MagicBattleSoccerPlayerController.h"
 
+#define DISTANCE_IN_FRONT_OF_POSSESSOR		90.f
+#define POSSESSOR_Z_OFFSET					-60.f
 
 AMagicBattleSoccerBall::AMagicBattleSoccerBall(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
@@ -194,7 +196,7 @@ void AMagicBattleSoccerBall::MoveWithPossessor()
 	NegDistanceTravelled += Possessor->GetVelocity().Size() * -0.01f;
 
 	// All platforms should move the same way if there is a possessor.
-	SetActorLocationAndRotation(Possessor->GetActorLocation() + Possessor->GetActorForwardVector() * 90.0f + FVector(0.0f, 0.0f, -60.0f),
+	SetActorLocationAndRotation(Possessor->GetActorLocation() + Possessor->GetActorForwardVector() * DISTANCE_IN_FRONT_OF_POSSESSOR + FVector(0.0f, 0.0f, POSSESSOR_Z_OFFSET),
 		FRotator(NegDistanceTravelled, Possessor->GetActorRotation().Yaw, 0.0f));
 }
 
@@ -210,7 +212,7 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 		float GameTimeInSeconds = GetWorld()->TimeSeconds;
 
 		// We only allow a possession change if there is no new possessor or if we just didn't recently unassign possession
-		if (NULL == Player || GameTimeInSeconds > LastReleaseTime + 0.2f)
+		if (NULL == Player || GameTimeInSeconds > LastReleaseTime + 1.f)
 		{
 			AMagicBattleSoccerPlayer *OldPossessor = Possessor;
 

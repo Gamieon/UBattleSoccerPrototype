@@ -1,5 +1,3 @@
-
-
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerPlayerController.h"
 #include "MagicBattleSoccerPlayer.h"
@@ -8,6 +6,8 @@
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerGameMode.h"
 #include <chrono>
+
+#define DEFAULT_PLAYER_BALL_KICK_FORCE	48000.f
 
 using namespace std::chrono;
 
@@ -139,7 +139,28 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 	{
 		if (PlayerPawn->PossessesBall())
 		{
-			PlayerPawn->KickBallForward();
+			// Aim where the mouse is pointing
+			const float KickForce = DEFAULT_PLAYER_BALL_KICK_FORCE;
+			FVector WorldLocation;
+			FVector WorldDirection;
+			if (!DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
+			{
+				// Failed. Use the pawn's forward direction.
+				WorldDirection = PlayerPawn->GetActorForwardVector();
+			}
+			else
+			{
+				// Calculate the point on the plane Z=0 that the mouse is pointing at
+				float d = FVector::DotProduct((FVector::ZeroVector - WorldLocation), FVector::UpVector)
+					/ FVector::DotProduct(WorldDirection, FVector::UpVector);
+				FVector InstigatorPoint = PlayerPawn->GetActorLocation();
+				FVector GroundPoint = WorldLocation + WorldDirection * d;
+				WorldDirection = FVector(GroundPoint.X - InstigatorPoint.X,
+					GroundPoint.Y - InstigatorPoint.Y, 0.0f);
+				WorldDirection.Normalize();
+			}
+
+			PlayerPawn->KickBall(WorldDirection * KickForce);
 		}
 		else if (nullptr != PlayerPawn->CurrentWeapon)
 		{

@@ -80,4 +80,8 @@ public:
 	/** Tries to kick ball into the goal. Returns true if the ball was kicked. */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	bool KickBallToGoal();
+
+	/** Kicks the ball to the specified location */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	void KickBallToLocation(const FVector& Location);
 };

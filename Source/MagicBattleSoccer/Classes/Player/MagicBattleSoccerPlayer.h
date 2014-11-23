@@ -209,14 +209,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	/** [server] Updates the movement speed based on conditions (ball possessor, etc) */
 	void UpdateMovementSpeed();
 
-	/** [local] Kicks the ball in the forward direction */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void KickBallForward();
-
-	/** [local] Kicks the ball to the specified location */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void KickBallToLocation(const FVector& Location);
-
 	/** [local] Critical path for all kick functions */
 	void KickBall(const FVector& Force);
 

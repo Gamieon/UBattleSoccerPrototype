@@ -526,26 +526,6 @@ void AMagicBattleSoccerPlayer::UpdateMovementSpeed()
 	MovementComponent->MaxWalkSpeed = CurrentMovementSpeed;
 }
 
-/** [local] Kicks the ball in the forward direction */
-UFUNCTION(BlueprintCallable, Category = Soccer)
-void AMagicBattleSoccerPlayer::KickBallForward()
-{
-	AMagicBattleSoccerBall *Ball = GetSoccerBall();
-	FVector BallLocation = Ball->GetActorLocation();
-	const float KickForce = 28000.0f;
-	KickBall(GetActorForwardVector() * KickForce);
-}
-
-/** [local] Kicks the ball to the specified location */
-UFUNCTION(BlueprintCallable, Category = Soccer)
-void AMagicBattleSoccerPlayer::KickBallToLocation(const FVector& Location)
-{
-	AMagicBattleSoccerBall *Ball = GetSoccerBall();
-	FVector BallLocation = Ball->GetActorLocation();
-	const float KickForce = 60.0f;
-	KickBall(FVector(Location.X - BallLocation.X, Location.Y - BallLocation.Y, 0.0f) * KickForce);
-}
-
 /** [local] Critical path for all kick functions */
 void AMagicBattleSoccerPlayer::KickBall(const FVector& Force)
 {
