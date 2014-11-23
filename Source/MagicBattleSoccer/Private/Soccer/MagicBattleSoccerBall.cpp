@@ -193,7 +193,7 @@ bool AMagicBattleSoccerBall::IsFree()
 void AMagicBattleSoccerBall::MoveWithPossessor()
 {
 	// This is used to roll the ball while a possessor owns it. The angle is a function of how far the ball has travelled.
-	NegDistanceTravelled += Possessor->GetVelocity().Size() * -0.01f;
+	NegDistanceTravelled += Possessor->GetVelocity().Size() * -0.015f;
 
 	// All platforms should move the same way if there is a possessor.
 	SetActorLocationAndRotation(Possessor->GetActorLocation() + Possessor->GetActorForwardVector() * DISTANCE_IN_FRONT_OF_POSSESSOR + FVector(0.0f, 0.0f, POSSESSOR_Z_OFFSET),
