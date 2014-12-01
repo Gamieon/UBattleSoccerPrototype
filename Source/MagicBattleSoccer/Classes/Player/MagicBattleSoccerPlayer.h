@@ -37,7 +37,9 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	float Health;
 
 	/** current firing state */
-	uint8 bWantsToFire : 1;
+	uint8 bWantsPrimaryFire : 1;
+	/** secondary attack state */
+	uint8 bWantsSecondaryFire : 1;
 
 	/** The current movement speed for this player. This changes if the player
 	possesses the ball */
@@ -89,14 +91,17 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	UPROPERTY(Transient, Replicated)
 	TArray<class AMagicBattleSoccerWeapon*> Inventory;
 
-	/** The player's current weapon */
-	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentWeapon, Category = Soccer)
-	class AMagicBattleSoccerWeapon* CurrentWeapon;
+	/** The player's primary weapon */
+	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing = OnRep_PrimaryWeapon, Category = Soccer)
+	class AMagicBattleSoccerWeapon* PrimaryWeapon;
 	UFUNCTION()
-	void OnRep_CurrentWeapon(class AMagicBattleSoccerWeapon* LastWeapon);
+	void OnRep_PrimaryWeapon(class AMagicBattleSoccerWeapon* LastWeapon);
 
-	//////////////////////////////////////////////////////////////////////////
-	// AI
+	/** The player's secondary weapon */
+	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing = OnRep_SecondaryWeapon, Category = Soccer)
+	class AMagicBattleSoccerWeapon* SecondaryWeapon;
+	UFUNCTION()
+	void OnRep_SecondaryWeapon(class AMagicBattleSoccerWeapon* LastWeapon);
 
 	//Begin AActor interface
 
@@ -156,8 +161,11 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	//////////////////////////////////////////////////////////////////////////
 	// Inventory and weapons
 
-	/** updates current weapon */
-	void SetCurrentWeapon(class AMagicBattleSoccerWeapon* NewWeapon, class AMagicBattleSoccerWeapon* LastWeapon = NULL);
+	/** updates primary weapon */
+	void SetPrimaryWeapon(class AMagicBattleSoccerWeapon* NewWeapon, class AMagicBattleSoccerWeapon* LastWeapon = NULL);
+
+	/** updates secondary weapon */
+	void SetSecondaryWeapon(class AMagicBattleSoccerWeapon* NewWeapon, class AMagicBattleSoccerWeapon* LastWeapon = NULL);
 
 	/** [server] spawns default inventory */
 	void SpawnDefaultInventory();
@@ -167,7 +175,11 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 
 	/** equip weapon */
 	UFUNCTION(reliable, server, WithValidation)
-	void ServerEquipWeapon(class AMagicBattleSoccerWeapon* NewWeapon);
+	void ServerEquipPrimaryWeapon(class AMagicBattleSoccerWeapon* NewWeapon);
+
+	/** equip weapon */
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerEquipSecondaryWeapon(class AMagicBattleSoccerWeapon* NewWeapon);
 
 	/**
 	* [server] add weapon to inventory
@@ -188,7 +200,14 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	*
 	* @param Weapon	Weapon to equip
 	*/
-	void EquipWeapon(class AMagicBattleSoccerWeapon* Weapon);
+	void EquipPrimaryWeapon(class AMagicBattleSoccerWeapon* Weapon);
+
+	/**
+	* [server + local] equips weapon from inventory
+	*
+	* @param Weapon	Weapon to equip
+	*/
+	void EquipSecondaryWeapon(class AMagicBattleSoccerWeapon* Weapon);
 
 	/** Called to change a player's outfit based on team */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
@@ -198,13 +217,22 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
 	// Actions
 
 	/** [local] starts weapon fire */
-	void StartWeaponFire();
+	void StartPrimaryWeaponFire();
 
 	/** [local] stops weapon fire */
-	void StopWeaponFire();
+	void StopPrimaryWeaponFire();
+
+	/** [local] starts weapon fire */
+	void StartSecondaryWeaponFire();
+
+	/** [local] stops weapon fire */
+	void StopSecondaryWeaponFire();
 
 	/** check if pawn can fire weapon */
-	bool CanFire() const;
+	bool CanFirePrimaryWeapon() const;
+
+	/** check if pawn can fire weapon */
+	bool CanFireSecondaryWeapon() const;
 
 	/** [server] Updates the movement speed based on conditions (ball possessor, etc) */
 	void UpdateMovementSpeed();

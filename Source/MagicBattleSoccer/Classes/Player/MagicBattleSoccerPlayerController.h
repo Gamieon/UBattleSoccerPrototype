@@ -62,6 +62,12 @@ public:
 	/** Player primary action event */
 	void OnStopPrimaryAction();
 
+	/** Player secondary action event */
+	void OnStartSecondaryAction();
+
+	/** Player secondary action event */
+	void OnStopSecondaryAction();
+
 	/** Player suicide event */
 	void OnSuicide();
 

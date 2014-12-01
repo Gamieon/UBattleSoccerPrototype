@@ -51,12 +51,10 @@ void AMagicBattleSoccerProjectile::PostInitializeComponents()
 		{
 			CollisionComp->IgnoreActorWhenMoving(*It, true);
 			(*It)->CapsuleComponent->IgnoreActorWhenMoving(this, true);
-			if (nullptr != (*It)->CurrentWeapon)
-			{
-				CollisionComp->IgnoreActorWhenMoving((*It)->CurrentWeapon, true);
-			}
 		}
 	}
+
+	// We should not need to ignore weapon actors (the weapons players hold in their hands) because they should have no collision information.
 
 	AMagicBattleSoccerWeapon_Projectile* OwnerWeapon = Cast<AMagicBattleSoccerWeapon_Projectile>(GetOwner());
 	if (OwnerWeapon)
@@ -98,9 +96,9 @@ void AMagicBattleSoccerProjectile::Destroyed()
 			for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Game->SoccerPlayers.CreateConstIterator()); It; ++It)
 			{
 				(*It)->CapsuleComponent->IgnoreActorWhenMoving(this, false);
-				if (nullptr != (*It)->CurrentWeapon)
+				if (nullptr != (*It)->PrimaryWeapon)
 				{
-					CollisionComp->IgnoreActorWhenMoving((*It)->CurrentWeapon, false);
+					CollisionComp->IgnoreActorWhenMoving((*It)->PrimaryWeapon, false);
 				}
 			}
 		}

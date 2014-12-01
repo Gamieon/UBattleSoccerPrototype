@@ -52,10 +52,10 @@ void AMagicBattleSoccerBall::OnRep_ServerPhysicsState()
 }
 
 /** Simulates the free movement of the ball based on proxy states */
-void AMagicBattleSoccerBall::ClientSimulatePhysicsMovement()
+void AMagicBattleSoccerBall::ClientSimulateFreeMovingBall()
 {
 	AMagicBattleSoccerPlayerController* MyPC = Cast<AMagicBattleSoccerPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (!MyPC->IsNetworkTimeValid() || 0 == proxyStateCount || nullptr == MyPC)
+	if (nullptr == MyPC || !MyPC->IsNetworkTimeValid() || 0 == proxyStateCount)
 	{
 		// We don't know yet know what the time is on the server yet so the timestamps
 		// of the proxy states mean nothing; that or we simply don't have any proxy
@@ -131,7 +131,7 @@ void AMagicBattleSoccerBall::BeginPlay()
 		// The server manages the game state; the soccer ball will be replicated to us.
 
 		// Physics however are not replicated. We will need to have the ball orientation
-		// replicated to us. We need to turn off physics simulation.
+		// replicated to us. We need to turn off physics simulation and collision detection.
 		UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
 		Root->PutRigidBodyToSleep();
 		Root->SetSimulatePhysics(false);
@@ -141,7 +141,8 @@ void AMagicBattleSoccerBall::BeginPlay()
 	else
 	{
 		// Servers should add this soccer ball to the game mode cache.
-		// It will get replicated to clients.
+		// It will get replicated to clients for when they need to access
+		// the ball itself to get information such as who possesses it.
 		AMagicBattleSoccerGameState* GameState = GetGameState();
 		GameState->SoccerBall = this;
 	}
@@ -151,7 +152,7 @@ void AMagicBattleSoccerBall::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (NULL != Possessor)
+	if (nullptr != Possessor)
 	{
 		// If the ball is possessed by a player, then the ball should move as a function
 		// of the possessor
@@ -163,7 +164,7 @@ void AMagicBattleSoccerBall::Tick(float DeltaSeconds)
 		if (Role < ROLE_Authority)
 		{
 			// Clients should update its local position based on where it is on the server
-			ClientSimulatePhysicsMovement();
+			ClientSimulateFreeMovingBall();
 		}
 		else
 		{
@@ -177,7 +178,7 @@ void AMagicBattleSoccerBall::Tick(float DeltaSeconds)
 	}
 }
 
-/** Gets the game state (all instances should be interested in this) */
+/** Gets the game state */
 AMagicBattleSoccerGameState* AMagicBattleSoccerBall::GetGameState()
 {
 	UWorld *World = GetWorld();
@@ -233,7 +234,8 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 			UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
 			if (NULL != Possessor)
 			{
-				Possessor->StopWeaponFire();
+				Possessor->StopPrimaryWeaponFire();
+				Possessor->StopSecondaryWeaponFire();
 				Root->PutRigidBodyToSleep();
 				Root->SetSimulatePhysics(false);
 				Root->SetEnableGravity(false);

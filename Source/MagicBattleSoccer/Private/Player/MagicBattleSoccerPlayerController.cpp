@@ -49,6 +49,8 @@ void AMagicBattleSoccerPlayerController::SetupInputComponent()
 	InputComponent->BindAxis("MoveRight", this, &AMagicBattleSoccerPlayerController::OnMoveRight);
 	InputComponent->BindAction("PrimaryAction", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnStartPrimaryAction);
 	InputComponent->BindAction("PrimaryAction", IE_Released, this, &AMagicBattleSoccerPlayerController::OnStopPrimaryAction);
+	InputComponent->BindAction("SecondaryAction", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnStartSecondaryAction);
+	InputComponent->BindAction("SecondaryAction", IE_Released, this, &AMagicBattleSoccerPlayerController::OnStopSecondaryAction);
 	InputComponent->BindAction("Suicide", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnSuicide);
 	InputComponent->BindAction("Respawn", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnRespawn);
 }
@@ -162,9 +164,9 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 
 			PlayerPawn->KickBall(WorldDirection * KickForce);
 		}
-		else if (nullptr != PlayerPawn->CurrentWeapon)
+		else if (nullptr != PlayerPawn->PrimaryWeapon)
 		{
-			PlayerPawn->StartWeaponFire();
+			PlayerPawn->StartPrimaryWeaponFire();
 		}
 	}
 }
@@ -175,10 +177,32 @@ void AMagicBattleSoccerPlayerController::OnStopPrimaryAction()
 	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
-		PlayerPawn->StopWeaponFire();
+		PlayerPawn->StopPrimaryWeaponFire();
 	}
 }
 
+/** Player secondary action event */
+void AMagicBattleSoccerPlayerController::OnStartSecondaryAction()
+{
+	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	if (nullptr != PlayerPawn)
+	{
+		if (!PlayerPawn->PossessesBall())
+		{
+			PlayerPawn->StartSecondaryWeaponFire();
+		}
+	}
+}
+
+/** Player secondary action event */
+void AMagicBattleSoccerPlayerController::OnStopSecondaryAction()
+{
+	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	if (nullptr != PlayerPawn)
+	{
+		PlayerPawn->StopSecondaryWeaponFire();
+	}
+}
 
 /** Player suicide event */
 void AMagicBattleSoccerPlayerController::OnSuicide()

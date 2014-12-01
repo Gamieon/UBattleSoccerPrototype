@@ -37,7 +37,7 @@ private:
 
 private:
 	/** Simulates the free movement of the ball based on proxy states */
-	void ClientSimulatePhysicsMovement();
+	void ClientSimulateFreeMovingBall();
 
 public:
 	//Begin AActor interface
@@ -49,7 +49,7 @@ public:
 
 	//End AActor interface
 
-	/** Gets the game state (all instances should be interested in this) */
+	/** Gets the game state */
 	class AMagicBattleSoccerGameState* GetGameState();
 
 	/** True if the ball has no possessor and is not in a goal. Should only be called by the authority entity. */

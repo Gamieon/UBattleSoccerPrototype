@@ -24,8 +24,10 @@ AMagicBattleSoccerPlayer::AMagicBattleSoccerPlayer(const class FPostConstructIni
 	CapsuleComponent->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
 	CapsuleComponent->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
-	CurrentWeapon = nullptr;
-	bWantsToFire = false;
+	PrimaryWeapon = nullptr;
+	SecondaryWeapon = nullptr;
+	bWantsPrimaryFire = false;
+	bWantsSecondaryFire = false;
 	LastTakeHitTimeTimeout = 0;
 }
 
@@ -60,12 +62,18 @@ void AMagicBattleSoccerPlayer::GetLifetimeReplicatedProps(TArray< FLifetimePrope
 	DOREPLIFETIME(AMagicBattleSoccerPlayer, MaxHealth);
 	DOREPLIFETIME(AMagicBattleSoccerPlayer, Health);
 	DOREPLIFETIME(AMagicBattleSoccerPlayer, CurrentMovementSpeed);
-	DOREPLIFETIME(AMagicBattleSoccerPlayer, CurrentWeapon);
+	DOREPLIFETIME(AMagicBattleSoccerPlayer, PrimaryWeapon);
+	DOREPLIFETIME(AMagicBattleSoccerPlayer, SecondaryWeapon);
 }
 
-void AMagicBattleSoccerPlayer::OnRep_CurrentWeapon(AMagicBattleSoccerWeapon* LastWeapon)
+void AMagicBattleSoccerPlayer::OnRep_PrimaryWeapon(AMagicBattleSoccerWeapon* LastWeapon)
 {
-	SetCurrentWeapon(CurrentWeapon, LastWeapon);
+	SetPrimaryWeapon(PrimaryWeapon, LastWeapon);
+}
+
+void AMagicBattleSoccerPlayer::OnRep_SecondaryWeapon(AMagicBattleSoccerWeapon* LastWeapon)
+{
+	SetPrimaryWeapon(SecondaryWeapon, LastWeapon);
 }
 
 /** Called on clients when the server changes this character's default movement speed */
@@ -354,7 +362,7 @@ void AMagicBattleSoccerPlayer::ReplicateHit(float Damage, struct FDamageEvent co
 //////////////////////////////////////////////////////////////////////////
 // Inventory and weapons
 
-void AMagicBattleSoccerPlayer::SetCurrentWeapon(AMagicBattleSoccerWeapon* NewWeapon, AMagicBattleSoccerWeapon* LastWeapon)
+void AMagicBattleSoccerPlayer::SetPrimaryWeapon(AMagicBattleSoccerWeapon* NewWeapon, AMagicBattleSoccerWeapon* LastWeapon)
 {
 	AMagicBattleSoccerWeapon* LocalLastWeapon = NULL;
 
@@ -362,9 +370,9 @@ void AMagicBattleSoccerPlayer::SetCurrentWeapon(AMagicBattleSoccerWeapon* NewWea
 	{
 		LocalLastWeapon = LastWeapon;
 	}
-	else if (NewWeapon != CurrentWeapon)
+	else if (NewWeapon != PrimaryWeapon)
 	{
-		LocalLastWeapon = CurrentWeapon;
+		LocalLastWeapon = PrimaryWeapon;
 	}
 
 	// unequip previous
@@ -373,13 +381,42 @@ void AMagicBattleSoccerPlayer::SetCurrentWeapon(AMagicBattleSoccerWeapon* NewWea
 		LocalLastWeapon->OnUnEquip();
 	}
 
-	CurrentWeapon = NewWeapon;
+	PrimaryWeapon = NewWeapon;
 
 	// equip new one
 	if (NewWeapon)
 	{
-		NewWeapon->SetOwningPawn(this);	// Make sure weapon's MyPawn is pointing back to us. During replication, we can't guarantee APawn::CurrentWeapon will rep after AWeapon::MyPawn!
-		NewWeapon->OnEquip();
+		NewWeapon->SetOwningPawn(this);	// Make sure weapon's MyPawn is pointing back to us. During replication, we can't guarantee APawn::PrimaryWeapon will rep after AWeapon::MyPawn!
+		NewWeapon->OnEquip(FName(TEXT("RightHand")));
+	}
+}
+
+void AMagicBattleSoccerPlayer::SetSecondaryWeapon(AMagicBattleSoccerWeapon* NewWeapon, AMagicBattleSoccerWeapon* LastWeapon)
+{
+	AMagicBattleSoccerWeapon* LocalLastWeapon = NULL;
+
+	if (LastWeapon != NULL)
+	{
+		LocalLastWeapon = LastWeapon;
+	}
+	else if (NewWeapon != SecondaryWeapon)
+	{
+		LocalLastWeapon = SecondaryWeapon;
+	}
+
+	// unequip previous
+	if (LocalLastWeapon)
+	{
+		LocalLastWeapon->OnUnEquip();
+	}
+
+	SecondaryWeapon = NewWeapon;
+
+	// equip new one
+	if (NewWeapon)
+	{
+		NewWeapon->SetOwningPawn(this);	// Make sure weapon's MyPawn is pointing back to us. During replication, we can't guarantee APawn::PrimaryWeapon will rep after AWeapon::MyPawn!
+		NewWeapon->OnEquip(FName(TEXT("LeftHand")));
 	}
 }
 
@@ -405,7 +442,12 @@ void AMagicBattleSoccerPlayer::SpawnDefaultInventory()
 	// equip first weapon in inventory
 	if (Inventory.Num() > 0)
 	{
-		EquipWeapon(Inventory[0]);
+		EquipPrimaryWeapon(Inventory[0]);
+	}
+	// equip second weapon in inventory
+	if (Inventory.Num() > 1)
+	{
+		EquipSecondaryWeapon(Inventory[1]);
 	}
 }
 
@@ -428,14 +470,24 @@ void AMagicBattleSoccerPlayer::DestroyInventory()
 	}
 }
 
-bool AMagicBattleSoccerPlayer::ServerEquipWeapon_Validate(AMagicBattleSoccerWeapon* Weapon)
+bool AMagicBattleSoccerPlayer::ServerEquipPrimaryWeapon_Validate(AMagicBattleSoccerWeapon* Weapon)
 {
 	return true;
 }
 
-void AMagicBattleSoccerPlayer::ServerEquipWeapon_Implementation(AMagicBattleSoccerWeapon* Weapon)
+void AMagicBattleSoccerPlayer::ServerEquipPrimaryWeapon_Implementation(AMagicBattleSoccerWeapon* Weapon)
 {
-	EquipWeapon(Weapon);
+	EquipPrimaryWeapon(Weapon);
+}
+
+bool AMagicBattleSoccerPlayer::ServerEquipSecondaryWeapon_Validate(AMagicBattleSoccerWeapon* Weapon)
+{
+	return true;
+}
+
+void AMagicBattleSoccerPlayer::ServerEquipSecondaryWeapon_Implementation(AMagicBattleSoccerWeapon* Weapon)
+{
+	EquipSecondaryWeapon(Weapon);
 }
 
 void AMagicBattleSoccerPlayer::AddWeapon(AMagicBattleSoccerWeapon* Weapon)
@@ -456,17 +508,32 @@ void AMagicBattleSoccerPlayer::RemoveWeapon(AMagicBattleSoccerWeapon* Weapon)
 	}
 }
 
-void AMagicBattleSoccerPlayer::EquipWeapon(AMagicBattleSoccerWeapon* Weapon)
+void AMagicBattleSoccerPlayer::EquipPrimaryWeapon(AMagicBattleSoccerWeapon* Weapon)
 {
 	if (Weapon)
 	{
 		if (Role == ROLE_Authority)
 		{
-			SetCurrentWeapon(Weapon);
+			SetPrimaryWeapon(Weapon);
 		}
 		else
 		{
-			ServerEquipWeapon(Weapon);
+			ServerEquipPrimaryWeapon(Weapon);
+		}
+	}
+}
+
+void AMagicBattleSoccerPlayer::EquipSecondaryWeapon(AMagicBattleSoccerWeapon* Weapon)
+{
+	if (Weapon)
+	{
+		if (Role == ROLE_Authority)
+		{
+			SetSecondaryWeapon(Weapon);
+		}
+		else
+		{
+			ServerEquipSecondaryWeapon(Weapon);
 		}
 	}
 }
@@ -481,33 +548,65 @@ void AMagicBattleSoccerPlayer::AssignUniform_Implementation()
 // Actions
 
 /** [local] starts weapon fire */
-void AMagicBattleSoccerPlayer::StartWeaponFire()
+void AMagicBattleSoccerPlayer::StartPrimaryWeaponFire()
 {
-	if (!bWantsToFire)
+	if (!bWantsPrimaryFire)
 	{
-		bWantsToFire = true;
-		if (CurrentWeapon)
+		bWantsPrimaryFire = true;
+		if (PrimaryWeapon)
 		{
-			CurrentWeapon->StartFire();
+			PrimaryWeapon->StartFire();
 		}
 	}
 }
 
 /** [local] stops weapon fire */
-void AMagicBattleSoccerPlayer::StopWeaponFire()
+void AMagicBattleSoccerPlayer::StopPrimaryWeaponFire()
 {
-	if (bWantsToFire)
+	if (bWantsPrimaryFire)
 	{
-		bWantsToFire = false;
-		if (CurrentWeapon)
+		bWantsPrimaryFire = false;
+		if (nullptr != PrimaryWeapon)
 		{
-			CurrentWeapon->StopFire();
+			PrimaryWeapon->StopFire();
+		}
+	}
+}
+
+/** [local] starts secondary attack */
+void AMagicBattleSoccerPlayer::StartSecondaryWeaponFire()
+{
+	if (!bWantsSecondaryFire)
+	{
+		bWantsSecondaryFire = true;
+		if (nullptr != SecondaryWeapon)
+		{
+			SecondaryWeapon->StartFire();
+		}
+	}
+}
+
+/** [local] stops secondary attack */
+void AMagicBattleSoccerPlayer::StopSecondaryWeaponFire()
+{
+	if (bWantsSecondaryFire)
+	{
+		bWantsSecondaryFire = false;
+		if (nullptr != SecondaryWeapon)
+		{
+			SecondaryWeapon->StopFire();
 		}
 	}
 }
 
 /** check if pawn can fire weapon */
-bool AMagicBattleSoccerPlayer::CanFire() const
+bool AMagicBattleSoccerPlayer::CanFirePrimaryWeapon() const
+{
+	return IsAlive();
+}
+
+/** check if pawn can fire weapon */
+bool AMagicBattleSoccerPlayer::CanFireSecondaryWeapon() const
 {
 	return IsAlive();
 }

@@ -304,7 +304,7 @@ void AMagicBattleSoccerAIController::AttackPlayer(AMagicBattleSoccerPlayer* Targ
 	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
 	if (nullptr != MyBot 
 		&& nullptr != Target
-		&& nullptr != MyBot->CurrentWeapon
+		&& nullptr != MyBot->PrimaryWeapon
 		&& !MyBot->PossessesBall() 
 		)
 	{
@@ -315,7 +315,7 @@ void AMagicBattleSoccerAIController::AttackPlayer(AMagicBattleSoccerPlayer* Targ
 		// Start attacking the player if we haven't already
 		if (!IsAttacking)
 		{
-			MyBot->StartWeaponFire();
+			MyBot->StartPrimaryWeaponFire();
 			IsAttacking = true;
 		}
 	}
@@ -330,7 +330,7 @@ void AMagicBattleSoccerAIController::StopAttackingPlayer()
 	{
 		if (IsAttacking)
 		{
-			MyBot->StopWeaponFire();
+			MyBot->StopPrimaryWeaponFire();
 			IsAttacking = false;
 		}
 	}

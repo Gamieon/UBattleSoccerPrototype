@@ -55,7 +55,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon : public AActor
 	/** weapon is refiring */
 	uint32 bRefiring;
 
-	/** current weapon state */
+	/** primary weapon state */
 	EWeaponState::Type CurrentState;
 
 	/** time of last successful weapon fire */
@@ -71,7 +71,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon : public AActor
 	// Inventory
 
 	/** weapon is being equipped by owner pawn */
-	virtual void OnEquip();
+	virtual void OnEquip(FName InSocketName);
 
 	/** weapon is holstered by owner pawn */
 	virtual void OnUnEquip();
@@ -106,7 +106,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon : public AActor
 	//////////////////////////////////////////////////////////////////////////
 	// Reading data
 
-	/** get current weapon state */
+	/** get primary weapon state */
 	EWeaponState::Type GetCurrentState() const;
 
 	/** set the weapon's owning pawn */
@@ -153,14 +153,14 @@ protected:
 	/** update weapon state */
 	void SetWeaponState(EWeaponState::Type NewState);
 
-	/** determine current weapon state */
+	/** determine primary weapon state */
 	void DetermineWeaponState();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Inventory
 
 	/** attaches weapon mesh to pawn's mesh */
-	void AttachMeshToPawn();
+	void AttachMeshToPawn(FName InSocketName);
 
 	/** detaches weapon mesh from pawn */
 	void DetachMeshFromPawn();

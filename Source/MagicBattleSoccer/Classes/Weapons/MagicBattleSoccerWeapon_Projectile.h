@@ -62,11 +62,4 @@ protected:
 	/** spawn projectile on server */
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerFireProjectile(FVector Origin, FVector_NetQuantizeNormal ShootDir);
-
-	//////////////////////////////////////////////////////////////////////////
-	// LEGACY
-
-	/** Gets the rotation the weapon should fire in */
-	//UFUNCTION(BlueprintCallable, Category = Soccer)
-	//FRotator GetWorldFiringRotation();
 };

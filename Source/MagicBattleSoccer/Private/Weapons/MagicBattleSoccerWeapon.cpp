@@ -43,9 +43,9 @@ void AMagicBattleSoccerWeapon::OnRep_MyPawn()
 //////////////////////////////////////////////////////////////////////////
 // Inventory
 
-void AMagicBattleSoccerWeapon::OnEquip()
+void AMagicBattleSoccerWeapon::OnEquip(FName InSocketName)
 {
-	AttachMeshToPawn();
+	AttachMeshToPawn(InSocketName);
 
 	bIsEquipped = true;
 
@@ -246,7 +246,7 @@ bool AMagicBattleSoccerWeapon::IsAttachedToPawn() const
 	return bIsEquipped;
 }
 
-void AMagicBattleSoccerWeapon::AttachMeshToPawn()
+void AMagicBattleSoccerWeapon::AttachMeshToPawn(FName InSocketName)
 {
 	if (nullptr != MyPawn)
 	{
@@ -255,7 +255,7 @@ void AMagicBattleSoccerWeapon::AttachMeshToPawn()
 
 		// Attach the weapon to the player's right hand
 		USkeletalMeshComponent* PlayerMesh = Cast<USkeletalMeshComponent>(MyPawn->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
-		AttachRootComponentTo(PlayerMesh, FName(TEXT("RightHand")), EAttachLocation::SnapToTarget);
+		AttachRootComponentTo(PlayerMesh, InSocketName, EAttachLocation::SnapToTarget);
 
 		// Show our mesh
 		SetActorHiddenInGame(false);
@@ -277,7 +277,7 @@ FVector AMagicBattleSoccerWeapon::GetAdjustedAim() const
 	FVector FinalAim = FVector::ZeroVector;
 
 	// If we have a player controller use it for the aim
-	if (PlayerController)
+	if (nullptr != PlayerController)
 	{
 		// Aim where the mouse is pointing
 		FVector WorldLocation;
