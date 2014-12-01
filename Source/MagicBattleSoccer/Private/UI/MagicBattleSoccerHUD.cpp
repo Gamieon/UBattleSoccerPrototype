@@ -37,12 +37,33 @@ void AMagicBattleSoccerHUD::PostInitializeComponents()
 	}
 }
 
-/** True if a loading or error prompt are visible */
-bool AMagicBattleSoccerHUD::IsSystemPromptVisible()
+//////////////////////////////////////////////////////////////////////////
+// Drawing helpers
+
+void AMagicBattleSoccerHUD::DrawFrame(FLinearColor FrameColor, float X, float Y, float Width, float Height, float Thickness)
 {
-	return bIsLoadingUIVisible || bIsErrorUIVisible;
+	FCanvasLineItem NewLine;
+	NewLine.SetColor(FrameColor);
+	NewLine.LineThickness = Thickness;
+	NewLine.BlendMode = SE_BLEND_Translucent;
+
+	NewLine.Origin = FVector(X, Y, 0.f);
+	NewLine.EndPos = FVector(X + Width, Y, 0.f);
+	Canvas->DrawItem(NewLine);
+
+	NewLine.EndPos = FVector(X, Y + Height, 0.f);
+	Canvas->DrawItem(NewLine);
+
+	NewLine.Origin = FVector(X + Width, Y + Height, 0.f);
+	NewLine.EndPos = FVector(X, Y + Height, 0.f);
+	Canvas->DrawItem(NewLine);
+
+	NewLine.EndPos = FVector(X + Width, Y, 0.f);
+	Canvas->DrawItem(NewLine);
 }
 
+//////////////////////////////////////////////////////////////////////////
+// Menu helpers
 
 /** Drills down from the current menu into the specified menu. */
 void AMagicBattleSoccerHUD::PushMenu(TSharedPtr<class SCompoundWidget> Menu)
@@ -80,6 +101,15 @@ void AMagicBattleSoccerHUD::PopMenu()
 	{
 		Viewport->AddViewportWidgetContent(MenuStack[MenuStack.Num() - 1]);
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// System widget helpers
+
+/** True if a loading or error prompt are visible */
+bool AMagicBattleSoccerHUD::IsSystemPromptVisible()
+{
+	return bIsLoadingUIVisible || bIsErrorUIVisible;
 }
 
 /** Shows the loading screen */

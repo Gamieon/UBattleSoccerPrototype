@@ -1,5 +1,5 @@
 /**
-MagicBattleSoccerHUD.h - The base class for all shooter-specific HUD's. This has the capability to display a loading screen
+MagicBattleSoccerHUD.h - The base class for all other soccer HUD's. This has the capability to display a loading screen
 or the most recent error message from the shooter engine class.
 **/
 
@@ -16,9 +16,32 @@ class AMagicBattleSoccerHUD : public AHUD
 {
 	GENERATED_UCLASS_BODY()
 
-private:
+	/* Initializes the Slate UI and adds it as widget content to the game viewport. */
+	virtual void PostInitializeComponents() override;
+
+	//////////////////////////////////////////////////////////////////////////
+	// Drawing helpers
+
+	/** draws a frame */
+	UFUNCTION()
+	void DrawFrame(FLinearColor FrameColor, float X, float Y, float Width, float Height, float Thickness);
+
+	//////////////////////////////////////////////////////////////////////////
+	// Menu helpers
+
+protected:
 	/** The current menu stack. MainMenuUI should always be at the bottom. */
 	TArray<TSharedRef<class SWidget>> MenuStack;
+
+public:
+	/** Drills down from the current menu into the specified menu. */
+	void PushMenu(TSharedPtr<class SCompoundWidget> Menu);
+
+	/** Returns to the previous menu. */
+	void PopMenu();
+
+	//////////////////////////////////////////////////////////////////////////
+	// System widget helpers
 
 private:
 	/** True if a loading or error prompt are visible */
@@ -32,16 +55,6 @@ public:
 	/** The error message confirmation box */
 	TSharedPtr<class SErrorUI> ErrorUI;
 	bool bIsErrorUIVisible;
-
-public:
-	/* Initializes the Slate UI and adds it as widget content to the game viewport. */
-	virtual void PostInitializeComponents() override;
-
-	/** Drills down from the current menu into the specified menu. */
-	void PushMenu(TSharedPtr<class SCompoundWidget> Menu);
-
-	/** Returns to the previous menu. */
-	void PopMenu();
 
 public:
 	/** Shows the loading screen */
