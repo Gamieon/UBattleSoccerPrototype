@@ -13,6 +13,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerAIController : public AAIControlle
 {
 	GENERATED_UCLASS_BODY()
 
+	/** The spawn point where this player was spawned. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
+	class AMagicBattleSoccerSpawnPoint* SpawnPoint;
+
 	/** The zone that this player is restricted to. This is only used for AI
 	so only the server should care about this value. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
@@ -21,6 +25,17 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerAIController : public AAIControlle
 	/** True if this player is running the attack action */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	bool IsAttacking;
+
+	/** Spawns the character */
+	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
+	void SpawnCharacter();
+
+	//Begin AController interface
+
+	/** respawn after pawn dies */
+	virtual void PawnPendingDestroy(APawn* inPawn) override;
+
+	//End AController interface
 
 public:
 	//////////////////////////////////////////////////////////////////////////

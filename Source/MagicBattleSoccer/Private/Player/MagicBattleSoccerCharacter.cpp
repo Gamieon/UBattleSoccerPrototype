@@ -58,7 +58,6 @@ void AMagicBattleSoccerCharacter::GetLifetimeReplicatedProps(TArray< FLifetimePr
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	// Replicate to everyone
-	DOREPLIFETIME(AMagicBattleSoccerCharacter, SpawnPoint);
 	DOREPLIFETIME(AMagicBattleSoccerCharacter, MaxHealth);
 	DOREPLIFETIME(AMagicBattleSoccerCharacter, Health);
 	DOREPLIFETIME(AMagicBattleSoccerCharacter, CurrentMovementSpeed);
@@ -177,11 +176,6 @@ void AMagicBattleSoccerCharacter::Destroyed()
 	}
 	else
 	{
-		if (NULL != this->SpawnPoint)
-		{
-			this->SpawnPoint->SpawnedPlayerBeingDestroyed(this);
-		}
-
 		if (NULL != GetGameState())
 		{
 			// Release the ball

@@ -4,14 +4,6 @@
 #include "MagicBattleSoccerTypes.h"
 #include "MagicBattleSoccerCharacter.generated.h"
 
-class AMagicBattleSoccerGoal;
-class AMagicBattleSoccerBall;
-class AMagicBattleSoccerGameMode;
-class AMagicBattleSoccerWeapon;
-class AMagicBattleSoccerSpawnPoint;
-class AMagicBattleSoccerGameState;
-class ATriggerBox;
-
 /**
 *
 */
@@ -22,11 +14,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 
 	//////////////////////////////////////////////////////////////////////////
 	// Player attributes
-
-	/** The point where this player was spawned. This applies to all players
-	(TODO: It doesn't apply to human players yet) */
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Soccer)
-	AMagicBattleSoccerSpawnPoint* SpawnPoint;
 
 	/** The max health this player has */
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Soccer)
@@ -59,7 +46,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 
 	/** The soccer ball that overlaps this player. Only relevant to the server
 	because only the server does soccer ball collision detections. */
-	AMagicBattleSoccerBall* OverlappingBall;
+	class AMagicBattleSoccerBall* OverlappingBall;
 
 	/** [server] perform PlayerState related setup */
 	virtual void PossessedBy(class AController* C) override;
@@ -250,13 +237,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	// Player attributes
 
 	/** Gets the game mode (only the server should be interested in this) */
-	AMagicBattleSoccerGameMode* GetGameMode();
+	class AMagicBattleSoccerGameMode* GetGameMode();
 
 	/** Gets the game state (all instances should be interested in this) */
-	AMagicBattleSoccerGameState* GetGameState();
+	class AMagicBattleSoccerGameState* GetGameState();
 
 	/** Gets the soccer ball */
-	AMagicBattleSoccerBall* GetSoccerBall();
+	class AMagicBattleSoccerBall* GetSoccerBall();
 
 	/** check if pawn is still alive */
 	bool IsAlive() const;

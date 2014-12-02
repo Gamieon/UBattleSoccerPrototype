@@ -2,6 +2,7 @@
 
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerAIController.h"
+#include "MagicBattleSoccerSpawnPoint.h"
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerPlayerState.h"
@@ -15,6 +16,22 @@ AMagicBattleSoccerAIController::AMagicBattleSoccerAIController(const class FPost
 {
 	bWantsPlayerState = true;
 	IsAttacking = false;
+}
+
+/** Spawns the character */
+void AMagicBattleSoccerAIController::SpawnCharacter_Implementation()
+{
+	// Nothing to do here -- the blueprint should do all the work and it should only be done on the server
+}
+
+void AMagicBattleSoccerAIController::PawnPendingDestroy(APawn* inPawn)
+{
+	Super::PawnPendingDestroy(inPawn);
+
+	if (nullptr != SpawnPoint)
+	{
+		SpawnPoint->SpawnedPlayerBeingDestroyed(this);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

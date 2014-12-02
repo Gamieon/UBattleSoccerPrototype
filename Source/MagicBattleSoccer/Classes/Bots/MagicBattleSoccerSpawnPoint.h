@@ -3,10 +3,6 @@
 #include "Engine/TargetPoint.h"
 #include "MagicBattleSoccerSpawnPoint.generated.h"
 
-class AMagicBattleSoccerGoal;
-class AMagicBattleSoccerCharacter;
-class ATriggerBox;
-
 /**
 *
 */
@@ -21,17 +17,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerSpawnPoint : public ATargetPoint
 
 	/** The zone that the spawned player is restricted to */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
-	ATriggerBox* ActionZone;
+	class ATriggerBox* ActionZone;
 
 	/** The maximum number of players to spawn on the field */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	int32 MaxPlayersOnField;
 
-	/** The current number of players on the field */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Soccer)
-	int32 NumberOfPlayersOnField;
-
 	/** Called by the GameMode object when a spawned player is about to be destroyed */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
-	void SpawnedPlayerBeingDestroyed(AMagicBattleSoccerCharacter* SoccerPlayer);
+	void SpawnedPlayerBeingDestroyed(class AMagicBattleSoccerAIController* Controller);
 };
