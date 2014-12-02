@@ -251,6 +251,5 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	/** True if this player possesses the ball */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	bool PossessesBall();
-
 };
 

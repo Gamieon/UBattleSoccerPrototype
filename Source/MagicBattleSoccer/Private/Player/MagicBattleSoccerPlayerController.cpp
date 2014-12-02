@@ -7,8 +7,6 @@
 #include "MagicBattleSoccerGameMode.h"
 #include <chrono>
 
-#define DEFAULT_PLAYER_BALL_KICK_FORCE	48000.f
-
 using namespace std::chrono;
 
 AMagicBattleSoccerPlayerController::AMagicBattleSoccerPlayerController(const class FPostConstructInitializeProperties& PCIP)
@@ -142,12 +140,11 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 		if (PlayerPawn->PossessesBall())
 		{
 			// Aim where the mouse is pointing
-			const float KickForce = DEFAULT_PLAYER_BALL_KICK_FORCE;
 			FVector WorldLocation;
 			FVector WorldDirection;
 			if (!DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
 			{
-				// Failed. Use the pawn's forward direction.
+				// Failed. Do not kick.
 				WorldDirection = PlayerPawn->GetActorForwardVector();
 			}
 			else
@@ -157,12 +154,14 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 					/ FVector::DotProduct(WorldDirection, FVector::UpVector);
 				FVector InstigatorPoint = PlayerPawn->GetActorLocation();
 				FVector GroundPoint = WorldLocation + WorldDirection * d;
-				WorldDirection = FVector(GroundPoint.X - InstigatorPoint.X,
-					GroundPoint.Y - InstigatorPoint.Y, 0.0f);
-				WorldDirection.Normalize();
-			}
 
-			PlayerPawn->KickBall(WorldDirection * KickForce);
+				FVector ActorLocation = PlayerPawn->GetActorLocation();
+				FVector v = GroundPoint - ActorLocation;
+				v.Z = 0;
+				float distance = v.Size2D();
+				v.Normalize();
+				PlayerPawn->KickBall(v * distance * 110.f);
+			}
 		}
 		else if (nullptr != PlayerPawn->PrimaryWeapon)
 		{

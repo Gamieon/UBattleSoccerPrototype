@@ -213,7 +213,7 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerCharacter* Player)
 		float GameTimeInSeconds = GetWorld()->TimeSeconds;
 
 		// We only allow a possession change if there is no new possessor or if we just didn't recently unassign possession
-		if (NULL == Player || GameTimeInSeconds > LastReleaseTime + 1.f)
+		if (NULL == Player || GameTimeInSeconds > LastReleaseTime + 1.5f)
 		{
 			AMagicBattleSoccerCharacter *OldPossessor = Possessor;
 

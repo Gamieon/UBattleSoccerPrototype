@@ -10,6 +10,7 @@
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerBall.h"
 #include "Engine/TriggerBox.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
 
 AMagicBattleSoccerAIController::AMagicBattleSoccerAIController(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
@@ -27,6 +28,10 @@ void AMagicBattleSoccerAIController::SpawnCharacter_Implementation()
 void AMagicBattleSoccerAIController::PawnPendingDestroy(APawn* inPawn)
 {
 	Super::PawnPendingDestroy(inPawn);
+
+	// Stop the behaviour tree/logic
+	UBehaviorTreeComponent* BTComp = Cast<UBehaviorTreeComponent>(BrainComponent);
+	BTComp->StopTree();
 
 	if (nullptr != SpawnPoint)
 	{
@@ -402,9 +407,11 @@ void AMagicBattleSoccerAIController::KickBallToLocation(const FVector& Location)
 	AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
 	if (nullptr != MyBot)
 	{
-		AMagicBattleSoccerBall *Ball = GameState->SoccerBall;
-		FVector BallLocation = Ball->GetActorLocation();
-		const float KickForce = 60.0f;
-		MyBot->KickBall(FVector(Location.X - BallLocation.X, Location.Y - BallLocation.Y, 0.0f) * KickForce);
+		FVector ActorLocation = MyBot->GetActorLocation();
+		FVector v = Location - ActorLocation;
+		v.Z = 0;
+		float distance = v.Size2D();
+		v.Normalize();
+		MyBot->KickBall(v * distance * 110.f);
 	}
 }
