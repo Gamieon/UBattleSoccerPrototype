@@ -20,7 +20,7 @@ struct FTakeHitInfo
 
 	/** Who hit us */
 	UPROPERTY()
-	TWeakObjectPtr<class AMagicBattleSoccerPlayer> PawnInstigator;
+	TWeakObjectPtr<class AMagicBattleSoccerCharacter> PawnInstigator;
 
 	/** Who actually caused the damage */
 	UPROPERTY()

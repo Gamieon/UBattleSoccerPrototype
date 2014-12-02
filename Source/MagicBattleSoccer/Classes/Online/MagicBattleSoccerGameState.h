@@ -13,7 +13,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameState : public AGameState
 
 	/** The cache of all soccer players in the scene. */
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
-	TArray<class AMagicBattleSoccerPlayer*> SoccerPlayers;
+	TArray<class AMagicBattleSoccerCharacter*> SoccerPlayers;
 
 	/** The one and only soccer ball. Cached locally for all sessions */
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
@@ -34,13 +34,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameState : public AGameState
 public:
 	/** Gets all the teammates of a specified player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	TArray<class AMagicBattleSoccerPlayer*> GetTeammates(class AMagicBattleSoccerPlayerState* PlayerState);
+	TArray<class AMagicBattleSoccerCharacter*> GetTeammates(class AMagicBattleSoccerPlayerState* PlayerState);
 
 	/** Gets all the opponents of a specified player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	TArray<class AMagicBattleSoccerPlayer*> GetOpponents(class AMagicBattleSoccerPlayerState* PlayerState);
+	TArray<class AMagicBattleSoccerCharacter*> GetOpponents(class AMagicBattleSoccerPlayerState* PlayerState);
 
 	/** Gets the closest opponent */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	class AMagicBattleSoccerPlayer* GetClosestOpponent(class AMagicBattleSoccerPlayer* Player);
+	class AMagicBattleSoccerCharacter* GetClosestOpponent(class AMagicBattleSoccerCharacter* Player);
 };

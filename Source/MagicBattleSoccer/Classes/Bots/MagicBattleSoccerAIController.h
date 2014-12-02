@@ -43,11 +43,11 @@ public:
 
 	/** Gets all the teammates of this player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	TArray<class AMagicBattleSoccerPlayer*> GetTeammates();
+	TArray<class AMagicBattleSoccerCharacter*> GetTeammates();
 
 	/** Gets all the opponents of this player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	TArray<class AMagicBattleSoccerPlayer*> GetOpponents();
+	TArray<class AMagicBattleSoccerCharacter*> GetOpponents();
 
 	/** Gets the closest actor between this player and a point */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
@@ -55,11 +55,11 @@ public:
 
 	/** Gets the closest enemy to this player that can be pursued */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	class AMagicBattleSoccerPlayer* GetClosestOpponent();
+	class AMagicBattleSoccerCharacter* GetClosestOpponent();
 
 	/** Gets the ideal teammate to pass the soccer ball to */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	class AMagicBattleSoccerPlayer* GetIdealPassMate();
+	class AMagicBattleSoccerCharacter* GetIdealPassMate();
 
 	/** Gets the ideal object to run to if the player is idle */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
@@ -71,7 +71,7 @@ public:
 
 	/** Attacks a soccer player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void AttackPlayer(class AMagicBattleSoccerPlayer* Target);
+	void AttackPlayer(class AMagicBattleSoccerCharacter* Target);
 
 	/** Stops attacking a soccer player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)

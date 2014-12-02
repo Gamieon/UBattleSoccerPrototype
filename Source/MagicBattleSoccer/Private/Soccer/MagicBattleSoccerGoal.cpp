@@ -2,7 +2,7 @@
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerGameMode.h"
-#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerCharacter.h"
 
 AMagicBattleSoccerGoal::AMagicBattleSoccerGoal(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
@@ -17,7 +17,7 @@ AMagicBattleSoccerGameState* AMagicBattleSoccerGoal::GetGameState()
 }
 
 /** Gets the ideal point for a player to run to when approaching the goal */
-FVector AMagicBattleSoccerGoal::GetIdealRunLocation(AMagicBattleSoccerPlayer* Player)
+FVector AMagicBattleSoccerGoal::GetIdealRunLocation(AMagicBattleSoccerCharacter* Player)
 {
 	FVector GoalLocation = GetActorLocation();
 	FVector FrontOfGoal = GoalLocation + GetActorRightVector() * 570.0f;

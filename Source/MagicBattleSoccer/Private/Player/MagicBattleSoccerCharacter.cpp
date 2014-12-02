@@ -4,7 +4,7 @@
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerGameState.h"
-#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerProjectile.h"
 #include "MagicBattleSoccerSpawnPoint.h"
@@ -12,11 +12,11 @@
 #include "AIController.h"
 #include "Engine/TriggerBox.h"
 
-AMagicBattleSoccerPlayer::AMagicBattleSoccerPlayer(const class FPostConstructInitializeProperties& PCIP)
+AMagicBattleSoccerCharacter::AMagicBattleSoccerCharacter(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
-	this->OnActorBeginOverlap.AddDynamic(this, &AMagicBattleSoccerPlayer::OnBeginOverlap);
-	this->OnActorEndOverlap.AddDynamic(this, &AMagicBattleSoccerPlayer::OnEndOverlap);
+	this->OnActorBeginOverlap.AddDynamic(this, &AMagicBattleSoccerCharacter::OnBeginOverlap);
+	this->OnActorEndOverlap.AddDynamic(this, &AMagicBattleSoccerCharacter::OnEndOverlap);
 	this->SetActorTickEnabled(true);
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -31,7 +31,7 @@ AMagicBattleSoccerPlayer::AMagicBattleSoccerPlayer(const class FPostConstructIni
 	LastTakeHitTimeTimeout = 0;
 }
 
-void AMagicBattleSoccerPlayer::PostInitializeComponents()
+void AMagicBattleSoccerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
@@ -45,39 +45,39 @@ void AMagicBattleSoccerPlayer::PostInitializeComponents()
 	}
 }
 
-void AMagicBattleSoccerPlayer::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTracker)
+void AMagicBattleSoccerCharacter::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTracker)
 {
 	Super::PreReplication(ChangedPropertyTracker);
 
 	// Only replicate this property for a short duration after it changes so join in progress players don't get spammed with fx when joining late
-	DOREPLIFETIME_ACTIVE_OVERRIDE(AMagicBattleSoccerPlayer, LastTakeHitInfo, GetWorld() && GetWorld()->GetTimeSeconds() < LastTakeHitTimeTimeout);
+	DOREPLIFETIME_ACTIVE_OVERRIDE(AMagicBattleSoccerCharacter, LastTakeHitInfo, GetWorld() && GetWorld()->GetTimeSeconds() < LastTakeHitTimeTimeout);
 }
 
-void AMagicBattleSoccerPlayer::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+void AMagicBattleSoccerCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	// Replicate to everyone
-	DOREPLIFETIME(AMagicBattleSoccerPlayer, SpawnPoint);
-	DOREPLIFETIME(AMagicBattleSoccerPlayer, MaxHealth);
-	DOREPLIFETIME(AMagicBattleSoccerPlayer, Health);
-	DOREPLIFETIME(AMagicBattleSoccerPlayer, CurrentMovementSpeed);
-	DOREPLIFETIME(AMagicBattleSoccerPlayer, PrimaryWeapon);
-	DOREPLIFETIME(AMagicBattleSoccerPlayer, SecondaryWeapon);
+	DOREPLIFETIME(AMagicBattleSoccerCharacter, SpawnPoint);
+	DOREPLIFETIME(AMagicBattleSoccerCharacter, MaxHealth);
+	DOREPLIFETIME(AMagicBattleSoccerCharacter, Health);
+	DOREPLIFETIME(AMagicBattleSoccerCharacter, CurrentMovementSpeed);
+	DOREPLIFETIME(AMagicBattleSoccerCharacter, PrimaryWeapon);
+	DOREPLIFETIME(AMagicBattleSoccerCharacter, SecondaryWeapon);
 }
 
-void AMagicBattleSoccerPlayer::OnRep_PrimaryWeapon(AMagicBattleSoccerWeapon* LastWeapon)
+void AMagicBattleSoccerCharacter::OnRep_PrimaryWeapon(AMagicBattleSoccerWeapon* LastWeapon)
 {
 	SetPrimaryWeapon(PrimaryWeapon, LastWeapon);
 }
 
-void AMagicBattleSoccerPlayer::OnRep_SecondaryWeapon(AMagicBattleSoccerWeapon* LastWeapon)
+void AMagicBattleSoccerCharacter::OnRep_SecondaryWeapon(AMagicBattleSoccerWeapon* LastWeapon)
 {
 	SetPrimaryWeapon(SecondaryWeapon, LastWeapon);
 }
 
 /** Called on clients when the server changes this character's default movement speed */
-void AMagicBattleSoccerPlayer::OnRep_CurrentMovementSpeed()
+void AMagicBattleSoccerCharacter::OnRep_CurrentMovementSpeed()
 {
 	// Update the default movement speed of the movement component
 	// with the replicated value
@@ -86,7 +86,7 @@ void AMagicBattleSoccerPlayer::OnRep_CurrentMovementSpeed()
 }
 
 /** play hit or death on client */
-void AMagicBattleSoccerPlayer::OnRep_LastTakeHitInfo()
+void AMagicBattleSoccerCharacter::OnRep_LastTakeHitInfo()
 {
 	if (LastTakeHitInfo.bKilled)
 	{
@@ -98,7 +98,7 @@ void AMagicBattleSoccerPlayer::OnRep_LastTakeHitInfo()
 	}
 }
 
-void AMagicBattleSoccerPlayer::PossessedBy(class AController* InController)
+void AMagicBattleSoccerCharacter::PossessedBy(class AController* InController)
 {
 	Super::PossessedBy(InController);
 
@@ -107,7 +107,7 @@ void AMagicBattleSoccerPlayer::PossessedBy(class AController* InController)
 }
 
 /** [client] perform PlayerState related setup */
-void AMagicBattleSoccerPlayer::OnRep_PlayerState()
+void AMagicBattleSoccerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
@@ -116,7 +116,7 @@ void AMagicBattleSoccerPlayer::OnRep_PlayerState()
 }
 
 /** This occurs when play begins for a character */
-void AMagicBattleSoccerPlayer::BeginPlay()
+void AMagicBattleSoccerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -135,7 +135,7 @@ void AMagicBattleSoccerPlayer::BeginPlay()
 	}
 }
 
-void AMagicBattleSoccerPlayer::Tick(float DeltaSeconds)
+void AMagicBattleSoccerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
@@ -153,7 +153,7 @@ void AMagicBattleSoccerPlayer::Tick(float DeltaSeconds)
 }
 
 /** This occurs when play ends */
-void AMagicBattleSoccerPlayer::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason)
+void AMagicBattleSoccerCharacter::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason)
 {
 	Super::ReceiveEndPlay(EndPlayReason);
 
@@ -169,7 +169,7 @@ void AMagicBattleSoccerPlayer::ReceiveEndPlay(EEndPlayReason::Type EndPlayReason
 }
 
 /** This occurs when the player is destroyed */
-void AMagicBattleSoccerPlayer::Destroyed()
+void AMagicBattleSoccerCharacter::Destroyed()
 {
 	if (Role < ROLE_Authority)
 	{
@@ -199,7 +199,7 @@ void AMagicBattleSoccerPlayer::Destroyed()
 	DestroyInventory();
 }
 
-void AMagicBattleSoccerPlayer::OnBeginOverlap(AActor* OtherActor)
+void AMagicBattleSoccerCharacter::OnBeginOverlap(AActor* OtherActor)
 {
 	AMagicBattleSoccerBall *Ball = Cast<AMagicBattleSoccerBall>(OtherActor);
 	if (NULL != Ball)
@@ -208,7 +208,7 @@ void AMagicBattleSoccerPlayer::OnBeginOverlap(AActor* OtherActor)
 	}
 }
 
-void AMagicBattleSoccerPlayer::OnEndOverlap(AActor* OtherActor)
+void AMagicBattleSoccerCharacter::OnEndOverlap(AActor* OtherActor)
 {
 	AMagicBattleSoccerBall *Ball = Cast<AMagicBattleSoccerBall>(OtherActor);
 	if (NULL != Ball)
@@ -220,7 +220,7 @@ void AMagicBattleSoccerPlayer::OnEndOverlap(AActor* OtherActor)
 //////////////////////////////////////////////////////////////////////////
 // Damage & death
 
-float AMagicBattleSoccerPlayer::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
+float AMagicBattleSoccerCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
 {
 	if (Health <= 0.f)
 	{
@@ -248,7 +248,7 @@ float AMagicBattleSoccerPlayer::TakeDamage(float Damage, struct FDamageEvent con
 	return ActualDamage;
 }
 
-bool AMagicBattleSoccerPlayer::CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const
+bool AMagicBattleSoccerCharacter::CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const
 {
 	if (IsPendingKill()								// already destroyed
 		|| Role != ROLE_Authority						// not authority
@@ -261,7 +261,7 @@ bool AMagicBattleSoccerPlayer::CanDie(float KillingDamage, FDamageEvent const& D
 	return true;
 }
 
-bool AMagicBattleSoccerPlayer::Die(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser)
+bool AMagicBattleSoccerCharacter::Die(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser)
 {
 	if (!CanDie(KillingDamage, DamageEvent, Killer, DamageCauser))
 	{
@@ -277,14 +277,14 @@ bool AMagicBattleSoccerPlayer::Die(float KillingDamage, FDamageEvent const& Dama
 	AController* const KilledPlayer = (Controller != NULL) ? Controller : Cast<AController>(GetOwner());
 	GetWorld()->GetAuthGameMode<AMagicBattleSoccerGameMode>()->Killed(Killer, KilledPlayer, this, DamageType);
 
-	NetUpdateFrequency = GetDefault<AMagicBattleSoccerPlayer>()->NetUpdateFrequency;
+	NetUpdateFrequency = GetDefault<AMagicBattleSoccerCharacter>()->NetUpdateFrequency;
 	CharacterMovement->ForceReplicationUpdate();
 
 	OnDeath(KillingDamage, DamageEvent, Killer ? Killer->GetPawn() : NULL, DamageCauser);
 	return true;
 }
 
-void AMagicBattleSoccerPlayer::OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser)
+void AMagicBattleSoccerCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser)
 {
 	bReplicateMovement = false;
 	bTearOff = true;
@@ -301,7 +301,7 @@ void AMagicBattleSoccerPlayer::OnDeath(float KillingDamage, struct FDamageEvent 
 	Destroy();
 }
 
-void AMagicBattleSoccerPlayer::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser)
+void AMagicBattleSoccerCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser)
 {
 	if (ROLE_Authority == Role)
 	{
@@ -331,7 +331,7 @@ void AMagicBattleSoccerPlayer::PlayHit(float DamageTaken, struct FDamageEvent co
 	}
 }
 
-void AMagicBattleSoccerPlayer::ReplicateHit(float Damage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser, bool bKilled)
+void AMagicBattleSoccerCharacter::ReplicateHit(float Damage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser, bool bKilled)
 {
 	const float TimeoutTime = GetWorld()->GetTimeSeconds() + 0.5f;
 
@@ -350,7 +350,7 @@ void AMagicBattleSoccerPlayer::ReplicateHit(float Damage, struct FDamageEvent co
 	}
 
 	LastTakeHitInfo.ActualDamage = Damage;
-	LastTakeHitInfo.PawnInstigator = Cast<AMagicBattleSoccerPlayer>(PawnInstigator);
+	LastTakeHitInfo.PawnInstigator = Cast<AMagicBattleSoccerCharacter>(PawnInstigator);
 	LastTakeHitInfo.DamageCauser = DamageCauser;
 	LastTakeHitInfo.SetDamageEvent(DamageEvent);
 	LastTakeHitInfo.bKilled = bKilled;
@@ -362,7 +362,7 @@ void AMagicBattleSoccerPlayer::ReplicateHit(float Damage, struct FDamageEvent co
 //////////////////////////////////////////////////////////////////////////
 // Inventory and weapons
 
-void AMagicBattleSoccerPlayer::SetPrimaryWeapon(AMagicBattleSoccerWeapon* NewWeapon, AMagicBattleSoccerWeapon* LastWeapon)
+void AMagicBattleSoccerCharacter::SetPrimaryWeapon(AMagicBattleSoccerWeapon* NewWeapon, AMagicBattleSoccerWeapon* LastWeapon)
 {
 	AMagicBattleSoccerWeapon* LocalLastWeapon = NULL;
 
@@ -391,7 +391,7 @@ void AMagicBattleSoccerPlayer::SetPrimaryWeapon(AMagicBattleSoccerWeapon* NewWea
 	}
 }
 
-void AMagicBattleSoccerPlayer::SetSecondaryWeapon(AMagicBattleSoccerWeapon* NewWeapon, AMagicBattleSoccerWeapon* LastWeapon)
+void AMagicBattleSoccerCharacter::SetSecondaryWeapon(AMagicBattleSoccerWeapon* NewWeapon, AMagicBattleSoccerWeapon* LastWeapon)
 {
 	AMagicBattleSoccerWeapon* LocalLastWeapon = NULL;
 
@@ -420,7 +420,7 @@ void AMagicBattleSoccerPlayer::SetSecondaryWeapon(AMagicBattleSoccerWeapon* NewW
 	}
 }
 
-void AMagicBattleSoccerPlayer::SpawnDefaultInventory()
+void AMagicBattleSoccerCharacter::SpawnDefaultInventory()
 {
 	if (Role < ROLE_Authority)
 	{
@@ -451,7 +451,7 @@ void AMagicBattleSoccerPlayer::SpawnDefaultInventory()
 	}
 }
 
-void AMagicBattleSoccerPlayer::DestroyInventory()
+void AMagicBattleSoccerCharacter::DestroyInventory()
 {
 	if (Role < ROLE_Authority)
 	{
@@ -470,27 +470,27 @@ void AMagicBattleSoccerPlayer::DestroyInventory()
 	}
 }
 
-bool AMagicBattleSoccerPlayer::ServerEquipPrimaryWeapon_Validate(AMagicBattleSoccerWeapon* Weapon)
+bool AMagicBattleSoccerCharacter::ServerEquipPrimaryWeapon_Validate(AMagicBattleSoccerWeapon* Weapon)
 {
 	return true;
 }
 
-void AMagicBattleSoccerPlayer::ServerEquipPrimaryWeapon_Implementation(AMagicBattleSoccerWeapon* Weapon)
+void AMagicBattleSoccerCharacter::ServerEquipPrimaryWeapon_Implementation(AMagicBattleSoccerWeapon* Weapon)
 {
 	EquipPrimaryWeapon(Weapon);
 }
 
-bool AMagicBattleSoccerPlayer::ServerEquipSecondaryWeapon_Validate(AMagicBattleSoccerWeapon* Weapon)
+bool AMagicBattleSoccerCharacter::ServerEquipSecondaryWeapon_Validate(AMagicBattleSoccerWeapon* Weapon)
 {
 	return true;
 }
 
-void AMagicBattleSoccerPlayer::ServerEquipSecondaryWeapon_Implementation(AMagicBattleSoccerWeapon* Weapon)
+void AMagicBattleSoccerCharacter::ServerEquipSecondaryWeapon_Implementation(AMagicBattleSoccerWeapon* Weapon)
 {
 	EquipSecondaryWeapon(Weapon);
 }
 
-void AMagicBattleSoccerPlayer::AddWeapon(AMagicBattleSoccerWeapon* Weapon)
+void AMagicBattleSoccerCharacter::AddWeapon(AMagicBattleSoccerWeapon* Weapon)
 {
 	if (Weapon && Role == ROLE_Authority)
 	{
@@ -499,7 +499,7 @@ void AMagicBattleSoccerPlayer::AddWeapon(AMagicBattleSoccerWeapon* Weapon)
 	}
 }
 
-void AMagicBattleSoccerPlayer::RemoveWeapon(AMagicBattleSoccerWeapon* Weapon)
+void AMagicBattleSoccerCharacter::RemoveWeapon(AMagicBattleSoccerWeapon* Weapon)
 {
 	if (Weapon && Role == ROLE_Authority)
 	{
@@ -508,7 +508,7 @@ void AMagicBattleSoccerPlayer::RemoveWeapon(AMagicBattleSoccerWeapon* Weapon)
 	}
 }
 
-void AMagicBattleSoccerPlayer::EquipPrimaryWeapon(AMagicBattleSoccerWeapon* Weapon)
+void AMagicBattleSoccerCharacter::EquipPrimaryWeapon(AMagicBattleSoccerWeapon* Weapon)
 {
 	if (Weapon)
 	{
@@ -523,7 +523,7 @@ void AMagicBattleSoccerPlayer::EquipPrimaryWeapon(AMagicBattleSoccerWeapon* Weap
 	}
 }
 
-void AMagicBattleSoccerPlayer::EquipSecondaryWeapon(AMagicBattleSoccerWeapon* Weapon)
+void AMagicBattleSoccerCharacter::EquipSecondaryWeapon(AMagicBattleSoccerWeapon* Weapon)
 {
 	if (Weapon)
 	{
@@ -539,7 +539,7 @@ void AMagicBattleSoccerPlayer::EquipSecondaryWeapon(AMagicBattleSoccerWeapon* We
 }
 
 /** Called to change a player's outfit based on team */
-void AMagicBattleSoccerPlayer::AssignUniform_Implementation()
+void AMagicBattleSoccerCharacter::AssignUniform_Implementation()
 {
 	// Handled entirely in blueprints
 }
@@ -548,7 +548,7 @@ void AMagicBattleSoccerPlayer::AssignUniform_Implementation()
 // Actions
 
 /** [local] starts weapon fire */
-void AMagicBattleSoccerPlayer::StartPrimaryWeaponFire()
+void AMagicBattleSoccerCharacter::StartPrimaryWeaponFire()
 {
 	if (!bWantsPrimaryFire)
 	{
@@ -561,7 +561,7 @@ void AMagicBattleSoccerPlayer::StartPrimaryWeaponFire()
 }
 
 /** [local] stops weapon fire */
-void AMagicBattleSoccerPlayer::StopPrimaryWeaponFire()
+void AMagicBattleSoccerCharacter::StopPrimaryWeaponFire()
 {
 	if (bWantsPrimaryFire)
 	{
@@ -574,7 +574,7 @@ void AMagicBattleSoccerPlayer::StopPrimaryWeaponFire()
 }
 
 /** [local] starts secondary attack */
-void AMagicBattleSoccerPlayer::StartSecondaryWeaponFire()
+void AMagicBattleSoccerCharacter::StartSecondaryWeaponFire()
 {
 	if (!bWantsSecondaryFire)
 	{
@@ -587,7 +587,7 @@ void AMagicBattleSoccerPlayer::StartSecondaryWeaponFire()
 }
 
 /** [local] stops secondary attack */
-void AMagicBattleSoccerPlayer::StopSecondaryWeaponFire()
+void AMagicBattleSoccerCharacter::StopSecondaryWeaponFire()
 {
 	if (bWantsSecondaryFire)
 	{
@@ -600,19 +600,19 @@ void AMagicBattleSoccerPlayer::StopSecondaryWeaponFire()
 }
 
 /** check if pawn can fire weapon */
-bool AMagicBattleSoccerPlayer::CanFirePrimaryWeapon() const
+bool AMagicBattleSoccerCharacter::CanFirePrimaryWeapon() const
 {
 	return IsAlive();
 }
 
 /** check if pawn can fire weapon */
-bool AMagicBattleSoccerPlayer::CanFireSecondaryWeapon() const
+bool AMagicBattleSoccerCharacter::CanFireSecondaryWeapon() const
 {
 	return IsAlive();
 }
 
 /** [server] Updates the movement speed based on conditions (ball possessor, etc) */
-void AMagicBattleSoccerPlayer::UpdateMovementSpeed()
+void AMagicBattleSoccerCharacter::UpdateMovementSpeed()
 {
 	UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
 	AMagicBattleSoccerBall *Ball = GetSoccerBall();
@@ -626,7 +626,7 @@ void AMagicBattleSoccerPlayer::UpdateMovementSpeed()
 }
 
 /** [local] Critical path for all kick functions */
-void AMagicBattleSoccerPlayer::KickBall(const FVector& Force)
+void AMagicBattleSoccerCharacter::KickBall(const FVector& Force)
 {
 	if (Role < ROLE_Authority)
 	{
@@ -642,12 +642,12 @@ void AMagicBattleSoccerPlayer::KickBall(const FVector& Force)
 //////////////////////////////////////////////////////////////////////////
 // Actions - server side
 
-bool AMagicBattleSoccerPlayer::ServerKickBall_Validate(FVector Force)
+bool AMagicBattleSoccerCharacter::ServerKickBall_Validate(FVector Force)
 {
 	return IsAlive();
 }
 
-void AMagicBattleSoccerPlayer::ServerKickBall_Implementation(FVector Force)
+void AMagicBattleSoccerCharacter::ServerKickBall_Implementation(FVector Force)
 {
 	KickBall(Force);
 }
@@ -656,34 +656,34 @@ void AMagicBattleSoccerPlayer::ServerKickBall_Implementation(FVector Force)
 // Player attributes
 
 /** Gets the game mode (only the server should be interested in this) */
-AMagicBattleSoccerGameMode* AMagicBattleSoccerPlayer::GetGameMode()
+AMagicBattleSoccerGameMode* AMagicBattleSoccerCharacter::GetGameMode()
 {
 	return Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 }
 
 /** Gets the game state (all instances should be interested in this) */
-AMagicBattleSoccerGameState* AMagicBattleSoccerPlayer::GetGameState()
+AMagicBattleSoccerGameState* AMagicBattleSoccerCharacter::GetGameState()
 {
 	UWorld *World = GetWorld();
 	return World->GetGameState<AMagicBattleSoccerGameState>();
 }
 
 /** Gets the soccer ball */
-AMagicBattleSoccerBall* AMagicBattleSoccerPlayer::GetSoccerBall()
+AMagicBattleSoccerBall* AMagicBattleSoccerCharacter::GetSoccerBall()
 {
 	return GetGameState()->SoccerBall;
 }
 
 /** check if pawn is still alive */
-bool AMagicBattleSoccerPlayer::IsAlive() const
+bool AMagicBattleSoccerCharacter::IsAlive() const
 {
 	return Health > 0;
 }
 
 /** True if this player possesses the ball */
-bool AMagicBattleSoccerPlayer::PossessesBall()
+bool AMagicBattleSoccerCharacter::PossessesBall()
 {
-	AMagicBattleSoccerPlayer *Possessor = GetSoccerBall()->Possessor;
+	AMagicBattleSoccerCharacter *Possessor = GetSoccerBall()->Possessor;
 	return (this == Possessor);
 }
 

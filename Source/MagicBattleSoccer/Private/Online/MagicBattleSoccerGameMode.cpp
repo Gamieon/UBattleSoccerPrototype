@@ -13,7 +13,7 @@
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerPlayerController.h"
 #include "MagicBattleSoccerPlayerState.h"
-#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerGameSession.h"
 #include "MagicBattleSoccerHUD.h"
@@ -55,7 +55,7 @@ float AMagicBattleSoccerGameMode::ModifyDamage(float Damage, AActor* DamagedActo
 {
 	float ActualDamage = Damage;
 
-	AMagicBattleSoccerPlayer* DamagedPawn = Cast<AMagicBattleSoccerPlayer>(DamagedActor);
+	AMagicBattleSoccerCharacter* DamagedPawn = Cast<AMagicBattleSoccerCharacter>(DamagedActor);
 	if (DamagedPawn && EventInstigator)
 	{
 		AMagicBattleSoccerPlayerState* DamagedPlayerState = Cast<AMagicBattleSoccerPlayerState>(DamagedPawn->PlayerState);
@@ -97,7 +97,7 @@ void AMagicBattleSoccerGameMode::Killed(AController* Killer, AController* Killed
 }
 
 /** Determines whether a soccer player can be pursued by a bot */
-bool AMagicBattleSoccerGameMode::CanBePursued(AMagicBattleSoccerPlayer* Player)
+bool AMagicBattleSoccerGameMode::CanBePursued(AMagicBattleSoccerCharacter* Player)
 {
 	return true;
 }

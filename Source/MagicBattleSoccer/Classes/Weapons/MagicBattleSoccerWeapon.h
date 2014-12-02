@@ -77,7 +77,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon : public AActor
 	virtual void OnUnEquip();
 
 	/** [server] weapon was added to pawn's inventory */
-	virtual void OnEnterInventory(AMagicBattleSoccerPlayer* NewOwner);
+	virtual void OnEnterInventory(AMagicBattleSoccerCharacter* NewOwner);
 
 	/** [server] weapon was removed from pawn's inventory */
 	virtual void OnLeaveInventory();
@@ -110,13 +110,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon : public AActor
 	EWeaponState::Type GetCurrentState() const;
 
 	/** set the weapon's owning pawn */
-	void SetOwningPawn(AMagicBattleSoccerPlayer* AShooterCharacter);
+	void SetOwningPawn(AMagicBattleSoccerCharacter* AShooterCharacter);
 
 protected:
 
 	/** pawn owner */
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_MyPawn)
-	class AMagicBattleSoccerPlayer* MyPawn;
+	class AMagicBattleSoccerCharacter* MyPawn;
 
 	/** weapon data */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Config)

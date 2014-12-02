@@ -7,7 +7,7 @@
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerInstance.h"
 #include "MagicBattleSoccerPlayerState.h"
-#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerGoal.h"
 #include "UnrealNetwork.h"
 
@@ -33,12 +33,12 @@ void AMagicBattleSoccerGameState::GetLifetimeReplicatedProps(TArray< FLifetimePr
 }
 
 /** Gets all the teammates of a specified player */
-TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerGameState::GetTeammates(AMagicBattleSoccerPlayerState* PlayerState)
+TArray<AMagicBattleSoccerCharacter*> AMagicBattleSoccerGameState::GetTeammates(AMagicBattleSoccerPlayerState* PlayerState)
 {
-	TArray<AMagicBattleSoccerPlayer*> Teammates;
+	TArray<AMagicBattleSoccerCharacter*> Teammates;
 	if (nullptr != PlayerState)
 	{
-		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(SoccerPlayers.CreateConstIterator()); It; ++It)
+		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(SoccerPlayers.CreateConstIterator()); It; ++It)
 		{
 			if ((*It)->PlayerState != PlayerState
 				&& nullptr != Cast<AMagicBattleSoccerPlayerState>((*It)->PlayerState)
@@ -52,12 +52,12 @@ TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerGameState::GetTeammates(AMag
 }
 
 /** Gets all the opponents of a specified player */
-TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerGameState::GetOpponents(AMagicBattleSoccerPlayerState* PlayerState)
+TArray<AMagicBattleSoccerCharacter*> AMagicBattleSoccerGameState::GetOpponents(AMagicBattleSoccerPlayerState* PlayerState)
 {
-	TArray<AMagicBattleSoccerPlayer*> Opponents;
+	TArray<AMagicBattleSoccerCharacter*> Opponents;
 	if (nullptr != PlayerState)
 	{
-		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(SoccerPlayers.CreateConstIterator()); It; ++It)
+		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(SoccerPlayers.CreateConstIterator()); It; ++It)
 		{
 			if ((*It)->PlayerState != PlayerState
 				&& nullptr != Cast<AMagicBattleSoccerPlayerState>((*It)->PlayerState)
@@ -71,7 +71,7 @@ TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerGameState::GetOpponents(AMag
 }
 
 /** Gets the closest enemy to this player that can be pursued */
-AMagicBattleSoccerPlayer* AMagicBattleSoccerGameState::GetClosestOpponent(AMagicBattleSoccerPlayer* Player)
+AMagicBattleSoccerCharacter* AMagicBattleSoccerGameState::GetClosestOpponent(AMagicBattleSoccerCharacter* Player)
 {
 	if (nullptr == Player)
 	{
@@ -79,12 +79,12 @@ AMagicBattleSoccerPlayer* AMagicBattleSoccerGameState::GetClosestOpponent(AMagic
 	}
 	else
 	{
-		const TArray<AMagicBattleSoccerPlayer*>& Opponents = GetOpponents(Cast<AMagicBattleSoccerPlayerState>(Player->PlayerState));
+		const TArray<AMagicBattleSoccerCharacter*>& Opponents = GetOpponents(Cast<AMagicBattleSoccerPlayerState>(Player->PlayerState));
 		AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(GetWorld()->GetAuthGameMode());
-		AMagicBattleSoccerPlayer* ClosestOpponent = nullptr;
+		AMagicBattleSoccerCharacter* ClosestOpponent = nullptr;
 
 		float ClosestOpponentDistance = 0.0f;
-		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Opponents.CreateConstIterator()); It; ++It)
+		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Opponents.CreateConstIterator()); It; ++It)
 		{
 			if (nullptr == ClosestOpponent || Player->GetDistanceTo(*It) < ClosestOpponentDistance && GameMode->CanBePursued(*It))
 			{

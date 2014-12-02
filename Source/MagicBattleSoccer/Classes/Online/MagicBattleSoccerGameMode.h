@@ -5,7 +5,7 @@
 
 class AMagicBattleSoccerBall;
 class AMagicBattleSoccerGoal;
-class AMagicBattleSoccerPlayer;
+class AMagicBattleSoccerCharacter;
 
 /**
  * The GameMode defines the game being played. It governs the game rules, scoring, what actors
@@ -48,5 +48,5 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameMode : public AGameMode
 
 	/** Determines whether a soccer player can be pursued by a bot */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	bool CanBePursued(class AMagicBattleSoccerPlayer* Player);
+	bool CanBePursued(class AMagicBattleSoccerCharacter* Player);
 };

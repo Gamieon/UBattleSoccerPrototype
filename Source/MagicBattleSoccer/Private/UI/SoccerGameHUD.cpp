@@ -6,7 +6,7 @@ GameHUD.h - The HUD class for game maps.
 #include "SoccerGameHUD.h"
 #include "MagicBattleSoccerEngine.h"
 #include "MagicBattleSoccerGameState.h"
-#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerCharacter.h"
 
 ASoccerGameHUD::ASoccerGameHUD(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
@@ -34,20 +34,20 @@ void ASoccerGameHUD::DrawAllSoccerPlayerStats()
 	if (nullptr != Game)
 	{
 		APlayerController* MyPC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-		TArray<AMagicBattleSoccerPlayer*> Teammates = Game->GetTeammates(Cast<AMagicBattleSoccerPlayerState>(MyPC->PlayerState));
-		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Teammates.CreateConstIterator()); It; ++It)
+		TArray<AMagicBattleSoccerCharacter*> Teammates = Game->GetTeammates(Cast<AMagicBattleSoccerPlayerState>(MyPC->PlayerState));
+		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Teammates.CreateConstIterator()); It; ++It)
 		{
 			DrawSoccerPlayerStats(*It);
 		}
 
 		if (nullptr != MyPC->GetPawn())
 		{
-			DrawSoccerPlayerStats(Cast<AMagicBattleSoccerPlayer>(MyPC->GetPawn()));
+			DrawSoccerPlayerStats(Cast<AMagicBattleSoccerCharacter>(MyPC->GetPawn()));
 		}
 	}
 }
 
-void ASoccerGameHUD::DrawSoccerPlayerStats(AMagicBattleSoccerPlayer *Player)
+void ASoccerGameHUD::DrawSoccerPlayerStats(AMagicBattleSoccerCharacter *Player)
 {
 	APlayerController* MyPC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	FVector2D ScreenPosition;

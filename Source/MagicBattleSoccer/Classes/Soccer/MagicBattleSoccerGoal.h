@@ -16,7 +16,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGoal : public AActor
 
 	/** Gets the ideal point for a player to run to when approaching the goal */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	FVector GetIdealRunLocation(class AMagicBattleSoccerPlayer* Player);
+	FVector GetIdealRunLocation(class AMagicBattleSoccerCharacter* Player);
 
 	/** The goal's owning team number */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)

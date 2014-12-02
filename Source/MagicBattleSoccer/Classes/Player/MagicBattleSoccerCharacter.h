@@ -2,7 +2,7 @@
 
 #include "GameFramework/Character.h"
 #include "MagicBattleSoccerTypes.h"
-#include "MagicBattleSoccerPlayer.generated.h"
+#include "MagicBattleSoccerCharacter.generated.h"
 
 class AMagicBattleSoccerGoal;
 class AMagicBattleSoccerBall;
@@ -16,7 +16,7 @@ class ATriggerBox;
 *
 */
 UCLASS()
-class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayer : public ACharacter
+class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 {
 	GENERATED_UCLASS_BODY()
 

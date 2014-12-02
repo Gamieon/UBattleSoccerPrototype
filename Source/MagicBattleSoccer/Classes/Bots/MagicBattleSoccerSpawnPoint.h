@@ -4,7 +4,7 @@
 #include "MagicBattleSoccerSpawnPoint.generated.h"
 
 class AMagicBattleSoccerGoal;
-class AMagicBattleSoccerPlayer;
+class AMagicBattleSoccerCharacter;
 class ATriggerBox;
 
 /**
@@ -33,5 +33,5 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerSpawnPoint : public ATargetPoint
 
 	/** Called by the GameMode object when a spawned player is about to be destroyed */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
-	void SpawnedPlayerBeingDestroyed(AMagicBattleSoccerPlayer* SoccerPlayer);
+	void SpawnedPlayerBeingDestroyed(AMagicBattleSoccerCharacter* SoccerPlayer);
 };

@@ -2,7 +2,7 @@
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerWeapon.h"
-#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerPlayerController.h"
 
 AMagicBattleSoccerWeapon::AMagicBattleSoccerWeapon(const class FPostConstructInitializeProperties& PCIP)
@@ -110,7 +110,7 @@ EWeaponState::Type AMagicBattleSoccerWeapon::GetCurrentState() const
 	return CurrentState;
 }
 
-void AMagicBattleSoccerWeapon::SetOwningPawn(AMagicBattleSoccerPlayer* NewOwner)
+void AMagicBattleSoccerWeapon::SetOwningPawn(AMagicBattleSoccerCharacter* NewOwner)
 {
 	if (MyPawn != NewOwner)
 	{
@@ -218,7 +218,7 @@ void AMagicBattleSoccerWeapon::DetermineWeaponState()
 	SetWeaponState(NewState);
 }
 
-void AMagicBattleSoccerWeapon::OnEnterInventory(AMagicBattleSoccerPlayer* NewOwner)
+void AMagicBattleSoccerWeapon::OnEnterInventory(AMagicBattleSoccerCharacter* NewOwner)
 {
 	SetOwningPawn(NewOwner);
 }

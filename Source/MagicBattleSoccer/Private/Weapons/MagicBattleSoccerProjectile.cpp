@@ -3,7 +3,7 @@
 #include "MagicBattleSoccerProjectile.h"
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerPlayerState.h"
-#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerCharacter.h"
 
 AMagicBattleSoccerProjectile::AMagicBattleSoccerProjectile(const class FPostConstructInitializeProperties& PCIP) : Super(PCIP)
 {
@@ -41,13 +41,13 @@ void AMagicBattleSoccerProjectile::PostInitializeComponents()
 	MovementComp->OnProjectileStop.AddDynamic(this, &AMagicBattleSoccerProjectile::OnImpact);
 	CollisionComp->IgnoreActorWhenMoving(Instigator, true);
 
-	AMagicBattleSoccerPlayer *InstigatorPlayer = Cast<AMagicBattleSoccerPlayer>(Instigator);
+	AMagicBattleSoccerCharacter *InstigatorPlayer = Cast<AMagicBattleSoccerCharacter>(Instigator);
 	if (nullptr != InstigatorPlayer)
 	{
 		// Ignore instigator teammates
 		AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
-		const TArray<AMagicBattleSoccerPlayer*>& Teammates = GameState->GetTeammates(Cast<AMagicBattleSoccerPlayerState>(InstigatorPlayer->PlayerState));
-		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Teammates.CreateConstIterator()); It; ++It)
+		const TArray<AMagicBattleSoccerCharacter*>& Teammates = GameState->GetTeammates(Cast<AMagicBattleSoccerPlayerState>(InstigatorPlayer->PlayerState));
+		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Teammates.CreateConstIterator()); It; ++It)
 		{
 			CollisionComp->IgnoreActorWhenMoving(*It, true);
 			(*It)->CapsuleComponent->IgnoreActorWhenMoving(this, true);
@@ -93,7 +93,7 @@ void AMagicBattleSoccerProjectile::Destroyed()
 		AMagicBattleSoccerGameState* Game = World->GetGameState<AMagicBattleSoccerGameState>();
 		if (nullptr != Game)
 		{
-			for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Game->SoccerPlayers.CreateConstIterator()); It; ++It)
+			for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Game->SoccerPlayers.CreateConstIterator()); It; ++It)
 			{
 				(*It)->CapsuleComponent->IgnoreActorWhenMoving(this, false);
 				if (nullptr != (*It)->PrimaryWeapon)

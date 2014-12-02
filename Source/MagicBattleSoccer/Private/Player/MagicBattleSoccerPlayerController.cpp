@@ -1,6 +1,6 @@
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerPlayerController.h"
-#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerGameState.h"
@@ -116,7 +116,7 @@ bool AMagicBattleSoccerPlayerController::FindDeathCameraSpot(FVector& CameraLoca
 /** Player move forward event */
 void AMagicBattleSoccerPlayerController::OnMoveForward(float axisValue)
 {
-	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
 		PlayerPawn->AddMovementInput(FVector(1, 0, 0), axisValue);
@@ -126,7 +126,7 @@ void AMagicBattleSoccerPlayerController::OnMoveForward(float axisValue)
 /** Player move right event */
 void AMagicBattleSoccerPlayerController::OnMoveRight(float axisValue)
 {
-	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
 		PlayerPawn->AddMovementInput(FVector(0, 1, 0), axisValue);
@@ -136,7 +136,7 @@ void AMagicBattleSoccerPlayerController::OnMoveRight(float axisValue)
 /** Player primary action event */
 void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 {
-	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
 		if (PlayerPawn->PossessesBall())
@@ -174,7 +174,7 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 /** Player primary action event */
 void AMagicBattleSoccerPlayerController::OnStopPrimaryAction()
 {
-	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
 		PlayerPawn->StopPrimaryWeaponFire();
@@ -184,7 +184,7 @@ void AMagicBattleSoccerPlayerController::OnStopPrimaryAction()
 /** Player secondary action event */
 void AMagicBattleSoccerPlayerController::OnStartSecondaryAction()
 {
-	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
 		if (!PlayerPawn->PossessesBall())
@@ -197,7 +197,7 @@ void AMagicBattleSoccerPlayerController::OnStartSecondaryAction()
 /** Player secondary action event */
 void AMagicBattleSoccerPlayerController::OnStopSecondaryAction()
 {
-	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
 		PlayerPawn->StopSecondaryWeaponFire();
@@ -207,14 +207,14 @@ void AMagicBattleSoccerPlayerController::OnStopSecondaryAction()
 /** Player suicide event */
 void AMagicBattleSoccerPlayerController::OnSuicide()
 {
-	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	PlayerPawn->Destroy();
 }
 
 /** Player respawn event */
 void AMagicBattleSoccerPlayerController::OnRespawn()
 {
-	AMagicBattleSoccerPlayer* PlayerPawn = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr == PlayerPawn)
 	{
 		ServerRestartPlayer();

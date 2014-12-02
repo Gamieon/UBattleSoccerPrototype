@@ -15,7 +15,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerBall : public AActor
 
 	/** The player that possesses this soccer ball */
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
-	class AMagicBattleSoccerPlayer *Possessor;
+	class AMagicBattleSoccerCharacter *Possessor;
 
 	/** The soccer ball orientation on the server */
 	UPROPERTY(ReplicatedUsing = OnRep_ServerPhysicsState)
@@ -60,7 +60,7 @@ public:
 	float LastReleaseTime;
 
 	/** Sets the current ball possessor */
-	void SetPossessor(class AMagicBattleSoccerPlayer* Player);
+	void SetPossessor(class AMagicBattleSoccerCharacter* Player);
 
 	/** Move with the possessing player */
 	void MoveWithPossessor();

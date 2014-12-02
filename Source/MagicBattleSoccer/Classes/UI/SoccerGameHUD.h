@@ -21,5 +21,5 @@ protected:
 	virtual void DrawHUD() override;
 
 	void DrawAllSoccerPlayerStats();
-	void DrawSoccerPlayerStats(class AMagicBattleSoccerPlayer *Player);
+	void DrawSoccerPlayerStats(class AMagicBattleSoccerCharacter *Player);
 };

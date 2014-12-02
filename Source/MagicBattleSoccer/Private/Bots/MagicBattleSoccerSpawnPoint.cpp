@@ -1,7 +1,7 @@
 
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerSpawnPoint.h"
-#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerCharacter.h"
 
 AMagicBattleSoccerSpawnPoint::AMagicBattleSoccerSpawnPoint(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
@@ -12,7 +12,7 @@ AMagicBattleSoccerSpawnPoint::AMagicBattleSoccerSpawnPoint(const class FPostCons
 }
 
 /** Called by the GameMode object when a spawned player is about to be destroyed */
-void AMagicBattleSoccerSpawnPoint::SpawnedPlayerBeingDestroyed_Implementation(AMagicBattleSoccerPlayer* SoccerPlayer)
+void AMagicBattleSoccerSpawnPoint::SpawnedPlayerBeingDestroyed_Implementation(AMagicBattleSoccerCharacter* SoccerPlayer)
 {
 	// Nothing to do here -- the blueprint should do all the work and it should only be done on the server
 }

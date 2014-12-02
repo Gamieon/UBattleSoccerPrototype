@@ -4,7 +4,7 @@
 #include "MagicBattleSoccerWeapon_Projectile.h"
 #include "MagicBattleSoccerProjectile.generated.h"
 
-class AMagicBattleSoccerPlayer;
+class AMagicBattleSoccerCharacter;
 
 /**
 *

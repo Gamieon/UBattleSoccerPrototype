@@ -5,7 +5,7 @@
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerPlayerState.h"
-#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerBall.h"
 #include "Engine/TriggerBox.h"
@@ -23,7 +23,7 @@ AMagicBattleSoccerAIController::AMagicBattleSoccerAIController(const class FPost
 /** True if the player can be pursued by AI */
 bool AMagicBattleSoccerAIController::CanBePursued()
 {
-	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr == MyBot)
 	{
 		return false;
@@ -85,12 +85,12 @@ FVector AMagicBattleSoccerAIController::ClipToActionZone(const FVector& Location
 }
 
 /** Gets all the teammates of this player */
-TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerAIController::GetTeammates()
+TArray<AMagicBattleSoccerCharacter*> AMagicBattleSoccerAIController::GetTeammates()
 {
-	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr == MyBot)
 	{
-		return TArray<AMagicBattleSoccerPlayer*>();
+		return TArray<AMagicBattleSoccerCharacter*>();
 	}
 	else
 	{
@@ -100,12 +100,12 @@ TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerAIController::GetTeammates()
 }
 
 /** Gets all the opponents of this player */
-TArray<AMagicBattleSoccerPlayer*> AMagicBattleSoccerAIController::GetOpponents()
+TArray<AMagicBattleSoccerCharacter*> AMagicBattleSoccerAIController::GetOpponents()
 {
-	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr == MyBot)
 	{
-		return TArray<AMagicBattleSoccerPlayer*>();
+		return TArray<AMagicBattleSoccerCharacter*>();
 	}
 	else
 	{
@@ -141,9 +141,9 @@ AActor* AMagicBattleSoccerAIController::GetClosestActorObstructingPoint(const FV
 }
 
 /** Gets the closest enemy to this player that can be pursued */
-AMagicBattleSoccerPlayer* AMagicBattleSoccerAIController::GetClosestOpponent()
+AMagicBattleSoccerCharacter* AMagicBattleSoccerAIController::GetClosestOpponent()
 {
-	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr == MyBot)
 	{
 		return nullptr;
@@ -156,9 +156,9 @@ AMagicBattleSoccerPlayer* AMagicBattleSoccerAIController::GetClosestOpponent()
 }
 
 /** Gets the ideal teammate to pass the soccer ball to, or NULL if there is none */
-AMagicBattleSoccerPlayer* AMagicBattleSoccerAIController::GetIdealPassMate()
+AMagicBattleSoccerCharacter* AMagicBattleSoccerAIController::GetIdealPassMate()
 {
-	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr == MyBot)
 	{
 		return nullptr;
@@ -166,12 +166,12 @@ AMagicBattleSoccerPlayer* AMagicBattleSoccerAIController::GetIdealPassMate()
 	else
 	{
 		AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
-		const TArray<AMagicBattleSoccerPlayer*>& Teammates = GameState->GetTeammates(Cast<AMagicBattleSoccerPlayerState>(PlayerState));
+		const TArray<AMagicBattleSoccerCharacter*>& Teammates = GameState->GetTeammates(Cast<AMagicBattleSoccerPlayerState>(PlayerState));
 		AMagicBattleSoccerGoal* EnemyGoal = GetEnemyGoal();
 		float MyDistanceToGoal = MyBot->GetDistanceTo(EnemyGoal);
-		AMagicBattleSoccerPlayer* IdealPassMate = NULL;
+		AMagicBattleSoccerCharacter* IdealPassMate = NULL;
 
-		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Teammates.CreateConstIterator()); It; ++It)
+		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Teammates.CreateConstIterator()); It; ++It)
 		{
 			float DistanceToGoal = (*It)->GetDistanceTo(EnemyGoal);
 			float DistanceToSelf = MyBot->GetDistanceTo(*It);
@@ -194,7 +194,7 @@ AMagicBattleSoccerPlayer* AMagicBattleSoccerAIController::GetIdealPassMate()
 			// Skip this teammate if there's an opponent close to them
 			else
 			{
-				AMagicBattleSoccerPlayer *ClosestOpponent = GameState->GetClosestOpponent(*It);
+				AMagicBattleSoccerCharacter *ClosestOpponent = GameState->GetClosestOpponent(*It);
 				if (NULL != ClosestOpponent && ClosestOpponent->GetDistanceTo(*It) < 300)
 				{
 					continue;
@@ -224,7 +224,7 @@ AMagicBattleSoccerPlayer* AMagicBattleSoccerAIController::GetIdealPassMate()
 AActor* AMagicBattleSoccerAIController::GetIdealPursuitTarget()
 {
 	// By default we want to pursue the soccer ball
-	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr == MyBot)
 	{
 		return nullptr;
@@ -240,10 +240,10 @@ AActor* AMagicBattleSoccerAIController::GetIdealPursuitTarget()
 		ActorsToIgnore.Add(GameState->SoccerBall);
 		ActorsToIgnore.Add(MyBot);
 		// Ignore players that cannot be pursued
-		const TArray<AMagicBattleSoccerPlayer*>& Opponents = GameState->GetOpponents(Cast<AMagicBattleSoccerPlayerState>(PlayerState));
-		for (TArray<AMagicBattleSoccerPlayer*>::TConstIterator It(Opponents.CreateConstIterator()); It; ++It)
+		const TArray<AMagicBattleSoccerCharacter*>& Opponents = GameState->GetOpponents(Cast<AMagicBattleSoccerPlayerState>(PlayerState));
+		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Opponents.CreateConstIterator()); It; ++It)
 		{
-			AMagicBattleSoccerPlayer *Player = *It;
+			AMagicBattleSoccerCharacter *Player = *It;
 			if (!GameMode->CanBePursued(Player))
 			{
 				ActorsToIgnore.Add(*It);
@@ -254,7 +254,7 @@ AActor* AMagicBattleSoccerAIController::GetIdealPursuitTarget()
 		if (nullptr != ObstructingActor)
 		{
 			// If the obstructing actor is an opponent, then pursue them
-			AMagicBattleSoccerPlayer *ObstructingPlayer = Cast<AMagicBattleSoccerPlayer>(ObstructingActor);
+			AMagicBattleSoccerCharacter *ObstructingPlayer = Cast<AMagicBattleSoccerCharacter>(ObstructingActor);
 			if (nullptr != ObstructingPlayer && Opponents.Contains(ObstructingPlayer) && !ActorsToIgnore.Contains(ObstructingPlayer))
 			{
 				PursuitTarget = ObstructingPlayer;
@@ -270,8 +270,8 @@ FVector AMagicBattleSoccerAIController::GetIdealPossessorFollowLocation()
 {
 	AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
 	AMagicBattleSoccerGoal* EnemyGoal = GetEnemyGoal();
-	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
-	AMagicBattleSoccerPlayer* Possessor = GameState->SoccerBall->Possessor;
+	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
+	AMagicBattleSoccerCharacter* Possessor = GameState->SoccerBall->Possessor;
 	if (nullptr == MyBot)
 	{
 		return FVector::ZeroVector;
@@ -299,9 +299,9 @@ FVector AMagicBattleSoccerAIController::GetIdealPossessorFollowLocation()
 }
 
 /** Attacks a soccer player */
-void AMagicBattleSoccerAIController::AttackPlayer(AMagicBattleSoccerPlayer* Target)
+void AMagicBattleSoccerAIController::AttackPlayer(AMagicBattleSoccerCharacter* Target)
 {
-	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != MyBot 
 		&& nullptr != Target
 		&& nullptr != MyBot->PrimaryWeapon
@@ -325,7 +325,7 @@ void AMagicBattleSoccerAIController::AttackPlayer(AMagicBattleSoccerPlayer* Targ
 UFUNCTION(BlueprintCallable, Category = Soccer)
 void AMagicBattleSoccerAIController::StopAttackingPlayer()
 {
-	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != MyBot)
 	{
 		if (IsAttacking)
@@ -339,7 +339,7 @@ void AMagicBattleSoccerAIController::StopAttackingPlayer()
 /** Tries to kick ball into the goal. Returns true if the ball was kicked. */
 bool AMagicBattleSoccerAIController::KickBallToGoal()
 {
-	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
 	AMagicBattleSoccerGoal* EnemyGoal = GetEnemyGoal();
 
@@ -381,7 +381,7 @@ bool AMagicBattleSoccerAIController::KickBallToGoal()
 /** [local] Kicks the ball to the specified location */
 void AMagicBattleSoccerAIController::KickBallToLocation(const FVector& Location)
 {
-	AMagicBattleSoccerPlayer* MyBot = Cast<AMagicBattleSoccerPlayer>(GetPawn());
+	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
 	if (nullptr != MyBot)
 	{

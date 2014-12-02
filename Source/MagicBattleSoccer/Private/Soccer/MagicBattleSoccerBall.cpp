@@ -2,7 +2,7 @@
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerBall.h"
 #include "MagicBattleSoccerGameMode.h"
-#include "MagicBattleSoccerPlayer.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerPlayerController.h"
 
 #define DISTANCE_IN_FRONT_OF_POSSESSOR		90.f
@@ -202,7 +202,7 @@ void AMagicBattleSoccerBall::MoveWithPossessor()
 }
 
 /** Sets the current ball possessor */
-void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
+void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerCharacter* Player)
 {
 	if (Role < ROLE_Authority)
 	{
@@ -215,7 +215,7 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerPlayer* Player)
 		// We only allow a possession change if there is no new possessor or if we just didn't recently unassign possession
 		if (NULL == Player || GameTimeInSeconds > LastReleaseTime + 1.f)
 		{
-			AMagicBattleSoccerPlayer *OldPossessor = Possessor;
+			AMagicBattleSoccerCharacter *OldPossessor = Possessor;
 
 			// Assign the new possessor
 			if (NULL == Player)
