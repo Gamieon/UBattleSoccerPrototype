@@ -160,7 +160,7 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 				v.Z = 0;
 				float distance = v.Size2D();
 				v.Normalize();
-				PlayerPawn->KickBall(v * distance * 110.f);
+				PlayerPawn->KickBall(v * distance * 100.f);
 			}
 		}
 		else if (nullptr != PlayerPawn->PrimaryWeapon)

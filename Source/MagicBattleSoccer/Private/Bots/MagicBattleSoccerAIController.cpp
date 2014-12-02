@@ -412,6 +412,6 @@ void AMagicBattleSoccerAIController::KickBallToLocation(const FVector& Location)
 		v.Z = 0;
 		float distance = v.Size2D();
 		v.Normalize();
-		MyBot->KickBall(v * distance * 110.f);
+		MyBot->KickBall(v * distance * 100.f);
 	}
 }
