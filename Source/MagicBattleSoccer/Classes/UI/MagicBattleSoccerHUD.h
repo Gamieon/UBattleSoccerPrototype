@@ -23,8 +23,20 @@ class AMagicBattleSoccerHUD : public AHUD
 	// Drawing helpers
 
 	/** draws a frame */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = HUD)
 	void DrawFrame(FLinearColor FrameColor, float X, float Y, float Width, float Height, float Thickness);
+
+	/** determines if a point is on the visible canvas */
+	UFUNCTION(BlueprintCallable, Category = HUD)
+	bool IsPointOnCanvas(FVector2D Point);
+
+	/** clips a point to the canvas */
+	UFUNCTION(BlueprintCallable, Category = HUD)
+	FVector2D ClipPointToCanvas(FVector2D Point, float Thickness);
+
+	/** converts an XY position to degree angle */
+	UFUNCTION(BlueprintCallable, Category = HUD)
+	float ConvertXYToDegrees(FVector2D Origin, FVector2D Point);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Menu helpers
