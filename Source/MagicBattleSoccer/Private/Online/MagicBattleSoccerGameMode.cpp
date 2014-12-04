@@ -96,6 +96,12 @@ void AMagicBattleSoccerGameMode::HandleRoundHasStarted()
 	// Now we're officially in progress
 	GameState->RoundInProgress = true;
 
+	// Notify all AI controllers that the round has started
+	for (TObjectIterator<AMagicBattleSoccerAIController> Itr; Itr; ++Itr)
+	{
+		Itr->RoundHasStarted();
+	}
+
 	// Notify all spawn points that the round has started
 	for (TObjectIterator<AMagicBattleSoccerSpawnPoint> Itr; Itr; ++Itr)
 	{
@@ -113,6 +119,9 @@ void AMagicBattleSoccerGameMode::HandleRoundHasStarted()
 	{
 		GameState->SoccerBall->SetPossessor(nullptr);
 	}
+	// Ensure there is no penetrated goal
+	GameState->PenetratedGoal = nullptr;
+
 	GameState->SoccerBall->SetActorLocation(FVector(0.f, 0.f, 130.f));
 }
 
@@ -152,6 +161,12 @@ void AMagicBattleSoccerGameMode::HandleRoundHasEnded()
 
 	// Flag the round as over
 	GameState->RoundInProgress = false;
+
+	// Notify all AI controllers that the round has ended
+	for (TObjectIterator<AMagicBattleSoccerAIController> Itr; Itr; ++Itr)
+	{
+		Itr->RoundHasEnded();
+	}
 
 	// Start a timer to begin the next round
 	GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerGameMode::StartNextRound, 3.f);

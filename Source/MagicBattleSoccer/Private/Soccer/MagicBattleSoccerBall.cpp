@@ -188,7 +188,8 @@ AMagicBattleSoccerGameState* AMagicBattleSoccerBall::GetGameState()
 /** True if the ball has no possessor and is not in a goal. Should only be called by the authority entity. */
 bool AMagicBattleSoccerBall::IsFree()
 {
-	return (nullptr == Possessor && nullptr == GetGameState()->PenetratedGoal);
+	AMagicBattleSoccerGameState* GameState = GetGameState();
+	return (nullptr == Possessor && nullptr == GameState->PenetratedGoal);
 }
 
 void AMagicBattleSoccerBall::MoveWithPossessor()

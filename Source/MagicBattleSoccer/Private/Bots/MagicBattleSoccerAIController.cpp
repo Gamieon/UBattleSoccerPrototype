@@ -26,6 +26,18 @@ AMagicBattleSoccerGameState* AMagicBattleSoccerAIController::GetGameState()
 	return World->GetGameState<AMagicBattleSoccerGameState>();
 }
 
+/** Called by the GameMode object when the next round has begun. The character has not yet spawned at this point */
+void AMagicBattleSoccerAIController::RoundHasStarted_Implementation()
+{
+	IsAttacking = false;
+}
+
+/** Called by the GameMode object when the current round has ended */
+void AMagicBattleSoccerAIController::RoundHasEnded_Implementation()
+{
+	IsAttacking = false;
+}
+
 /** Determines whether the character can be spawned at this time */
 bool AMagicBattleSoccerAIController::CanSpawnCharacter()
 {

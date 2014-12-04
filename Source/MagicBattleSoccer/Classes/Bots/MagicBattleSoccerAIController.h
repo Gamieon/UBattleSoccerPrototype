@@ -31,6 +31,14 @@ public:
 	UPROPERTY(Transient, EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	bool IsAttacking;
 
+	/** Called by the GameMode object when the next round has begun. The character has not yet spawned at this point */
+	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
+	void RoundHasStarted();
+
+	/** Called by the GameMode object when the current round has ended */
+	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
+	void RoundHasEnded();
+
 	/** Determines whether the character can be spawned at this time */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	bool CanSpawnCharacter();
