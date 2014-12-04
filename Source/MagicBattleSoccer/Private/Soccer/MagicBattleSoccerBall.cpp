@@ -12,7 +12,7 @@ AMagicBattleSoccerBall::AMagicBattleSoccerBall(const class FPostConstructInitial
 	: Super(PCIP)
 {
 	Possessor = NULL;
-	LastReleaseTime = 0.0f;
+	LastReleaseTime = -99999.0f;
 	NegDistanceTravelled = 0.0f;
 	proxyStateCount = 0;
 	this->SetActorTickEnabled(true);

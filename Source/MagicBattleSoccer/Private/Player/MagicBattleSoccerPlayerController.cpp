@@ -169,15 +169,13 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 			}
 			else
 			{
-				// Calculate the point on the plane Z=0 that the mouse is pointing at
-				float d = FVector::DotProduct((FVector::ZeroVector - WorldLocation), FVector::UpVector)
+				// Calculate the point on the plane Z = BallZ that the mouse is pointing at. Remember we're not projecting onto the ground,
+				// we're projecting onto the plane that contains the ball origin for a much more accurate reading.
+				FVector Origin = GetGameState()->SoccerBall->GetActorLocation();
+				float d = FVector::DotProduct((FVector(0, 0, Origin.Z) - WorldLocation), FVector::UpVector)
 					/ FVector::DotProduct(WorldDirection, FVector::UpVector);
-				FVector InstigatorPoint = PlayerPawn->GetActorLocation();
 				FVector GroundPoint = WorldLocation + WorldDirection * d;
-
-				FVector ActorLocation = PlayerPawn->GetActorLocation();
-				FVector v = GroundPoint - ActorLocation;
-				v.Z = 0;
+				FVector v = GroundPoint - Origin;
 				float distance = v.Size2D();
 				v.Normalize();
 				PlayerPawn->KickBall(v * distance * 100.f);

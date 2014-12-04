@@ -274,7 +274,7 @@ void AMagicBattleSoccerWeapon::DetachMeshFromPawn()
 
 FVector AMagicBattleSoccerWeapon::GetAdjustedAim() const
 {
-	AMagicBattleSoccerPlayerController* const PlayerController = Instigator ? Cast<AMagicBattleSoccerPlayerController>(Instigator->Controller) : NULL;
+	AMagicBattleSoccerPlayerController* const PlayerController = Instigator ? Cast<AMagicBattleSoccerPlayerController>(Instigator->Controller) : nullptr;
 	FVector FinalAim = FVector::ZeroVector;
 
 	// If we have a player controller use it for the aim
@@ -289,13 +289,13 @@ FVector AMagicBattleSoccerWeapon::GetAdjustedAim() const
 		}
 		else
 		{
-			// Calculate the point on the plane Z=0 that the mouse is pointing at
-			float d = FVector::DotProduct((FVector::ZeroVector - WorldLocation), FVector::UpVector)
+			// Calculate the point on the plane Z = MuzzleLocationZ that the mouse is pointing at. Remember we're not projecting onto the ground,
+			// we're projecting onto the plane that contains the muzzle for a much more accurate reading.
+			FVector Origin = GetMuzzleLocation();
+			float d = FVector::DotProduct((FVector(0, 0, Origin.Z) - WorldLocation), FVector::UpVector)
 				/ FVector::DotProduct(WorldDirection, FVector::UpVector);
-			FVector InstigatorPoint = Instigator->GetActorLocation();
 			FVector GroundPoint = WorldLocation + WorldDirection * d;
-			FinalAim = FVector(GroundPoint.X - InstigatorPoint.X,
-				GroundPoint.Y - InstigatorPoint.Y, 0.0f);
+			FinalAim = GroundPoint - Origin;
 			FinalAim.Normalize();
 		}
 	}
