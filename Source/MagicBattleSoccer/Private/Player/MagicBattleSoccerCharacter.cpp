@@ -181,7 +181,7 @@ void AMagicBattleSoccerCharacter::Destroyed()
 			// Release the ball
 			if (PossessesBall())
 			{
-				GetSoccerBall()->SetPossessor(NULL);
+				GetSoccerBall()->SetPossessor(nullptr);
 			}
 
 			// Remove this character from the game mode cache

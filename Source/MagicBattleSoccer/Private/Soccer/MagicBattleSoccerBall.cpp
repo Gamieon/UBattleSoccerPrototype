@@ -188,7 +188,7 @@ AMagicBattleSoccerGameState* AMagicBattleSoccerBall::GetGameState()
 /** True if the ball has no possessor and is not in a goal. Should only be called by the authority entity. */
 bool AMagicBattleSoccerBall::IsFree()
 {
-	return (NULL == Possessor && NULL == GetGameState()->PenetratedGoal);
+	return (nullptr == Possessor && nullptr == GetGameState()->PenetratedGoal);
 }
 
 void AMagicBattleSoccerBall::MoveWithPossessor()
@@ -275,7 +275,7 @@ void AMagicBattleSoccerBall::Kick(const FVector& Force)
 	else
 	{
 		// Reset the possessor
-		SetPossessor(NULL);
+		SetPossessor(nullptr);
 
 		// Now apply the force
 		UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());

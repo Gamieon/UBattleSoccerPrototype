@@ -152,6 +152,21 @@ void AMagicBattleSoccerGameMode::HandleRoundHasEnded()
 
 	// Flag the round as over
 	GameState->RoundInProgress = false;
+
+	// Start a timer to begin the next round
+	GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerGameMode::StartNextRound, 3.f);
+}
+
+void AMagicBattleSoccerGameMode::StartNextRound()
+{
+	if (GetMatchState() != MatchState::InProgress)
+	{
+		// Although a round is currently not in progress, the match itself should still be in progress.
+	}
+	else
+	{
+		HandleRoundHasStarted();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

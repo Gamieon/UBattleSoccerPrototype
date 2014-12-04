@@ -57,6 +57,9 @@ public:
 	/** Called internally to end the current round. This is NOT a standard Unreal function. */
 	void HandleRoundHasEnded();
 
+	/** Called internally to start the next round */
+	void StartNextRound();
+
 	//////////////////////////////////////////////////////////////////////////
 	// Damage & death
 
