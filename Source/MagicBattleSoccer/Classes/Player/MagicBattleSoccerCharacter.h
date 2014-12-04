@@ -216,10 +216,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	void StopSecondaryWeaponFire();
 
 	/** check if pawn can fire weapon */
-	bool CanFirePrimaryWeapon() const;
-
-	/** check if pawn can fire weapon */
-	bool CanFireSecondaryWeapon() const;
+	bool CanFire();
 
 	/** [server] Updates the movement speed based on conditions (ball possessor, etc) */
 	void UpdateMovementSpeed();

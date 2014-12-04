@@ -13,6 +13,11 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerAIController : public AAIControlle
 {
 	GENERATED_UCLASS_BODY()
 
+private:
+	/** Gets the game state */
+	class AMagicBattleSoccerGameState* GetGameState();
+
+public:
 	/** The spawn point where the character should spawn. */
 	UPROPERTY(Transient, EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	class AMagicBattleSoccerSpawnPoint* SpawnPoint;
@@ -25,6 +30,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerAIController : public AAIControlle
 	/** True if this player is running the attack action */
 	UPROPERTY(Transient, EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	bool IsAttacking;
+
+	/** Determines whether the character can be spawned at this time */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	bool CanSpawnCharacter();
 
 	/** Spawns the character */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)

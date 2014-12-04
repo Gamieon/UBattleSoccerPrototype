@@ -19,6 +19,20 @@ AMagicBattleSoccerAIController::AMagicBattleSoccerAIController(const class FPost
 	IsAttacking = false;
 }
 
+/** Gets the game state */
+AMagicBattleSoccerGameState* AMagicBattleSoccerAIController::GetGameState()
+{
+	UWorld *World = GetWorld();
+	return World->GetGameState<AMagicBattleSoccerGameState>();
+}
+
+/** Determines whether the character can be spawned at this time */
+bool AMagicBattleSoccerAIController::CanSpawnCharacter()
+{
+	AMagicBattleSoccerGameState *GameState = GetGameState();
+	return (Role == ROLE_Authority && nullptr != GameState && GameState->RoundInProgress);
+}
+
 /** Spawns the character */
 void AMagicBattleSoccerAIController::SpawnCharacter_Implementation()
 {
@@ -60,7 +74,7 @@ bool AMagicBattleSoccerAIController::CanBePursued()
 /** The goal we want to kick the ball into */
 AMagicBattleSoccerGoal* AMagicBattleSoccerAIController::GetEnemyGoal()
 {
-	AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
+	AMagicBattleSoccerGameState* GameState = GetGameState();
 	AMagicBattleSoccerPlayerState* Player = Cast<AMagicBattleSoccerPlayerState>(PlayerState);
 	if (nullptr == Player)
 	{
@@ -116,7 +130,7 @@ TArray<AMagicBattleSoccerCharacter*> AMagicBattleSoccerAIController::GetTeammate
 	}
 	else
 	{
-		AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
+		AMagicBattleSoccerGameState* GameState = GetGameState();
 		return GameState->GetTeammates(Cast<AMagicBattleSoccerPlayerState>(PlayerState));
 	}
 }
@@ -131,7 +145,7 @@ TArray<AMagicBattleSoccerCharacter*> AMagicBattleSoccerAIController::GetOpponent
 	}
 	else
 	{
-		AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
+		AMagicBattleSoccerGameState* GameState = GetGameState();
 		return GameState->GetOpponents(Cast<AMagicBattleSoccerPlayerState>(PlayerState));
 	}
 }
@@ -172,7 +186,7 @@ AMagicBattleSoccerCharacter* AMagicBattleSoccerAIController::GetClosestOpponent(
 	}
 	else
 	{
-		AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
+		AMagicBattleSoccerGameState* GameState = GetGameState();
 		return GameState->GetClosestOpponent(MyBot);
 	}
 }
@@ -187,7 +201,7 @@ AMagicBattleSoccerCharacter* AMagicBattleSoccerAIController::GetIdealPassMate()
 	}
 	else
 	{
-		AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
+		AMagicBattleSoccerGameState* GameState = GetGameState();
 		const TArray<AMagicBattleSoccerCharacter*>& Teammates = GameState->GetTeammates(Cast<AMagicBattleSoccerPlayerState>(PlayerState));
 		AMagicBattleSoccerGoal* EnemyGoal = GetEnemyGoal();
 		float MyDistanceToGoal = MyBot->GetDistanceTo(EnemyGoal);
@@ -253,7 +267,7 @@ AActor* AMagicBattleSoccerAIController::GetIdealPursuitTarget()
 	}
 	else
 	{
-		AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
+		AMagicBattleSoccerGameState* GameState = GetGameState();
 		AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(GetWorld()->GetAuthGameMode());
 		AActor* PursuitTarget = GameState->SoccerBall;
 
@@ -290,7 +304,7 @@ AActor* AMagicBattleSoccerAIController::GetIdealPursuitTarget()
 /** Gets the ideal point to run to when not chasing another actor while following the ball possessor */
 FVector AMagicBattleSoccerAIController::GetIdealPossessorFollowLocation()
 {
-	AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
+	AMagicBattleSoccerGameState* GameState = GetGameState();
 	AMagicBattleSoccerGoal* EnemyGoal = GetEnemyGoal();
 	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	AMagicBattleSoccerCharacter* Possessor = GameState->SoccerBall->Possessor;
@@ -362,7 +376,7 @@ void AMagicBattleSoccerAIController::StopAttackingPlayer()
 bool AMagicBattleSoccerAIController::KickBallToGoal()
 {
 	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
-	AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
+	AMagicBattleSoccerGameState* GameState = GetGameState();
 	AMagicBattleSoccerGoal* EnemyGoal = GetEnemyGoal();
 
 	if (nullptr == MyBot)
@@ -404,7 +418,7 @@ bool AMagicBattleSoccerAIController::KickBallToGoal()
 void AMagicBattleSoccerAIController::KickBallToLocation(const FVector& Location)
 {
 	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
-	AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
+	AMagicBattleSoccerGameState* GameState = GetGameState();
 	if (nullptr != MyBot)
 	{
 		FVector ActorLocation = MyBot->GetActorLocation();

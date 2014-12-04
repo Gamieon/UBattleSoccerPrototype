@@ -22,9 +22,11 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameMode : public AGameMode
 {
 	GENERATED_UCLASS_BODY()
 
+private:
 	/** Gets the game state */
 	class AMagicBattleSoccerGameState* GetGameState();
 
+public:
 	//Begin AGameMode interface
 
 	/** Returns game session class to use */

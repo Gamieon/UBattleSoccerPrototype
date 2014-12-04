@@ -83,6 +83,19 @@ void AMagicBattleSoccerGameMode::PostLogin(APlayerController* NewPlayer)
 /** Called internally to begin the next round. This is NOT a standard Unreal function. */
 void AMagicBattleSoccerGameMode::HandleRoundHasStarted()
 {
+	AMagicBattleSoccerGameState *GameState = GetGameState();
+	// Ensure the round is flagged as not in progress until everyone has spawned
+	GameState->RoundInProgress = false;
+
+	// Wipe all soccer characters off the field
+	for (TObjectIterator<AMagicBattleSoccerCharacter> Itr; Itr; ++Itr)
+	{
+		Itr->Destroy();
+	}
+
+	// Now we're officially in progress
+	GameState->RoundInProgress = true;
+
 	// Notify all spawn points that the round has started
 	for (TObjectIterator<AMagicBattleSoccerSpawnPoint> Itr; Itr; ++Itr)
 	{
@@ -94,14 +107,21 @@ void AMagicBattleSoccerGameMode::HandleRoundHasStarted()
 	{
 		Itr->SpawnCharacter();
 	}
+
+	// Ensure the ball has no possessor and move it to the center of the map
+	if (nullptr != GameState->SoccerBall->Possessor)
+	{
+		GameState->SoccerBall->SetPossessor(nullptr);
+	}
+	GameState->SoccerBall->SetActorLocation(FVector(0.f, 0.f, 130.f));
 }
 
 /** Called by the AMagicBattleSoccerGoal object when a goal was scored */
 void AMagicBattleSoccerGameMode::HandleGoalScored(AMagicBattleSoccerGoal *GoalContainingBall)
-{
-	// Assign the penetrated goal
+{	
 	AMagicBattleSoccerGameState *GameState = GetGameState();
 
+	// Assign the penetrated goal
 	if (nullptr != GameState->PenetratedGoal)
 	{
 		// We should never get here because we already handled a goal score in this round!
@@ -128,7 +148,10 @@ void AMagicBattleSoccerGameMode::HandleGoalScored(AMagicBattleSoccerGoal *GoalCo
 /** Called internally to end the current round. This is NOT a standard Unreal function. */
 void AMagicBattleSoccerGameMode::HandleRoundHasEnded()
 {
+	AMagicBattleSoccerGameState *GameState = GetGameState();
 
+	// Flag the round as over
+	GameState->RoundInProgress = false;
 }
 
 //////////////////////////////////////////////////////////////////////////

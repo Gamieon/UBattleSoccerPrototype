@@ -14,10 +14,11 @@
 AMagicBattleSoccerGameState::AMagicBattleSoccerGameState(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
-	SoccerBall = NULL;
-	Team1Goal = NULL;
-	Team2Goal = NULL;
-	PenetratedGoal = NULL;
+	SoccerBall = nullptr;
+	Team1Goal = nullptr;
+	Team2Goal = nullptr;
+	PenetratedGoal = nullptr;
+	RoundInProgress = false;
 }
 
 void AMagicBattleSoccerGameState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
@@ -30,6 +31,7 @@ void AMagicBattleSoccerGameState::GetLifetimeReplicatedProps(TArray< FLifetimePr
 	DOREPLIFETIME(AMagicBattleSoccerGameState, Team1Goal);
 	DOREPLIFETIME(AMagicBattleSoccerGameState, Team2Goal);
 	DOREPLIFETIME(AMagicBattleSoccerGameState, PenetratedGoal);
+	DOREPLIFETIME(AMagicBattleSoccerGameState, RoundInProgress);
 }
 
 /** Gets all the teammates of a specified player */

@@ -98,8 +98,9 @@ void AMagicBattleSoccerWeapon::StopFire()
 
 bool AMagicBattleSoccerWeapon::CanFire() const
 {
+	bool bCanFire = (nullptr != MyPawn) && MyPawn->CanFire();
 	bool bStateOKToFire = ((CurrentState == EWeaponState::Idle) || (CurrentState == EWeaponState::Firing));
-	return (bStateOKToFire == true);
+	return ((bCanFire == true) && (bStateOKToFire == true));
 }
 
 //////////////////////////////////////////////////////////////////////////

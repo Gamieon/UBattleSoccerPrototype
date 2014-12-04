@@ -213,26 +213,26 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerCharacter* Player)
 		float GameTimeInSeconds = GetWorld()->TimeSeconds;
 
 		// We only allow a possession change if there is no new possessor or if we just didn't recently unassign possession
-		if (NULL == Player || GameTimeInSeconds > LastReleaseTime + 1.5f)
+		if (nullptr == Player || GameTimeInSeconds > LastReleaseTime + 1.5f)
 		{
 			AMagicBattleSoccerCharacter *OldPossessor = Possessor;
 
 			// Assign the new possessor
-			if (NULL == Player)
+			if (nullptr == Player)
 			{
 				LastReleaseTime = GameTimeInSeconds;
 			}
 			Possessor = Player;
 
 			// Update the old possessor's walking speed
-			if (NULL != OldPossessor)
+			if (nullptr != OldPossessor)
 			{
 				OldPossessor->UpdateMovementSpeed();
 			}
 
 			// Toggle physics
 			UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
-			if (NULL != Possessor)
+			if (nullptr != Possessor)
 			{
 				Possessor->StopPrimaryWeaponFire();
 				Possessor->StopSecondaryWeaponFire();

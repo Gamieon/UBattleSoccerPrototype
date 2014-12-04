@@ -16,6 +16,13 @@ AMagicBattleSoccerPlayerController::AMagicBattleSoccerPlayerController(const cla
 	timeOffsetIsValid = false;
 }
 
+/** Gets the game state */
+AMagicBattleSoccerGameState* AMagicBattleSoccerPlayerController::GetGameState()
+{
+	UWorld *World = GetWorld();
+	return World->GetGameState<AMagicBattleSoccerGameState>();
+}
+
 /** Gets the current system time in milliseconds */
 /* static */ int64 AMagicBattleSoccerPlayerController::GetLocalTime()
 {
@@ -106,6 +113,13 @@ bool AMagicBattleSoccerPlayerController::FindDeathCameraSpot(FVector& CameraLoca
 	}
 
 	return false;
+}
+
+/** Determines whether the character can be spawned at this time */
+bool AMagicBattleSoccerPlayerController::CanSpawnCharacter()
+{
+	AMagicBattleSoccerGameState *GameState = GetGameState();
+	return (Role == ROLE_Authority && nullptr != GameState && GameState->RoundInProgress);
 }
 
 /** Spawns the character */

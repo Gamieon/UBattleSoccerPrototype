@@ -39,6 +39,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameState : public AGameState
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = Soccer)
 	AMagicBattleSoccerGoal *PenetratedGoal;
 
+	/** True if a round is in progress; false if we're in between rounds */
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	bool RoundInProgress;
+
 public:
 	/** Gets all the teammates of a specified player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)

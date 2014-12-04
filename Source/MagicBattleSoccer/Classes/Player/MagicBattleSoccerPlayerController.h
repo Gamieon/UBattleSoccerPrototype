@@ -18,7 +18,11 @@ private:
 	int64 timeOffsetFromServer;
 	bool timeOffsetIsValid;
 
+	/** Gets the game state */
+	class AMagicBattleSoccerGameState* GetGameState();
+
 public:
+
 	/** stores pawn location at last player death, used where player scores a kill after they died **/
 	FVector LastDeathLocation;
 
@@ -46,6 +50,10 @@ public:
 
 	/** try to find spot for death cam */
 	bool FindDeathCameraSpot(FVector& CameraLocation, FRotator& CameraRotation);
+
+	/** Determines whether the character can be spawned at this time */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	bool CanSpawnCharacter();
 
 	/** Spawns the character */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)

@@ -594,15 +594,9 @@ void AMagicBattleSoccerCharacter::StopSecondaryWeaponFire()
 }
 
 /** check if pawn can fire weapon */
-bool AMagicBattleSoccerCharacter::CanFirePrimaryWeapon() const
+bool AMagicBattleSoccerCharacter::CanFire()
 {
-	return IsAlive();
-}
-
-/** check if pawn can fire weapon */
-bool AMagicBattleSoccerCharacter::CanFireSecondaryWeapon() const
-{
-	return IsAlive();
+	return IsAlive() && GetGameState()->RoundInProgress;
 }
 
 /** [server] Updates the movement speed based on conditions (ball possessor, etc) */
