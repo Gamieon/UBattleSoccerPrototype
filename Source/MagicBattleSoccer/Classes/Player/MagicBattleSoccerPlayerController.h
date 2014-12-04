@@ -89,6 +89,9 @@ public:
 	/** Next round event (for debugging only) */
 	void OnNextRound();
 
+	/** Quit to the main menu (TODO: Remove as a direct command) */
+	void OnQuitToMainMenu();
+
 protected:
 	/** Sent from a client to the server to get the server's system time */
 	UFUNCTION(reliable, server, WithValidation)

@@ -19,6 +19,11 @@ void UMagicBattleSoccerEngine::Init(IEngineLoop* InEngineLoop)
 /** Goes to the main menu */
 void UMagicBattleSoccerEngine::GoToMainMenu()
 {
+	UMagicBattleSoccerInstance *GI = Cast<UMagicBattleSoccerInstance>(GEngine->GameViewport->GetGameInstance());
+	APlayerController *Controller = GI->GetFirstLocalPlayerController();
+	Controller->ConsoleCommand(TEXT("disconnect"));
+
+	/*
 	UMagicBattleSoccerInstance* const GI = Cast<UMagicBattleSoccerInstance>(GameInstance);
 	FString Error;
 	EBrowseReturnVal::Type BrowseRet = Browse(*GI->GetWorldContext(), TEXT("/Game/Maps/MainMenu"), Error);
@@ -27,7 +32,7 @@ void UMagicBattleSoccerEngine::GoToMainMenu()
 	if (BrowseRet != EBrowseReturnVal::Success)
 	{
 		UE_LOG(LogLoad, Fatal, TEXT("%s"), *FString::Printf(TEXT("Failed to enter %s: %s. Please check the log for errors."), TEXT("MainMenu"), *Error));
-	}
+	}*/
 }
 
 /**

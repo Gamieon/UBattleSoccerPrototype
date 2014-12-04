@@ -58,6 +58,7 @@ void AMagicBattleSoccerPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Suicide", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnSuicide);
 	InputComponent->BindAction("Respawn", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnRespawn);
 	InputComponent->BindAction("NextRound", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnNextRound);
+	InputComponent->BindAction("QuitToMainMenu", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnQuitToMainMenu);
 }
 
 void AMagicBattleSoccerPlayerController::BeginPlay()
@@ -246,6 +247,12 @@ void AMagicBattleSoccerPlayerController::OnNextRound()
 		AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(GetWorld()->GetAuthGameMode());
 		GameMode->HandleMatchHasStarted();
 	}
+}
+
+void AMagicBattleSoccerPlayerController::OnQuitToMainMenu()
+{
+	/** Quit to the main menu */
+	((UMagicBattleSoccerEngine*)GEngine)->GoToMainMenu();
 }
 
 /** Sent from a client to the server to get the server's system time */
