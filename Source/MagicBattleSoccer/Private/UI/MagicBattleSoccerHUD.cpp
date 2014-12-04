@@ -120,7 +120,7 @@ void CohenSutherlandLineClipAndDraw(float& x0, float& y0, float& x1, float& y1, 
 		else {
 			// failed both tests, so calculate the line segment to clip
 			// from an outside point to an intersection with clip edge
-			float x, y;
+			float x = 0.f, y = 0.f;
 
 			// At least one endpoint is outside the clip rectangle; pick it.
 			OutCode outcodeOut = outcode0 ? outcode0 : outcode1;

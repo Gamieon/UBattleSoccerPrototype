@@ -42,7 +42,7 @@ TArray<AMagicBattleSoccerCharacter*> AMagicBattleSoccerGameState::GetTeammates(A
 		{
 			if ((*It)->PlayerState != PlayerState
 				&& nullptr != Cast<AMagicBattleSoccerPlayerState>((*It)->PlayerState)
-				&& Cast<AMagicBattleSoccerPlayerState>((*It)->PlayerState)->GetTeamNum() == PlayerState->GetTeamNum())
+				&& Cast<AMagicBattleSoccerPlayerState>((*It)->PlayerState)->TeamNumber == PlayerState->TeamNumber)
 			{
 				Teammates.Add(*It);
 			}
@@ -61,7 +61,7 @@ TArray<AMagicBattleSoccerCharacter*> AMagicBattleSoccerGameState::GetOpponents(A
 		{
 			if ((*It)->PlayerState != PlayerState
 				&& nullptr != Cast<AMagicBattleSoccerPlayerState>((*It)->PlayerState)
-				&& Cast<AMagicBattleSoccerPlayerState>((*It)->PlayerState)->GetTeamNum() != PlayerState->GetTeamNum())
+				&& Cast<AMagicBattleSoccerPlayerState>((*It)->PlayerState)->TeamNumber != PlayerState->TeamNumber)
 			{
 				Opponents.Add(*It);
 			}

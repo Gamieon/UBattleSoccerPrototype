@@ -47,6 +47,10 @@ public:
 	/** try to find spot for death cam */
 	bool FindDeathCameraSpot(FVector& CameraLocation, FRotator& CameraRotation);
 
+	/** Spawns the character */
+	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
+	void SpawnCharacter();
+
 	//////////////////////////////////////////////////////////////////////////
 	// Input handlers
 
@@ -73,6 +77,9 @@ public:
 
 	/** Player respawn event */
 	void OnRespawn();
+
+	/** Next round event (for debugging only) */
+	void OnNextRound();
 
 protected:
 	/** Sent from a client to the server to get the server's system time */

@@ -22,14 +22,38 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameMode : public AGameMode
 {
 	GENERATED_UCLASS_BODY()
 
+	/** Gets the game state */
+	class AMagicBattleSoccerGameState* GetGameState();
+
 	//Begin AGameMode interface
 
 	/** Returns game session class to use */
 	virtual TSubclassOf<AGameSession> GetGameSessionClass() const override;
 
-	void PostLogin(APlayerController* NewPlayer) override;
+	/** called before startmatch */
+	virtual void HandleMatchIsWaitingToStart() override;
+
+	/** called to see if we should start the match */
+	virtual bool ReadyToStartMatch() override;
+
+	/** starts new match */
+	virtual void HandleMatchHasStarted() override;
+
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	//End AGameMode interface
+
+	//////////////////////////////////////////////////////////////////////////
+	// Round management
+
+	/** Called internally to begin the next round. This is NOT a standard Unreal function. */
+	void HandleRoundHasStarted();
+
+	/** Called by the AMagicBattleSoccerGoal object when a goal was scored */
+	void HandleGoalScored(AMagicBattleSoccerGoal *GoalContainingBall);
+
+	/** Called internally to end the current round. This is NOT a standard Unreal function. */
+	void HandleRoundHasEnded();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Damage & death

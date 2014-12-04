@@ -3,7 +3,6 @@
 #include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerWeapon.h"
-#include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerGameMode.h"
 #include <chrono>
 
@@ -51,6 +50,7 @@ void AMagicBattleSoccerPlayerController::SetupInputComponent()
 	InputComponent->BindAction("SecondaryAction", IE_Released, this, &AMagicBattleSoccerPlayerController::OnStopSecondaryAction);
 	InputComponent->BindAction("Suicide", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnSuicide);
 	InputComponent->BindAction("Respawn", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnRespawn);
+	InputComponent->BindAction("NextRound", IE_Pressed, this, &AMagicBattleSoccerPlayerController::OnNextRound);
 }
 
 void AMagicBattleSoccerPlayerController::BeginPlay()
@@ -106,6 +106,12 @@ bool AMagicBattleSoccerPlayerController::FindDeathCameraSpot(FVector& CameraLoca
 	}
 
 	return false;
+}
+
+/** Spawns the character */
+void AMagicBattleSoccerPlayerController::SpawnCharacter_Implementation()
+{
+	// Nothing to do here -- the blueprint should do all the work and it should only be done on the server
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -216,7 +222,17 @@ void AMagicBattleSoccerPlayerController::OnRespawn()
 	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr == PlayerPawn)
 	{
-		ServerRestartPlayer();
+		SpawnCharacter();
+	}
+}
+
+/** Next round event (for debugging only) */
+void AMagicBattleSoccerPlayerController::OnNextRound()
+{
+	if (Role == ROLE_Authority)
+	{
+		AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(GetWorld()->GetAuthGameMode());
+		GameMode->HandleMatchHasStarted();
 	}
 }
 

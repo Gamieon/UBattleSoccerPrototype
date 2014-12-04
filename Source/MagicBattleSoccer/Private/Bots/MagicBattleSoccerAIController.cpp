@@ -66,7 +66,7 @@ AMagicBattleSoccerGoal* AMagicBattleSoccerAIController::GetEnemyGoal()
 	{
 		return nullptr;
 	}
-	else switch (Player->GetTeamNum())
+	else switch (Player->TeamNumber)
 	{
 	case 1:
 		return GameState->Team2Goal;

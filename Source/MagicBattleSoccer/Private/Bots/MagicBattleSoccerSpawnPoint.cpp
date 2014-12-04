@@ -7,8 +7,15 @@
 AMagicBattleSoccerSpawnPoint::AMagicBattleSoccerSpawnPoint(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
-	BotTeamNumber = 0;
-	MaxPlayersOnField = 0;
+	OwningTeamNumber = 0;
+	MaxBotsOnField = 0;
+	SpawnHumanPlayers = false;
+}
+
+/** Called by the GameMode object when the next round has begun */
+void AMagicBattleSoccerSpawnPoint::RoundHasStarted_Implementation()
+{
+	// Nothing to do here -- the blueprint should do all the work and it should only be done on the server
 }
 
 /** Called by the GameMode object when a spawned player is about to be destroyed */

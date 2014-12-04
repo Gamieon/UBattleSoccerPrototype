@@ -9,11 +9,34 @@ AMagicBattleSoccerGoal::AMagicBattleSoccerGoal(const class FPostConstructInitial
 {
 }
 
-/** Gets the game state (all instances should be interested in this) */
+/** Gets the game state */
 AMagicBattleSoccerGameState* AMagicBattleSoccerGoal::GetGameState()
 {
 	UWorld *World = GetWorld();
 	return World->GetGameState<AMagicBattleSoccerGameState>();
+}
+
+/** Called from the blueprint when the ball enters the goal */
+void AMagicBattleSoccerGoal::HandleBallEnteredGoal()
+{
+	if (ROLE_Authority > Role)
+	{
+		// We should never get here since only the server should detect the soccer ball entering the goal!
+	}
+	else
+	{
+		AMagicBattleSoccerGameState* GameState = GetGameState();
+		if (nullptr != GameState->PenetratedGoal)
+		{
+			// The ball already penetrated the goal; don't forward the call.
+		}
+		else
+		{
+			// Forward the call to the game mode object
+			AMagicBattleSoccerGameMode *GameMode = Cast<AMagicBattleSoccerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+			GameMode->HandleGoalScored(this);
+		}
+	}
 }
 
 /** Gets the ideal point for a player to run to when approaching the goal */

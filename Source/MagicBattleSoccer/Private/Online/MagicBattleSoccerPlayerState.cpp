@@ -15,13 +15,3 @@ void AMagicBattleSoccerPlayerState::GetLifetimeReplicatedProps(TArray< FLifetime
 
 	DOREPLIFETIME(AMagicBattleSoccerPlayerState, TeamNumber);
 }
-
-void AMagicBattleSoccerPlayerState::SetTeamNum(int32 NewTeamNumber)
-{
-	TeamNumber = NewTeamNumber;
-}
-
-int32 AMagicBattleSoccerPlayerState::GetTeamNum() const
-{
-	return TeamNumber;
-}

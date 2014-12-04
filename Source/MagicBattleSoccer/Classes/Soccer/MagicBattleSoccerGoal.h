@@ -11,8 +11,12 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGoal : public AActor
 {
 	GENERATED_UCLASS_BODY()
 
-	/** Gets the game state (all instances should be interested in this) */
+	/** Gets the game state */
 	class AMagicBattleSoccerGameState* GetGameState();
+
+	/** Called from the blueprint when the ball enters the goal */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	void HandleBallEnteredGoal();
 
 	/** Gets the ideal point for a player to run to when approaching the goal */
 	UFUNCTION(BlueprintCallable, Category = Soccer)

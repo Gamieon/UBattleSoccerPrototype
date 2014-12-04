@@ -28,11 +28,11 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameState : public AGameState
 	class AMagicBattleSoccerGoal *Team2Goal;
 
 	/** Team 1 score */
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = Soccer)
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
 	int32 Team1Score;
 
 	/** Team 2 score */
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = Soccer)
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
 	int32 Team2Score;
 
 	/** The penetrated goal */
