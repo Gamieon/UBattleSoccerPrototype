@@ -44,10 +44,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	max walking speed. */
 	float DefaultMovementSpeed;
 
-	/** The soccer ball that overlaps this player. Only relevant to the server
-	because only the server does soccer ball collision detections. */
-	class AMagicBattleSoccerBall* OverlappingBall;
-
 	/** [server] perform PlayerState related setup */
 	virtual void PossessedBy(class AController* C) override;
 
@@ -110,12 +106,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	virtual void Destroyed() override;
 
 	//End AActor interface
-
-	UFUNCTION()
-	void OnBeginOverlap(AActor* OtherActor);
-
-	UFUNCTION()
-	void OnEndOverlap(AActor* OtherActor);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Damage & death
@@ -221,14 +211,20 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	/** [server] Updates the movement speed based on conditions (ball possessor, etc) */
 	void UpdateMovementSpeed();
 
-	/** [local] Critical path for all kick functions */
+	/** [local] Kicks the ball with a force */
 	void KickBall(const FVector& Force);
+
+	/** [local] Kicks the ball to a location */
+	void KickBallToLocation(const FVector& Location, float AngleInDegrees);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Actions - server side
 
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerKickBall(FVector Force);
+
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerKickBallToLocation(FVector Force, float AngleInDegrees);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Player attributes

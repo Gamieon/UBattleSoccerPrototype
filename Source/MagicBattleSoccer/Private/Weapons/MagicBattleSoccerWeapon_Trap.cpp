@@ -4,8 +4,8 @@
 #include "MagicBattleSoccerWeapon_Trap.h"
 #include "MagicBattleSoccerPlayerController.h"
 
-AMagicBattleSoccerWeapon_Trap::AMagicBattleSoccerWeapon_Trap(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerWeapon_Trap::AMagicBattleSoccerWeapon_Trap(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 }
 

@@ -4,8 +4,8 @@
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerCharacter.h"
 
-AMagicBattleSoccerGoal::AMagicBattleSoccerGoal(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerGoal::AMagicBattleSoccerGoal(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 }
 

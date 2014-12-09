@@ -11,8 +11,8 @@
 #include "MagicBattleSoccerGoal.h"
 #include "UnrealNetwork.h"
 
-AMagicBattleSoccerGameState::AMagicBattleSoccerGameState(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerGameState::AMagicBattleSoccerGameState(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 	SoccerBall = nullptr;
 	Team1Goal = nullptr;

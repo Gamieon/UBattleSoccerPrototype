@@ -4,8 +4,8 @@
 #include "MagicBattleSoccerAIController.h"
 #include "MagicBattleSoccerCharacter.h"
 
-AMagicBattleSoccerSpawnPoint::AMagicBattleSoccerSpawnPoint(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerSpawnPoint::AMagicBattleSoccerSpawnPoint(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 	OwningTeamNumber = 0;
 	MaxBotsOnField = 0;

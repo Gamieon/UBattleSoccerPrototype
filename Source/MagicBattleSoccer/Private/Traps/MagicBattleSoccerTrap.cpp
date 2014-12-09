@@ -2,8 +2,8 @@
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerTrap.h"
 
-AMagicBattleSoccerTrap::AMagicBattleSoccerTrap(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerTrap::AMagicBattleSoccerTrap(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 	bReplicates = true;
 	bReplicateInstigator = true;

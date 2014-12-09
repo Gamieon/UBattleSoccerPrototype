@@ -1,6 +1,6 @@
 
 #include "MagicBattleSoccer.h"
-#include "Slate.h"
+#include "SlateBasics.h"
 #include "MagicBattleSoccerStyles.h"
 
 /**

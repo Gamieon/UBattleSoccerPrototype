@@ -1,4 +1,3 @@
-
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerBall.h"
 #include "MagicBattleSoccerGoal.h"
@@ -12,17 +11,15 @@
 #include "AIController.h"
 #include "Engine/TriggerBox.h"
 
-AMagicBattleSoccerCharacter::AMagicBattleSoccerCharacter(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerCharacter::AMagicBattleSoccerCharacter(const class FObjectInitializer& OI)
+	: Super(OI)
 {
-	this->OnActorBeginOverlap.AddDynamic(this, &AMagicBattleSoccerCharacter::OnBeginOverlap);
-	this->OnActorEndOverlap.AddDynamic(this, &AMagicBattleSoccerCharacter::OnEndOverlap);
 	this->SetActorTickEnabled(true);
 	PrimaryActorTick.bCanEverTick = true;
 
-	CapsuleComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	CapsuleComponent->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
-	CapsuleComponent->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
 	PrimaryWeapon = nullptr;
 	SecondaryWeapon = nullptr;
@@ -141,12 +138,15 @@ void AMagicBattleSoccerCharacter::Tick(float DeltaSeconds)
 	// Servers should manage ball assignments
 	if (ROLE_Authority == Role)
 	{
-		// If the ball is overlapping us and doesn't presently have a possessor, try to assign ourselves
-		// possession. This can fail if we just had possession moments ago (otherwise we could kick the ball
-		// and immediately take possession again)
-		if (NULL != OverlappingBall && NULL == OverlappingBall->Possessor)
+		AMagicBattleSoccerBall *Ball = GetGameState()->SoccerBall;
+		float d = FVector::DistSquared(GetActorLocation(), Ball->GetActorLocation());
+		if (nullptr == Ball->Possessor
+			&& FVector::DistSquared(GetActorLocation(), Ball->GetActorLocation()) < 12000.f)
 		{
-			OverlappingBall->SetPossessor(this);
+			// If the ball is overlapping us and doesn't presently have a possessor, try to assign ourselves
+			// possession. This can fail if we just had possession moments ago (otherwise we could kick the ball
+			// and immediately take possession again)
+			Ball->SetPossessor(this);
 		}
 	}
 }
@@ -176,13 +176,9 @@ void AMagicBattleSoccerCharacter::Destroyed()
 	}
 	else
 	{
-		if (NULL != GetGameState())
+		if (nullptr != GetGameState())
 		{
-			// Release the ball
-			if (PossessesBall())
-			{
-				GetSoccerBall()->SetPossessor(nullptr);
-			}
+			GetSoccerBall()->CharacterHasDestroyed(this);
 
 			// Remove this character from the game mode cache
 			GetGameState()->SoccerPlayers.Remove(this);
@@ -191,24 +187,6 @@ void AMagicBattleSoccerCharacter::Destroyed()
 
 	Super::Destroyed();
 	DestroyInventory();
-}
-
-void AMagicBattleSoccerCharacter::OnBeginOverlap(AActor* OtherActor)
-{
-	AMagicBattleSoccerBall *Ball = Cast<AMagicBattleSoccerBall>(OtherActor);
-	if (NULL != Ball)
-	{
-		OverlappingBall = Ball;
-	}
-}
-
-void AMagicBattleSoccerCharacter::OnEndOverlap(AActor* OtherActor)
-{
-	AMagicBattleSoccerBall *Ball = Cast<AMagicBattleSoccerBall>(OtherActor);
-	if (NULL != Ball)
-	{
-		OverlappingBall = NULL;
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -272,7 +250,7 @@ bool AMagicBattleSoccerCharacter::Die(float KillingDamage, FDamageEvent const& D
 	GetWorld()->GetAuthGameMode<AMagicBattleSoccerGameMode>()->Killed(Killer, KilledPlayer, this, DamageType);
 
 	NetUpdateFrequency = GetDefault<AMagicBattleSoccerCharacter>()->NetUpdateFrequency;
-	CharacterMovement->ForceReplicationUpdate();
+	GetCharacterMovement()->ForceReplicationUpdate();
 
 	OnDeath(KillingDamage, DamageEvent, Killer ? Killer->GetPawn() : NULL, DamageCauser);
 	return true;
@@ -613,7 +591,7 @@ void AMagicBattleSoccerCharacter::UpdateMovementSpeed()
 	MovementComponent->MaxWalkSpeed = CurrentMovementSpeed;
 }
 
-/** [local] Critical path for all kick functions */
+/** [local] Kicks the ball with a force */
 void AMagicBattleSoccerCharacter::KickBall(const FVector& Force)
 {
 	if (Role < ROLE_Authority)
@@ -627,6 +605,21 @@ void AMagicBattleSoccerCharacter::KickBall(const FVector& Force)
 	}
 }
 
+/** [local] Kicks the ball to a location */
+void AMagicBattleSoccerCharacter::KickBallToLocation(const FVector& Location, float AngleInDegrees)
+{
+	if (Role < ROLE_Authority)
+	{
+		ServerKickBallToLocation(Location, AngleInDegrees);
+	}
+	else
+	{
+		AMagicBattleSoccerBall *Ball = GetSoccerBall();
+		Ball->KickToLocation(Location, AngleInDegrees);
+	}
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 // Actions - server side
 
@@ -638,6 +631,16 @@ bool AMagicBattleSoccerCharacter::ServerKickBall_Validate(FVector Force)
 void AMagicBattleSoccerCharacter::ServerKickBall_Implementation(FVector Force)
 {
 	KickBall(Force);
+}
+
+bool AMagicBattleSoccerCharacter::ServerKickBallToLocation_Validate(FVector Force, float AngleInDegrees)
+{
+	return IsAlive();
+}
+
+void AMagicBattleSoccerCharacter::ServerKickBallToLocation_Implementation(FVector Force, float AngleInDegrees)
+{
+	KickBallToLocation(Force, AngleInDegrees);
 }
 
 //////////////////////////////////////////////////////////////////////////

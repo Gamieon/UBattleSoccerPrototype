@@ -13,8 +13,8 @@ complete collection of menus for the Main Menu; including HOST, OPTIONS, QUIT, e
 #include "OptionsMenuUI.h"
 #include "MagicBattleSoccerStyles.h"
 
-AMainMenuHUD::AMainMenuHUD(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMainMenuHUD::AMainMenuHUD(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 }
 

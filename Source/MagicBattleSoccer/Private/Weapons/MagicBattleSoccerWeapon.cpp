@@ -5,8 +5,8 @@
 #include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerPlayerController.h"
 
-AMagicBattleSoccerWeapon::AMagicBattleSoccerWeapon(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerWeapon::AMagicBattleSoccerWeapon(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 	MyPawn = nullptr;
 	bIsEquipped = false;

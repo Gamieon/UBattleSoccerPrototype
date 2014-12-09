@@ -12,8 +12,8 @@
 #include "Engine/TriggerBox.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 
-AMagicBattleSoccerAIController::AMagicBattleSoccerAIController(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerAIController::AMagicBattleSoccerAIController(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 	bWantsPlayerState = true;
 	IsAttacking = false;
@@ -403,7 +403,7 @@ bool AMagicBattleSoccerAIController::KickBallToGoal()
 	{
 		return false;
 	}
-	else if (MyBot->GetDistanceTo(EnemyGoal) > 1500.0f)
+	else if (MyBot->GetDistanceTo(EnemyGoal) > 1600.0f)
 	{
 		return false;
 	}
@@ -419,7 +419,7 @@ bool AMagicBattleSoccerAIController::KickBallToGoal()
 		}
 		else
 		{
-			KickBallToLocation(EnemyGoal->GetActorLocation());
+			MyBot->KickBallToLocation(EnemyGoal->GetActorLocation(), 10.f);
 			return true;
 		}
 	}
@@ -427,17 +427,11 @@ bool AMagicBattleSoccerAIController::KickBallToGoal()
 
 
 /** [local] Kicks the ball to the specified location */
-void AMagicBattleSoccerAIController::KickBallToLocation(const FVector& Location)
+void AMagicBattleSoccerAIController::KickBallToLocation(const FVector& Location, float AngleInDegrees)
 {
 	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
-	AMagicBattleSoccerGameState* GameState = GetGameState();
 	if (nullptr != MyBot)
 	{
-		FVector ActorLocation = MyBot->GetActorLocation();
-		FVector v = Location - ActorLocation;
-		v.Z = 0;
-		float distance = v.Size2D();
-		v.Normalize();
-		MyBot->KickBall(v * distance * 100.f);
+		MyBot->KickBallToLocation(Location, AngleInDegrees);
 	}
 }

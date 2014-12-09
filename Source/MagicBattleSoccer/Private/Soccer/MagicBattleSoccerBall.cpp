@@ -8,11 +8,11 @@
 #define DISTANCE_IN_FRONT_OF_POSSESSOR		90.f
 #define POSSESSOR_Z_OFFSET					-60.f
 
-AMagicBattleSoccerBall::AMagicBattleSoccerBall(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerBall::AMagicBattleSoccerBall(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 	Possessor = NULL;
-	LastReleaseTime = -99999.0f;
+	PossessorToIgnore = nullptr;
 	NegDistanceTravelled = 0.0f;
 	proxyStateCount = 0;
 	this->SetActorTickEnabled(true);
@@ -174,6 +174,58 @@ void AMagicBattleSoccerBall::Tick(float DeltaSeconds)
 			ServerPhysicsState.rot = GetActorRotation();
 			ServerPhysicsState.vel = Root->GetComponentVelocity();
 			ServerPhysicsState.timestamp = AMagicBattleSoccerPlayerController::GetLocalTime();
+
+			// Servers should also test the distance from the old possessor and reset it
+			if (nullptr != PossessorToIgnore)
+			{
+				if (!PossessorToIgnore->IsAlive())
+				{
+					PossessorToIgnore = nullptr;
+				}
+				else
+				{
+					FVector2D PossessorLoc(PossessorToIgnore->GetActorLocation());
+					FVector2D BallLoc(GetActorLocation());
+					float d = FVector2D::DistSquared(PossessorLoc, BallLoc);
+					if (d > 14000)
+					{
+						PossessorToIgnore = nullptr;
+					}
+				}
+			}
+		}
+	}
+}
+
+/** Called by the GameMode object when the next round has begun */
+void AMagicBattleSoccerBall::RoundHasStarted_Implementation()
+{
+	if (Role == ROLE_Authority)
+	{
+		if (nullptr != Possessor)
+		{
+			SetPossessor(nullptr); // This change will be replicated to all clients
+		}
+		else
+		{
+			UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
+			Root->PutRigidBodyToSleep();
+		}
+		PossessorToIgnore = nullptr;
+	}
+	SetActorLocation(FVector(0.f, 0.f, 40.f));
+}
+
+/** Called by a AMagicBattleSoccerCharacter object when it has been destroyed */
+void AMagicBattleSoccerBall::CharacterHasDestroyed_Implementation(AMagicBattleSoccerCharacter *Character)
+{
+	if (nullptr != Character && Role == ROLE_Authority)
+	{
+		// Release the ball and ensure the possessor to ignore is reset
+		if (Character->PossessesBall())
+		{
+			SetPossessor(nullptr);
+			PossessorToIgnore = nullptr;
 		}
 	}
 }
@@ -211,24 +263,24 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerCharacter* Player)
 	}
 	else
 	{
-		float GameTimeInSeconds = GetWorld()->TimeSeconds;
-
-		// We only allow a possession change if there is no new possessor or if we just didn't recently unassign possession
-		if (nullptr == Player || GameTimeInSeconds > LastReleaseTime + 1.5f)
+		// We only allow a possession change if the ball is being unpossessed or the player is not one we're ignoring
+		if (nullptr == Player || PossessorToIgnore != Player)
 		{
 			AMagicBattleSoccerCharacter *OldPossessor = Possessor;
 
 			// Assign the new possessor
-			if (nullptr == Player)
-			{
-				LastReleaseTime = GameTimeInSeconds;
-			}
 			Possessor = Player;
 
 			// Update the old possessor's walking speed
 			if (nullptr != OldPossessor)
 			{
 				OldPossessor->UpdateMovementSpeed();
+			}
+
+			// Assign the possessor to ignore
+			if (nullptr != OldPossessor)
+			{
+				PossessorToIgnore = OldPossessor;
 			}
 
 			// Toggle physics
@@ -263,9 +315,6 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerCharacter* Player)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
-
 /** Kicks this ball with a given force */
 void AMagicBattleSoccerBall::Kick(const FVector& Force)
 {
@@ -281,5 +330,42 @@ void AMagicBattleSoccerBall::Kick(const FVector& Force)
 		// Now apply the force
 		UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
 		Root->AddForce(Force);
+	}
+}
+
+/** Kicks this ball to a location */
+void AMagicBattleSoccerBall::KickToLocation(const FVector& Location, float AngleInDegrees)
+{
+	if (nullptr == Possessor)
+	{
+		// Safety check. The possessor must be valid.
+	}
+	else
+	{
+		// Reset the possessor
+		SetPossessor(nullptr);
+
+		// Calculate the angle required to hit the coordinate (x,y) on the plane containing
+		// the origin and ground point. The x coordinate is the distance from the ball
+		// to where the user clicked, and the y coordinate should be zero.
+		// http://en.wikipedia.org/wiki/Trajectory_of_a_projectile
+
+		FVector Origin = GetActorLocation();
+		float x = FVector::Dist(Location, Origin);
+		float y = 0.f;
+		float g = -980.f; // Standard gravity
+		float r = AngleInDegrees * 3.14159f / 180.f;
+		float p = std::tan(r);
+		float v = std::sqrt((p*p + 1.f)*(g*x*x) / (2.f * (y - x*p)));
+		float forceMag = v;
+
+		FVector forward = (Location - Origin);
+		forward.Z = 0; // We only support kicking to locations that are on the ball's Z plane
+		forward.Normalize();
+		FVector kick = forward * FMath::Cos(r) * forceMag;
+		kick.Z = FMath::Sin(r) * forceMag;
+
+		UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
+		Root->SetPhysicsLinearVelocity(kick);
 	}
 }

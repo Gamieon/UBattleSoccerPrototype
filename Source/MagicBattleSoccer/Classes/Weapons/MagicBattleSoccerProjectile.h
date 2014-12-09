@@ -31,11 +31,11 @@ protected:
 
 	/** movement component */
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
-	TSubobjectPtr<UProjectileMovementComponent> MovementComp;
+	UProjectileMovementComponent *MovementComp;
 
 	/** collisions */
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
-	TSubobjectPtr<USphereComponent> CollisionComp;
+	USphereComponent *CollisionComp;
 
 	/** controller that fired me (cache for damage calculations) */
 	TWeakObjectPtr<AController> MyController;

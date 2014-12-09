@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Slate.h"
+#include "SlateBasics.h"
 
 /** supported resolutions */
 const FIntPoint DefaultResolutions[] = { FIntPoint(1024, 768), FIntPoint(1280, 720), FIntPoint(1920, 1080) };

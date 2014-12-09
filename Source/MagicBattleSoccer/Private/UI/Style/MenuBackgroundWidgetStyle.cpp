@@ -28,8 +28,8 @@ void FMenuBackgroundStyle::GetResources(TArray<const FSlateBrush*>& OutBrushes) 
 	OutBrushes.Add(&BackgroundBrush);
 }
 
-UMenuBackgroundWidgetStyle::UMenuBackgroundWidgetStyle(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+UMenuBackgroundWidgetStyle::UMenuBackgroundWidgetStyle(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 
 }

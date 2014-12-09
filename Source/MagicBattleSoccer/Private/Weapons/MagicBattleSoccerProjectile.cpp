@@ -5,9 +5,9 @@
 #include "MagicBattleSoccerPlayerState.h"
 #include "MagicBattleSoccerCharacter.h"
 
-AMagicBattleSoccerProjectile::AMagicBattleSoccerProjectile(const class FPostConstructInitializeProperties& PCIP) : Super(PCIP)
+AMagicBattleSoccerProjectile::AMagicBattleSoccerProjectile(const class FObjectInitializer& OI) : Super(OI)
 {
-	CollisionComp = PCIP.CreateDefaultSubobject<USphereComponent>(this, TEXT("SphereComp"));
+	CollisionComp = OI.CreateDefaultSubobject<USphereComponent>(this, TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(15.0f);
 	CollisionComp->AlwaysLoadOnClient = true;
 	CollisionComp->AlwaysLoadOnServer = true;
@@ -20,7 +20,7 @@ AMagicBattleSoccerProjectile::AMagicBattleSoccerProjectile(const class FPostCons
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 	RootComponent = CollisionComp;
 
-	MovementComp = PCIP.CreateDefaultSubobject<UProjectileMovementComponent>(this, TEXT("ProjectileComp"));
+	MovementComp = OI.CreateDefaultSubobject<UProjectileMovementComponent>(this, TEXT("ProjectileComp"));
 	MovementComp->UpdatedComponent = CollisionComp;
 	MovementComp->InitialSpeed = 800.0f;
 	MovementComp->MaxSpeed = 800.0f;
@@ -50,7 +50,7 @@ void AMagicBattleSoccerProjectile::PostInitializeComponents()
 		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Teammates.CreateConstIterator()); It; ++It)
 		{
 			CollisionComp->IgnoreActorWhenMoving(*It, true);
-			(*It)->CapsuleComponent->IgnoreActorWhenMoving(this, true);
+			(*It)->GetCapsuleComponent()->IgnoreActorWhenMoving(this, true);
 		}
 	}
 
@@ -95,7 +95,7 @@ void AMagicBattleSoccerProjectile::Destroyed()
 		{
 			for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Game->SoccerPlayers.CreateConstIterator()); It; ++It)
 			{
-				(*It)->CapsuleComponent->IgnoreActorWhenMoving(this, false);
+				(*It)->GetCapsuleComponent()->IgnoreActorWhenMoving(this, false);
 				if (nullptr != (*It)->PrimaryWeapon)
 				{
 					CollisionComp->IgnoreActorWhenMoving((*It)->PrimaryWeapon, false);

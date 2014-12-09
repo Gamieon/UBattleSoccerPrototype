@@ -8,8 +8,8 @@ GameHUD.h - The HUD class for game maps.
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerCharacter.h"
 
-ASoccerGameHUD::ASoccerGameHUD(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+ASoccerGameHUD::ASoccerGameHUD(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 }
 

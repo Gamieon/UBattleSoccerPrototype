@@ -3,8 +3,8 @@
 #include "MagicBattleSoccerProjectile.h"
 #include "MagicBattleSoccerWeapon_Projectile.h"
 
-AMagicBattleSoccerWeapon_Projectile::AMagicBattleSoccerWeapon_Projectile(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerWeapon_Projectile::AMagicBattleSoccerWeapon_Projectile(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 }
 

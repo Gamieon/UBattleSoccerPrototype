@@ -8,8 +8,8 @@
 
 using namespace std::chrono;
 
-AMagicBattleSoccerPlayerController::AMagicBattleSoccerPlayerController(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerPlayerController::AMagicBattleSoccerPlayerController(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 	timeServerTimeRequestWasPlaced = 0;
 	timeOffsetFromServer = 0;
@@ -176,10 +176,9 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 				float d = FVector::DotProduct((FVector(0, 0, Origin.Z) - WorldLocation), FVector::UpVector)
 					/ FVector::DotProduct(WorldDirection, FVector::UpVector);
 				FVector GroundPoint = WorldLocation + WorldDirection * d;
-				FVector v = GroundPoint - Origin;
-				float distance = v.Size2D();
-				v.Normalize();
-				PlayerPawn->KickBall(v * distance * 100.f);
+
+				// Kick to the ground location
+				PlayerPawn->KickBallToLocation(GroundPoint, 35.f);
 			}
 		}
 		else if (nullptr != PlayerPawn->PrimaryWeapon)

@@ -5,8 +5,8 @@
 #include "MagicBattleSoccerHUD.h"
 #include "MagicBattleSoccerGameSession.h"
 
-UMagicBattleSoccerInstance::UMagicBattleSoccerInstance(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+UMagicBattleSoccerInstance::UMagicBattleSoccerInstance(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 }
 

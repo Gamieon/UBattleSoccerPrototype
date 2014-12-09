@@ -18,4 +18,8 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayerState : public APlayerState
 	/** The team number */
 	UPROPERTY(Transient, Replicated, EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	int32 TeamNumber;
+
+	/** Assigns a unique bot name to the player */
+	UFUNCTION(BlueprintCallable, Category = PlayerState)
+	void AssignBotName();
 };

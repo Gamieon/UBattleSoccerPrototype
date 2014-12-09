@@ -25,8 +25,8 @@ void FMenuItemStyle::GetResources(TArray<const FSlateBrush*>& OutBrushes) const
 	OutBrushes.Add(&RightArrowImage);
 }
 
-UMenuItemWidgetStyle::UMenuItemWidgetStyle(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+UMenuItemWidgetStyle::UMenuItemWidgetStyle(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 
 }

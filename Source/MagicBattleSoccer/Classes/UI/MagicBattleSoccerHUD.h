@@ -55,6 +55,10 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// System widget helpers
 
+	/** determines whether we're in debug mode */
+	UPROPERTY(BlueprintReadOnly, Category = HUD)
+	bool IsDebugMode;
+
 private:
 	/** True if a loading or error prompt are visible */
 	bool IsSystemPromptVisible();

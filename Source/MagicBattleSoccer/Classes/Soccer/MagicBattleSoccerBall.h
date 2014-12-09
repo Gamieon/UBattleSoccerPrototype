@@ -49,6 +49,14 @@ public:
 
 	//End AActor interface
 
+	/** Called by the GameMode object when the next round has begun */
+	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
+	void RoundHasStarted();
+
+	/** Called by a AMagicBattleSoccerCharacter object when it has been destroyed */
+	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
+	void CharacterHasDestroyed(AMagicBattleSoccerCharacter *Character);
+
 	/** Gets the game state */
 	class AMagicBattleSoccerGameState* GetGameState();
 
@@ -56,8 +64,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	bool IsFree();
 
-	/** The time this soccer ball was last released from a player */
-	float LastReleaseTime;
+	/** When a possessor releases the ball, we don't want to allow them to repossess the ball until it has
+	travelled a certain distance away. This variable lets the ball remember who possessed the ball last so
+	it can do this calculation. Once the distance has been exceeded, this is set to null. */
+	class AMagicBattleSoccerCharacter *PossessorToIgnore;
 
 	/** Sets the current ball possessor */
 	void SetPossessor(class AMagicBattleSoccerCharacter* Player);
@@ -67,5 +77,8 @@ public:
 
 	/** Kicks this ball with a given force */
 	void Kick(const FVector& Force);
+
+	/** Kicks this ball to a location */
+	void KickToLocation(const FVector& Location, float AngleInDegrees);
 };
 

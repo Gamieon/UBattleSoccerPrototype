@@ -4,8 +4,8 @@
 #include "MagicBattleSoccerEngine.h"
 #include "MagicBattleSoccerInstance.h"
 
-UMagicBattleSoccerEngine::UMagicBattleSoccerEngine(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+UMagicBattleSoccerEngine::UMagicBattleSoccerEngine(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 }
 

@@ -5,8 +5,8 @@ MagicBattleSoccerPlayerController_Menu.cpp - The player controller class for the
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerPlayerController_Menu.h"
 
-AMagicBattleSoccerPlayerController_Menu::AMagicBattleSoccerPlayerController_Menu(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerPlayerController_Menu::AMagicBattleSoccerPlayerController_Menu(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 	bShowMouseCursor = true;
 }

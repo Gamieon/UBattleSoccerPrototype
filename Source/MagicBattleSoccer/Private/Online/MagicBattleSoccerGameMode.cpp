@@ -19,8 +19,8 @@
 #include "MagicBattleSoccerGameSession.h"
 #include "MagicBattleSoccerHUD.h"
 
-AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 	// Assign the in-game player controller class
 	PlayerControllerClass = AMagicBattleSoccerPlayerController::StaticClass();
@@ -30,6 +30,9 @@ AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FPostConstruc
 
 	// Assign the HUD class
 	HUDClass = AMagicBattleSoccerHUD::StaticClass();
+
+	// Used by AMagicBattleSoccerPlayerState for naming bots
+	NextBotNameID = 1;
 }
 
 /** Gets the game state */
@@ -115,14 +118,10 @@ void AMagicBattleSoccerGameMode::HandleRoundHasStarted()
 	}
 
 	// Ensure the ball has no possessor and move it to the center of the map
-	if (nullptr != GameState->SoccerBall->Possessor)
-	{
-		GameState->SoccerBall->SetPossessor(nullptr);
-	}
+	GameState->SoccerBall->RoundHasStarted();
+
 	// Ensure there is no penetrated goal
 	GameState->PenetratedGoal = nullptr;
-
-	GameState->SoccerBall->SetActorLocation(FVector(0.f, 0.f, 130.f));
 }
 
 /** Called by the AMagicBattleSoccerGoal object when a goal was scored */

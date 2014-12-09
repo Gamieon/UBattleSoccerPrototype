@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Slate.h"
+#include "SlateBasics.h"
 
 /**
 * Lays out and controls the Options Menu UI.

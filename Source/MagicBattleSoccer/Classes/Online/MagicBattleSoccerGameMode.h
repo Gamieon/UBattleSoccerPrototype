@@ -22,6 +22,9 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameMode : public AGameMode
 {
 	GENERATED_UCLASS_BODY()
 
+	/** Used by AMagicBattleSoccerPlayerState for naming bots */
+	int NextBotNameID;
+
 private:
 	/** Gets the game state */
 	class AMagicBattleSoccerGameState* GetGameState();

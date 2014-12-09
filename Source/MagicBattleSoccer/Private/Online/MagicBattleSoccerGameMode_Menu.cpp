@@ -9,7 +9,7 @@ MagicBattleSoccerGameMode_Menu.cpp - The game mode class for the main menu
 #include "MainMenuPawn.h"
 #include "MainMenuHUD.h"
 
-AMagicBattleSoccerGameMode_Menu::AMagicBattleSoccerGameMode_Menu(const class FPostConstructInitializeProperties& PCIP) : Super(PCIP)
+AMagicBattleSoccerGameMode_Menu::AMagicBattleSoccerGameMode_Menu(const class FObjectInitializer& OI) : Super(OI)
 {
 	// This game mode requires a specific player controller class that is nothing more than a APlayerController with the mouse cursor enabled.
 	// Otherwise the player couldn't select any menu items.

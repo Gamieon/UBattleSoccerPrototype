@@ -115,5 +115,5 @@ public:
 
 	/** Kicks the ball to the specified location */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void KickBallToLocation(const FVector& Location);
+	void KickBallToLocation(const FVector& Location, float AngleInDegrees);
 };

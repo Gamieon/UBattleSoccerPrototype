@@ -6,7 +6,7 @@
 
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerStyles.h"
-#include "Slate.h"
+#include "SlateBasics.h"
 #include "SlateGameResources.h"
 
 TSharedPtr<FSlateStyleSet> FMagicBattleSoccerStyles::MenuStyleInstance = NULL;

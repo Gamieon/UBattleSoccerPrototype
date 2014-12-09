@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Slate.h"
+#include "SlateBasics.h"
 
 struct FServerEntry
 {

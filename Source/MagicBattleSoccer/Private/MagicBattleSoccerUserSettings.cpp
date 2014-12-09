@@ -1,8 +1,8 @@
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerUserSettings.h"
 
-UMagicBattleSoccerUserSettings::UMagicBattleSoccerUserSettings(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+UMagicBattleSoccerUserSettings::UMagicBattleSoccerUserSettings(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 	SetToDefaults();
 }

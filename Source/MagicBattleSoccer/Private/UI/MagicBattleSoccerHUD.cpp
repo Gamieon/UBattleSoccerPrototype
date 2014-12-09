@@ -8,12 +8,18 @@ or the most recent error message from the shooter engine class.
 #include "LoadingUI.h"
 #include "ErrorUI.h"
 #include "MagicBattleSoccerStyles.h"
+#include "MagicBattleSoccerPlayerController.h"
 
-AMagicBattleSoccerHUD::AMagicBattleSoccerHUD(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerHUD::AMagicBattleSoccerHUD(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 	bIsLoadingUIVisible = false;
 	bIsErrorUIVisible = false;
+#if !UE_BUILD_SHIPPING
+	IsDebugMode = true;
+#else
+	IsDebugMode = false;
+#endif
 }
 
 void AMagicBattleSoccerHUD::PostInitializeComponents()
@@ -42,29 +48,37 @@ void AMagicBattleSoccerHUD::PostInitializeComponents()
 
 void AMagicBattleSoccerHUD::DrawFrame(FLinearColor FrameColor, float X, float Y, float Width, float Height, float Thickness)
 {
-	FCanvasLineItem NewLine;
-	NewLine.SetColor(FrameColor);
-	NewLine.LineThickness = Thickness;
-	NewLine.BlendMode = SE_BLEND_Translucent;
+	if (nullptr == Canvas)
+	{
+		// This has actually happened before. No idea why.
+	}
+	else
+	{
+		FCanvasLineItem NewLine;
+		NewLine.SetColor(FrameColor);
+		NewLine.LineThickness = Thickness;
+		NewLine.BlendMode = SE_BLEND_Translucent;
 
-	NewLine.Origin = FVector(X, Y, 0.f);
-	NewLine.EndPos = FVector(X + Width, Y, 0.f);
-	Canvas->DrawItem(NewLine);
+		NewLine.Origin = FVector(X, Y, 0.f);
+		NewLine.EndPos = FVector(X + Width, Y, 0.f);
+		Canvas->DrawItem(NewLine);
 
-	NewLine.EndPos = FVector(X, Y + Height, 0.f);
-	Canvas->DrawItem(NewLine);
+		NewLine.EndPos = FVector(X, Y + Height, 0.f);
+		Canvas->DrawItem(NewLine);
 
-	NewLine.Origin = FVector(X + Width, Y + Height, 0.f);
-	NewLine.EndPos = FVector(X, Y + Height, 0.f);
-	Canvas->DrawItem(NewLine);
+		NewLine.Origin = FVector(X + Width, Y + Height, 0.f);
+		NewLine.EndPos = FVector(X, Y + Height, 0.f);
+		Canvas->DrawItem(NewLine);
 
-	NewLine.EndPos = FVector(X + Width, Y, 0.f);
-	Canvas->DrawItem(NewLine);
+		NewLine.EndPos = FVector(X + Width, Y, 0.f);
+		Canvas->DrawItem(NewLine);
+	}
 }
 
 bool AMagicBattleSoccerHUD::IsPointOnCanvas(FVector2D Point)
 {
-	return (Point.X >= 0 && Point.Y >= 0 && Point.X < Canvas->SizeX && Point.Y < Canvas->SizeY);
+	// Canvas has been null before. No idea why.
+	return (nullptr != Canvas && Point.X >= 0 && Point.Y >= 0 && Point.X < Canvas->SizeX && Point.Y < Canvas->SizeY);
 }
 
 typedef int8 OutCode;

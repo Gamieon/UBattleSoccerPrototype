@@ -7,8 +7,8 @@ namespace
 	const FString CustomMatchKeyword("Custom");
 }
 
-AMagicBattleSoccerGameSession::AMagicBattleSoccerGameSession(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+AMagicBattleSoccerGameSession::AMagicBattleSoccerGameSession(const class FObjectInitializer& OI)
+	: Super(OI)
 {
 	if (!HasAnyFlags(RF_ClassDefaultObject))
 	{
