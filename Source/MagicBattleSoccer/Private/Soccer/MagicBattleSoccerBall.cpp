@@ -11,7 +11,8 @@
 AMagicBattleSoccerBall::AMagicBattleSoccerBall(const class FObjectInitializer& OI)
 	: Super(OI)
 {
-	Possessor = NULL;
+	Possessor = nullptr;
+	LastPossessor = nullptr;
 	PossessorToIgnore = nullptr;
 	NegDistanceTravelled = 0.0f;
 	proxyStateCount = 0;
@@ -22,6 +23,7 @@ AMagicBattleSoccerBall::AMagicBattleSoccerBall(const class FObjectInitializer& O
 void AMagicBattleSoccerBall::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 {
 	DOREPLIFETIME(AMagicBattleSoccerBall, Possessor);
+	DOREPLIFETIME(AMagicBattleSoccerBall, LastPossessor);
 	DOREPLIFETIME(AMagicBattleSoccerBall, ServerPhysicsState);
 }
 
@@ -30,7 +32,7 @@ void AMagicBattleSoccerBall::OnRep_ServerPhysicsState()
 	// If we get here, we are always the client. Here we store the physics state
 	// for physics state interpolation.
 
-	// Shift the buffer sideways, deleting state 20
+	// Shift the buffer sideways, deleting state PROXY_STATE_ARRAY_SIZE
 	for (int i = PROXY_STATE_ARRAY_SIZE - 1; i >= 1; i--)
 	{
 		proxyStates[i] = proxyStates[i - 1];
@@ -227,6 +229,11 @@ void AMagicBattleSoccerBall::CharacterHasDestroyed_Implementation(AMagicBattleSo
 			SetPossessor(nullptr);
 			PossessorToIgnore = nullptr;
 		}
+
+		if (nullptr != LastPossessor && LastPossessor->GetUniqueID() == Character->GetUniqueID())
+		{
+			LastPossessor = nullptr;
+		}
 	}
 }
 
@@ -270,16 +277,15 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerCharacter* Player)
 
 			// Assign the new possessor
 			Possessor = Player;
-
-			// Update the old possessor's walking speed
+			
+			// Handle cases when the ball had a possessor in the previous frame
 			if (nullptr != OldPossessor)
 			{
+				// Assign the last possessor
+				LastPossessor = OldPossessor;
+				// Update the old possessor's walking speed
 				OldPossessor->UpdateMovementSpeed();
-			}
-
-			// Assign the possessor to ignore
-			if (nullptr != OldPossessor)
-			{
+				// Assign the possessor to ignore
 				PossessorToIgnore = OldPossessor;
 			}
 
@@ -362,10 +368,12 @@ void AMagicBattleSoccerBall::KickToLocation(const FVector& Location, float Angle
 		FVector forward = (Location - Origin);
 		forward.Z = 0; // We only support kicking to locations that are on the ball's Z plane
 		forward.Normalize();
+		FVector cross = FVector::CrossProduct(forward, FVector::UpVector);
 		FVector kick = forward * FMath::Cos(r) * forceMag;
 		kick.Z = FMath::Sin(r) * forceMag;
 
 		UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
 		Root->SetPhysicsLinearVelocity(kick);
+		Root->SetPhysicsAngularVelocity(cross * forceMag * -4.f);
 	}
 }

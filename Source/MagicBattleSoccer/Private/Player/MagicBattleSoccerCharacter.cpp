@@ -583,7 +583,7 @@ void AMagicBattleSoccerCharacter::UpdateMovementSpeed()
 	UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
 	AMagicBattleSoccerBall *Ball = GetSoccerBall();
 
-	if (Ball->Possessor == this)
+	if (nullptr != Ball->Possessor && Ball->Possessor->GetUniqueID() == GetUniqueID())
 	{
 		CurrentMovementSpeed = DefaultMovementSpeed * 0.75f;
 	}

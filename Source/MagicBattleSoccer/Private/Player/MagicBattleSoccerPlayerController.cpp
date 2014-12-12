@@ -4,6 +4,7 @@
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerGameMode.h"
+#include "MagicBattleSoccerUserSettings.h"
 #include <chrono>
 
 using namespace std::chrono;
@@ -64,6 +65,10 @@ void AMagicBattleSoccerPlayerController::SetupInputComponent()
 void AMagicBattleSoccerPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Set the player name
+	UMagicBattleSoccerUserSettings *UserSettings = CastChecked<UMagicBattleSoccerUserSettings>(GEngine->GetGameUserSettings());
+	ServerSetPlayerName(UserSettings->PlayerName);
 
 	// Ask the server for its current time
 	if (Role < ROLE_Authority)
@@ -254,15 +259,15 @@ void AMagicBattleSoccerPlayerController::OnQuitToMainMenu()
 	((UMagicBattleSoccerEngine*)GEngine)->GoToMainMenu();
 }
 
+bool AMagicBattleSoccerPlayerController::ServerGetServerTime_Validate()
+{
+	return true;
+}
+
 /** Sent from a client to the server to get the server's system time */
 void AMagicBattleSoccerPlayerController::ServerGetServerTime_Implementation()
 {
 	ClientGetServerTime(GetLocalTime());
-}
-
-bool AMagicBattleSoccerPlayerController::ServerGetServerTime_Validate()
-{
-	return true;
 }
 
 /** Sent from the server to a client to give them the server's system time */
@@ -287,3 +292,16 @@ void AMagicBattleSoccerPlayerController::ClientGetServerTime_Implementation(int6
 
 	timeOffsetIsValid = true;
 }
+
+bool AMagicBattleSoccerPlayerController::ServerSetPlayerName_Validate(const FString& PlayerName)
+{
+	return true;
+}
+
+/** Sent from a client to the server to set the client's player name. We don't use
+any sort of known online subsystem so we do it this way */
+void AMagicBattleSoccerPlayerController::ServerSetPlayerName_Implementation(const FString& PlayerName)
+{
+	PlayerState->SetPlayerName(PlayerName);
+}
+

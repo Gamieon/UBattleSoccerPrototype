@@ -100,4 +100,9 @@ protected:
 	/** Sent from the server to a client to give them the server's system time */
 	UFUNCTION(reliable, client)
 	void ClientGetServerTime(int64 serverTime);
+
+	/** Sent from a client to the server to set the client's player name. We don't use
+	any sort of known online subsystem so we do it this way */
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerSetPlayerName(const FString& PlayerName);
 };

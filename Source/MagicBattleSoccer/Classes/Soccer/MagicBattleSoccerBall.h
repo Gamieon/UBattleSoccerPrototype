@@ -17,6 +17,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerBall : public AActor
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
 	class AMagicBattleSoccerCharacter *Possessor;
 
+	/** The player who last possessed this soccer ball */
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	class AMagicBattleSoccerCharacter *LastPossessor;
+
 	/** The soccer ball orientation on the server */
 	UPROPERTY(ReplicatedUsing = OnRep_ServerPhysicsState)
 	FSmoothPhysicsState ServerPhysicsState;
