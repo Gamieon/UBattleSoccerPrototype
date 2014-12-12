@@ -24,9 +24,12 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	float Health;
 
 	/** current firing state */
-	uint8 bWantsPrimaryFire : 1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	bool WantsPrimaryFire;
+
 	/** secondary attack state */
-	uint8 bWantsSecondaryFire : 1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	bool WantsSecondaryFire;
 
 	/** The current movement speed for this player. This changes if the player
 	possesses the ball */

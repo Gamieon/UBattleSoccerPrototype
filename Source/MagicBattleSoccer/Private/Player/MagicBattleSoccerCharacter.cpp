@@ -23,8 +23,8 @@ AMagicBattleSoccerCharacter::AMagicBattleSoccerCharacter(const class FObjectInit
 
 	PrimaryWeapon = nullptr;
 	SecondaryWeapon = nullptr;
-	bWantsPrimaryFire = false;
-	bWantsSecondaryFire = false;
+	WantsPrimaryFire = false;
+	WantsSecondaryFire = false;
 	LastTakeHitTimeTimeout = 0;
 }
 
@@ -522,9 +522,9 @@ void AMagicBattleSoccerCharacter::AssignUniform_Implementation()
 /** [local] starts weapon fire */
 void AMagicBattleSoccerCharacter::StartPrimaryWeaponFire()
 {
-	if (!bWantsPrimaryFire)
+	if (!WantsPrimaryFire)
 	{
-		bWantsPrimaryFire = true;
+		WantsPrimaryFire = true;
 		if (PrimaryWeapon)
 		{
 			PrimaryWeapon->StartFire();
@@ -535,9 +535,9 @@ void AMagicBattleSoccerCharacter::StartPrimaryWeaponFire()
 /** [local] stops weapon fire */
 void AMagicBattleSoccerCharacter::StopPrimaryWeaponFire()
 {
-	if (bWantsPrimaryFire)
+	if (WantsPrimaryFire)
 	{
-		bWantsPrimaryFire = false;
+		WantsPrimaryFire = false;
 		if (nullptr != PrimaryWeapon)
 		{
 			PrimaryWeapon->StopFire();
@@ -548,9 +548,9 @@ void AMagicBattleSoccerCharacter::StopPrimaryWeaponFire()
 /** [local] starts secondary attack */
 void AMagicBattleSoccerCharacter::StartSecondaryWeaponFire()
 {
-	if (!bWantsSecondaryFire)
+	if (!WantsSecondaryFire)
 	{
-		bWantsSecondaryFire = true;
+		WantsSecondaryFire = true;
 		if (nullptr != SecondaryWeapon)
 		{
 			SecondaryWeapon->StartFire();
@@ -561,9 +561,9 @@ void AMagicBattleSoccerCharacter::StartSecondaryWeaponFire()
 /** [local] stops secondary attack */
 void AMagicBattleSoccerCharacter::StopSecondaryWeaponFire()
 {
-	if (bWantsSecondaryFire)
+	if (WantsSecondaryFire)
 	{
-		bWantsSecondaryFire = false;
+		WantsSecondaryFire = false;
 		if (nullptr != SecondaryWeapon)
 		{
 			SecondaryWeapon->StopFire();
