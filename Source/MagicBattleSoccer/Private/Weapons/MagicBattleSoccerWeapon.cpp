@@ -177,10 +177,24 @@ void AMagicBattleSoccerWeapon::HandleFiring()
 		}
 
 		// setup refire timer
-		bRefiring = (CurrentState == EWeaponState::Firing && WeaponConfig.TimeBetweenShots > 0.0f);
+		bRefiring = (CurrentState == EWeaponState::Firing && WeaponConfig.TimeBetweenShots > 0.0f && WeaponConfig.RepeatingFire);
 		if (bRefiring)
 		{
+			// Start a timer to handle repeating firing
 			GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerWeapon::HandleFiring, WeaponConfig.TimeBetweenShots, false);
+		}
+		else
+		{
+			// Start a timer to tell the controlling pawn that the non-repeating fire has completed. We need the controlling pawn
+			// to stop it because the controlling pawn must also update its own variables related to firing.
+			if (this == MyPawn->PrimaryWeapon)
+			{
+				GetWorldTimerManager().SetTimer(MyPawn, &AMagicBattleSoccerCharacter::HandlePrimaryWeaponNonRepeatingFireFinished, WeaponConfig.TimeBetweenShots, false);
+			}
+			else if (this == MyPawn->SecondaryWeapon)
+			{
+				GetWorldTimerManager().SetTimer(MyPawn, &AMagicBattleSoccerCharacter::HandleSecondaryWeaponNonRepeatingFireFinished, WeaponConfig.TimeBetweenShots, false);
+			}			
 		}
 	}
 

@@ -199,7 +199,7 @@ void AMagicBattleSoccerPlayerController::OnStopPrimaryAction()
 	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
-		PlayerPawn->StopPrimaryWeaponFire();
+		PlayerPawn->StopPrimaryWeaponFire(false);
 	}
 }
 
@@ -222,7 +222,7 @@ void AMagicBattleSoccerPlayerController::OnStopSecondaryAction()
 	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
-		PlayerPawn->StopSecondaryWeaponFire();
+		PlayerPawn->StopSecondaryWeaponFire(false);
 	}
 }
 

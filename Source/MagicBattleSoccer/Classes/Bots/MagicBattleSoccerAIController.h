@@ -27,9 +27,9 @@ public:
 	UPROPERTY(Transient, EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	class ATriggerBox* ActionZone;
 
-	/** True if this player is running the attack action */
-	UPROPERTY(Transient, EditAnywhere, BlueprintReadWrite, Category = Soccer)
-	bool IsAttacking;
+	/** Gets the bot attack state */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	bool IsAttacking();
 
 	/** Called by the GameMode object when the next round has begun. The character has not yet spawned at this point */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)

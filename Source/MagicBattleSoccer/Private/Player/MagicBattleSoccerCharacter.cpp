@@ -99,7 +99,7 @@ void AMagicBattleSoccerCharacter::PossessedBy(class AController* InController)
 	Super::PossessedBy(InController);
 
 	// [server] as soon as PlayerState is assigned, set team colors of this pawn for local player
-	AssignUniform();
+	SetTeamColors();
 }
 
 /** [client] perform PlayerState related setup */
@@ -108,7 +108,7 @@ void AMagicBattleSoccerCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	// [client] as soon as PlayerState is assigned, set team colors of this pawn for local player
-	AssignUniform();
+	SetTeamColors();
 }
 
 /** This occurs when play begins for a character */
@@ -359,7 +359,7 @@ void AMagicBattleSoccerCharacter::SetPrimaryWeapon(AMagicBattleSoccerWeapon* New
 	if (NewWeapon)
 	{
 		NewWeapon->SetOwningPawn(this);	// Make sure weapon's MyPawn is pointing back to us. During replication, we can't guarantee APawn::PrimaryWeapon will rep after AWeapon::MyPawn!
-		NewWeapon->OnEquip(FName(TEXT("RightHand")));
+		NewWeapon->OnEquip(RightHandSocket);
 	}
 }
 
@@ -388,7 +388,7 @@ void AMagicBattleSoccerCharacter::SetSecondaryWeapon(AMagicBattleSoccerWeapon* N
 	if (NewWeapon)
 	{
 		NewWeapon->SetOwningPawn(this);	// Make sure weapon's MyPawn is pointing back to us. During replication, we can't guarantee APawn::PrimaryWeapon will rep after AWeapon::MyPawn!
-		NewWeapon->OnEquip(FName(TEXT("LeftHand")));
+		NewWeapon->OnEquip(LeftHandSocket);
 	}
 }
 
@@ -510,8 +510,25 @@ void AMagicBattleSoccerCharacter::EquipSecondaryWeapon(AMagicBattleSoccerWeapon*
 	}
 }
 
+/** Called by the primary weapon object when a non-repeating fire action has completed */
+void AMagicBattleSoccerCharacter::HandlePrimaryWeaponNonRepeatingFireFinished()
+{
+	// This not only gracefully stops the weapon from firing but also changes WantsPrimaryFire
+	// so that the player can resume locomotion
+	StopPrimaryWeaponFire(true);
+}
+
+/** Called by the secondary weapon object when a non-repeating fire action has completed */
+void AMagicBattleSoccerCharacter::HandleSecondaryWeaponNonRepeatingFireFinished()
+{
+	// This not only gracefully stops the weapon from firing but also changes WantsPrimaryFire
+	// so that the player can resume locomotion
+	StopSecondaryWeaponFire(true);
+}
+
+
 /** Called to change a player's outfit based on team */
-void AMagicBattleSoccerCharacter::AssignUniform_Implementation()
+void AMagicBattleSoccerCharacter::SetTeamColors_Implementation()
 {
 	// Handled entirely in blueprints
 }
@@ -525,6 +542,7 @@ void AMagicBattleSoccerCharacter::StartPrimaryWeaponFire()
 	if (!WantsPrimaryFire)
 	{
 		WantsPrimaryFire = true;
+		UpdateMovementSpeed();
 		if (PrimaryWeapon)
 		{
 			PrimaryWeapon->StartFire();
@@ -533,14 +551,22 @@ void AMagicBattleSoccerCharacter::StartPrimaryWeaponFire()
 }
 
 /** [local] stops weapon fire */
-void AMagicBattleSoccerCharacter::StopPrimaryWeaponFire()
+void AMagicBattleSoccerCharacter::StopPrimaryWeaponFire(bool bForceStop)
 {
 	if (WantsPrimaryFire)
 	{
-		WantsPrimaryFire = false;
-		if (nullptr != PrimaryWeapon)
+		if (!bForceStop && PrimaryWeapon->GetCurrentState() == EWeaponState::Firing && !PrimaryWeapon->GetWeaponConfig().RepeatingFire)
 		{
-			PrimaryWeapon->StopFire();
+			// If the weapon is currently firing and it's not repeating fire, we must wait for the weapon to finish firing.
+		}
+		else
+		{
+			WantsPrimaryFire = false;
+			UpdateMovementSpeed();
+			if (nullptr != PrimaryWeapon)
+			{
+				PrimaryWeapon->StopFire();
+			}
 		}
 	}
 }
@@ -551,6 +577,7 @@ void AMagicBattleSoccerCharacter::StartSecondaryWeaponFire()
 	if (!WantsSecondaryFire)
 	{
 		WantsSecondaryFire = true;
+		UpdateMovementSpeed();
 		if (nullptr != SecondaryWeapon)
 		{
 			SecondaryWeapon->StartFire();
@@ -559,14 +586,22 @@ void AMagicBattleSoccerCharacter::StartSecondaryWeaponFire()
 }
 
 /** [local] stops secondary attack */
-void AMagicBattleSoccerCharacter::StopSecondaryWeaponFire()
+void AMagicBattleSoccerCharacter::StopSecondaryWeaponFire(bool bForceStop)
 {
 	if (WantsSecondaryFire)
 	{
-		WantsSecondaryFire = false;
-		if (nullptr != SecondaryWeapon)
+		if (!bForceStop && PrimaryWeapon->GetCurrentState() == EWeaponState::Firing && !PrimaryWeapon->GetWeaponConfig().RepeatingFire)
 		{
-			SecondaryWeapon->StopFire();
+			// If the weapon is currently firing and it's not repeating fire, we must wait for the weapon to finish firing.
+		}
+		else
+		{
+			WantsSecondaryFire = false;
+			UpdateMovementSpeed();
+			if (nullptr != SecondaryWeapon)
+			{
+				SecondaryWeapon->StopFire();
+			}
 		}
 	}
 }
@@ -583,9 +618,21 @@ void AMagicBattleSoccerCharacter::UpdateMovementSpeed()
 	UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
 	AMagicBattleSoccerBall *Ball = GetSoccerBall();
 
+	// Always begin with this
+	CurrentMovementSpeed = DefaultMovementSpeed;
+
+	// Reduce speed if we're the ball carrier
 	if (nullptr != Ball->Possessor && Ball->Possessor->GetUniqueID() == GetUniqueID())
-	{
+	{		
 		CurrentMovementSpeed = DefaultMovementSpeed * 0.75f;
+	}
+	else if (WantsPrimaryFire && nullptr != PrimaryWeapon && !PrimaryWeapon->GetWeaponConfig().CharacterCanWalkWhileFiring)
+	{
+		CurrentMovementSpeed = 0;
+	}
+	else if (WantsSecondaryFire && nullptr != SecondaryWeapon && !SecondaryWeapon->GetWeaponConfig().CharacterCanWalkWhileFiring)
+	{
+		CurrentMovementSpeed = 0;
 	}
 
 	MovementComponent->MaxWalkSpeed = CurrentMovementSpeed;

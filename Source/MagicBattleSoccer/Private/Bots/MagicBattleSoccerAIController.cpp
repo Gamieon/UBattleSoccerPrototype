@@ -16,7 +16,6 @@ AMagicBattleSoccerAIController::AMagicBattleSoccerAIController(const class FObje
 	: Super(OI)
 {
 	bWantsPlayerState = true;
-	IsAttacking = false;
 }
 
 /** Gets the game state */
@@ -26,16 +25,21 @@ AMagicBattleSoccerGameState* AMagicBattleSoccerAIController::GetGameState()
 	return World->GetGameState<AMagicBattleSoccerGameState>();
 }
 
+/** Gets the bot attack state */
+bool AMagicBattleSoccerAIController::IsAttacking()
+{
+	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
+	return (nullptr != MyBot && (MyBot->WantsPrimaryFire || MyBot->WantsSecondaryFire));
+}
+
 /** Called by the GameMode object when the next round has begun. The character has not yet spawned at this point */
 void AMagicBattleSoccerAIController::RoundHasStarted_Implementation()
 {
-	IsAttacking = false;
 }
 
 /** Called by the GameMode object when the current round has ended */
 void AMagicBattleSoccerAIController::RoundHasEnded_Implementation()
 {
-	IsAttacking = false;
 }
 
 /** Determines whether the character can be spawned at this time */
@@ -361,10 +365,9 @@ void AMagicBattleSoccerAIController::AttackPlayer(AMagicBattleSoccerCharacter* T
 		MyBot->SetActorRotation(faceRot);
 
 		// Start attacking the player if we haven't already
-		if (!IsAttacking)
+		if (!MyBot->WantsPrimaryFire)
 		{
 			MyBot->StartPrimaryWeaponFire();
-			IsAttacking = true;
 		}
 	}
 }
@@ -376,10 +379,9 @@ void AMagicBattleSoccerAIController::StopAttackingPlayer()
 	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != MyBot)
 	{
-		if (IsAttacking)
+		if (MyBot->WantsPrimaryFire)
 		{
-			MyBot->StopPrimaryWeaponFire();
-			IsAttacking = false;
+			MyBot->StopPrimaryWeaponFire(false);
 		}
 	}
 }

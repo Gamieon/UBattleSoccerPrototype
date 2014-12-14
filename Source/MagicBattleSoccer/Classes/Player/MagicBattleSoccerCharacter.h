@@ -89,6 +89,14 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	UFUNCTION()
 	void OnRep_SecondaryWeapon(class AMagicBattleSoccerWeapon* LastWeapon);
 
+	/** The socket where the player holds a weapon in their left hand */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
+	FName LeftHandSocket;
+
+	/** The socket where the player holds a weapon in their right hand */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
+	FName RightHandSocket;
+
 	//Begin AActor interface
 
 	/** spawn inventory, setup initial variables */
@@ -189,9 +197,15 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	*/
 	void EquipSecondaryWeapon(class AMagicBattleSoccerWeapon* Weapon);
 
+	/** Called by the primary weapon object when a non-repeating fire action has completed */
+	void HandlePrimaryWeaponNonRepeatingFireFinished();
+
+	/** Called by the secondary weapon object when a non-repeating fire action has completed */
+	void HandleSecondaryWeaponNonRepeatingFireFinished();
+
 	/** Called to change a player's outfit based on team */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
-	void AssignUniform();
+	void SetTeamColors();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Actions
@@ -200,13 +214,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	void StartPrimaryWeaponFire();
 
 	/** [local] stops weapon fire */
-	void StopPrimaryWeaponFire();
+	void StopPrimaryWeaponFire(bool bForceStop);
 
 	/** [local] starts weapon fire */
 	void StartSecondaryWeaponFire();
 
 	/** [local] stops weapon fire */
-	void StopSecondaryWeaponFire();
+	void StopSecondaryWeaponFire(bool bForceStop);
 
 	/** check if pawn can fire weapon */
 	bool CanFire();

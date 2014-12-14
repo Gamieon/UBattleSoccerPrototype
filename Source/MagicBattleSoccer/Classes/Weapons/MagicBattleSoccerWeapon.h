@@ -28,11 +28,23 @@ struct FWeaponData
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = WeaponStat)
 	float EffectiveRange;
 
+	/** True if the weapon continues to fire in TimeBetweenShot intervals.
+	False if the weapon only fires once, in which case when TimeBetweenShots
+	has expired, the pawn owner will be sent a notification and firing will cease. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = WeaponStat)
+	bool RepeatingFire;
+
+	/** True if the character can walk while firing. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = WeaponStat)
+	bool CharacterCanWalkWhileFiring;
+
 	/** defaults */
 	FWeaponData()
 	{
 		TimeBetweenShots = 0.5f;
-		EffectiveRange = 1400.0f;
+		EffectiveRange = 120.0f;
+		RepeatingFire = false;
+		CharacterCanWalkWhileFiring = false;
 	}
 };
 
@@ -122,6 +134,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Config)
 	FWeaponData WeaponConfig;
 
+public:
+	inline const FWeaponData& GetWeaponConfig() { return WeaponConfig; }
+
+protected:
 	//////////////////////////////////////////////////////////////////////////
 	// Input - server side
 
@@ -173,20 +189,4 @@ protected:
 
 	/** get the muzzle location of the weapon */
 	FVector GetMuzzleLocation() const;
-
-public:
-	//////////////////////////////////////////////////////////////////////////
-	// LEGACY
-
-	/** True if the weapon is being fired */
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
-	//bool IsFiring;
-
-	/** Activates the weapon's primary function */
-	//UFUNCTION(BlueprintNativeEvent, Category = Soccer)
-	//void BeginFire();
-
-	/** Deactivates the weapon's primary function */
-	//UFUNCTION(BlueprintNativeEvent, Category = Soccer)
-	//void CeaseFire();
 };
