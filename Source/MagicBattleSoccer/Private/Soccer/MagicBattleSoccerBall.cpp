@@ -283,8 +283,6 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerCharacter* Player)
 			{
 				// Assign the last possessor
 				LastPossessor = OldPossessor;
-				// Update the old possessor's walking speed
-				OldPossessor->UpdateMovementSpeed();
 				// Assign the possessor to ignore
 				PossessorToIgnore = OldPossessor;
 			}
@@ -293,15 +291,13 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerCharacter* Player)
 			UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
 			if (nullptr != Possessor)
 			{
-				Possessor->StopPrimaryWeaponFire(true);
-				Possessor->StopSecondaryWeaponFire(true);
+				Possessor->StopPrimaryWeaponFire();
+				Possessor->StopSecondaryWeaponFire();
 				Root->PutRigidBodyToSleep();
 				Root->SetSimulatePhysics(false);
 				Root->SetEnableGravity(false);
 				SetActorEnableCollision(false);
 				MoveWithPossessor();
-				// Slow the possessor down for game balancing
-				Possessor->UpdateMovementSpeed();
 			}
 			else
 			{

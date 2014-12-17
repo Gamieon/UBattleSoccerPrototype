@@ -24,7 +24,7 @@ struct FMeleeWeaponData
 	FMeleeWeaponData()
 	{
 		Damage = 70;
-		DamageRadius = 200.0f;
+		DamageRadius = 250.f;
 		DamageType = UDamageType::StaticClass();
 	}
 };

@@ -23,8 +23,6 @@ AMagicBattleSoccerCharacter::AMagicBattleSoccerCharacter(const class FObjectInit
 
 	PrimaryWeapon = nullptr;
 	SecondaryWeapon = nullptr;
-	WantsPrimaryFire = false;
-	WantsSecondaryFire = false;
 	LastTakeHitTimeTimeout = 0;
 }
 
@@ -69,7 +67,7 @@ void AMagicBattleSoccerCharacter::OnRep_PrimaryWeapon(AMagicBattleSoccerWeapon* 
 
 void AMagicBattleSoccerCharacter::OnRep_SecondaryWeapon(AMagicBattleSoccerWeapon* LastWeapon)
 {
-	SetPrimaryWeapon(SecondaryWeapon, LastWeapon);
+	SetSecondaryWeapon(SecondaryWeapon, LastWeapon);
 }
 
 /** Called on clients when the server changes this character's default movement speed */
@@ -149,6 +147,9 @@ void AMagicBattleSoccerCharacter::Tick(float DeltaSeconds)
 			Ball->SetPossessor(this);
 		}
 	}
+
+	// Update the movement speed
+	UpdateMovementSpeed();
 }
 
 /** This occurs when play ends */
@@ -510,23 +511,6 @@ void AMagicBattleSoccerCharacter::EquipSecondaryWeapon(AMagicBattleSoccerWeapon*
 	}
 }
 
-/** Called by the primary weapon object when a non-repeating fire action has completed */
-void AMagicBattleSoccerCharacter::HandlePrimaryWeaponNonRepeatingFireFinished()
-{
-	// This not only gracefully stops the weapon from firing but also changes WantsPrimaryFire
-	// so that the player can resume locomotion
-	StopPrimaryWeaponFire(true);
-}
-
-/** Called by the secondary weapon object when a non-repeating fire action has completed */
-void AMagicBattleSoccerCharacter::HandleSecondaryWeaponNonRepeatingFireFinished()
-{
-	// This not only gracefully stops the weapon from firing but also changes WantsPrimaryFire
-	// so that the player can resume locomotion
-	StopSecondaryWeaponFire(true);
-}
-
-
 /** Called to change a player's outfit based on team */
 void AMagicBattleSoccerCharacter::SetTeamColors_Implementation()
 {
@@ -539,70 +523,36 @@ void AMagicBattleSoccerCharacter::SetTeamColors_Implementation()
 /** [local] starts weapon fire */
 void AMagicBattleSoccerCharacter::StartPrimaryWeaponFire()
 {
-	if (!WantsPrimaryFire)
+	if (nullptr != PrimaryWeapon)
 	{
-		WantsPrimaryFire = true;
-		UpdateMovementSpeed();
-		if (PrimaryWeapon)
-		{
-			PrimaryWeapon->StartFire();
-		}
+		PrimaryWeapon->StartFire();
 	}
 }
 
 /** [local] stops weapon fire */
-void AMagicBattleSoccerCharacter::StopPrimaryWeaponFire(bool bForceStop)
+void AMagicBattleSoccerCharacter::StopPrimaryWeaponFire()
 {
-	if (WantsPrimaryFire)
+	if (nullptr != PrimaryWeapon)
 	{
-		if (!bForceStop && PrimaryWeapon->GetCurrentState() == EWeaponState::Firing && !PrimaryWeapon->GetWeaponConfig().RepeatingFire)
-		{
-			// If the weapon is currently firing and it's not repeating fire, we must wait for the weapon to finish firing.
-		}
-		else
-		{
-			WantsPrimaryFire = false;
-			UpdateMovementSpeed();
-			if (nullptr != PrimaryWeapon)
-			{
-				PrimaryWeapon->StopFire();
-			}
-		}
+		PrimaryWeapon->StopFire();
 	}
 }
 
 /** [local] starts secondary attack */
 void AMagicBattleSoccerCharacter::StartSecondaryWeaponFire()
 {
-	if (!WantsSecondaryFire)
+	if (nullptr != SecondaryWeapon)
 	{
-		WantsSecondaryFire = true;
-		UpdateMovementSpeed();
-		if (nullptr != SecondaryWeapon)
-		{
-			SecondaryWeapon->StartFire();
-		}
+		SecondaryWeapon->StartFire();
 	}
 }
 
 /** [local] stops secondary attack */
-void AMagicBattleSoccerCharacter::StopSecondaryWeaponFire(bool bForceStop)
+void AMagicBattleSoccerCharacter::StopSecondaryWeaponFire()
 {
-	if (WantsSecondaryFire)
+	if (nullptr != SecondaryWeapon)
 	{
-		if (!bForceStop && PrimaryWeapon->GetCurrentState() == EWeaponState::Firing && !PrimaryWeapon->GetWeaponConfig().RepeatingFire)
-		{
-			// If the weapon is currently firing and it's not repeating fire, we must wait for the weapon to finish firing.
-		}
-		else
-		{
-			WantsSecondaryFire = false;
-			UpdateMovementSpeed();
-			if (nullptr != SecondaryWeapon)
-			{
-				SecondaryWeapon->StopFire();
-			}
-		}
+		SecondaryWeapon->StopFire();
 	}
 }
 
@@ -612,30 +562,37 @@ bool AMagicBattleSoccerCharacter::CanFire()
 	return IsAlive() && GetGameState()->RoundInProgress;
 }
 
-/** [server] Updates the movement speed based on conditions (ball possessor, etc) */
+/** [local + server] Updates the movement speed based on conditions (ball possessor, etc) */
 void AMagicBattleSoccerCharacter::UpdateMovementSpeed()
 {
 	UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
-	AMagicBattleSoccerBall *Ball = GetSoccerBall();
-
-	// Always begin with this
-	CurrentMovementSpeed = DefaultMovementSpeed;
-
-	// Reduce speed if we're the ball carrier
-	if (nullptr != Ball->Possessor && Ball->Possessor->GetUniqueID() == GetUniqueID())
-	{		
-		CurrentMovementSpeed = DefaultMovementSpeed * 0.75f;
-	}
-	else if (WantsPrimaryFire && nullptr != PrimaryWeapon && !PrimaryWeapon->GetWeaponConfig().CharacterCanWalkWhileFiring)
+	if (ROLE_Authority == Role)
 	{
-		CurrentMovementSpeed = 0;
-	}
-	else if (WantsSecondaryFire && nullptr != SecondaryWeapon && !SecondaryWeapon->GetWeaponConfig().CharacterCanWalkWhileFiring)
-	{
-		CurrentMovementSpeed = 0;
-	}
+		AMagicBattleSoccerBall *Ball = GetSoccerBall();
 
+		// Always begin with this
+		CurrentMovementSpeed = DefaultMovementSpeed;
+
+		// Reduce speed if we're the ball carrier
+		if (nullptr != Ball->Possessor && Ball->Possessor->GetUniqueID() == GetUniqueID())
+		{
+			CurrentMovementSpeed = DefaultMovementSpeed * 0.75f;
+		}
+		else if (IsWeaponPreventingPlayerMove(PrimaryWeapon) || IsWeaponPreventingPlayerMove(SecondaryWeapon))
+		{
+			CurrentMovementSpeed = 0;
+		}		
+	}
 	MovementComponent->MaxWalkSpeed = CurrentMovementSpeed;
+}
+
+/** returns true if the current weapon is preventing the player from moving*/
+bool AMagicBattleSoccerCharacter::IsWeaponPreventingPlayerMove(AMagicBattleSoccerWeapon* Weapon)
+{
+	return (nullptr != Weapon
+		&& !Weapon->GetWeaponConfig().CharacterCanWalkWhileFiring
+		&& (Weapon->GetCurrentState() == EWeaponState::Firing || (GetWorld()->GetTimeSeconds() < PrimaryWeapon->LastFireTime + PrimaryWeapon->GetWeaponConfig().AnimationTime))
+		);
 }
 
 /** [local] Kicks the ball with a force */

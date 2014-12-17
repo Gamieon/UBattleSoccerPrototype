@@ -13,15 +13,19 @@ AMagicBattleSoccerWeapon_Projectile::AMagicBattleSoccerWeapon_Projectile(const c
 
 void AMagicBattleSoccerWeapon_Projectile::FireWeapon()
 {
-	FVector ShootDir = GetAdjustedAim();
-	FVector Origin = GetMuzzleLocation() + ShootDir * 50.0f;
-
-	//DrawDebugSphere(GetWorld(), Origin + ShootDir * 400.0f, 50.0f, 16, FColor::Red, true);
-
-	// If it's not a unit vector then it's invalid
-	if (ShootDir.IsUnit())
+	if (nullptr != Instigator)
 	{
-		ServerFireProjectile(Origin, ShootDir);
+		FVector ShootDir = GetAdjustedAim();
+		// We should be using GetMuzzleLocation(), but this seems to work better
+		FVector Origin = Instigator->GetActorLocation() + ShootDir * 80.0f;
+
+		//DrawDebugSphere(GetWorld(), Origin + ShootDir * 400.0f, 50.0f, 16, FColor::Red, true);
+
+		// If it's not a unit vector then it's invalid
+		if (ShootDir.IsUnit())
+		{
+			ServerFireProjectile(Origin, ShootDir);
+		}
 	}
 }
 

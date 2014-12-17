@@ -9,6 +9,7 @@
 #include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerBall.h"
+#include "MagicBattleSoccerWeapon.h"
 #include "Engine/TriggerBox.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 
@@ -29,7 +30,12 @@ AMagicBattleSoccerGameState* AMagicBattleSoccerAIController::GetGameState()
 bool AMagicBattleSoccerAIController::IsAttacking()
 {
 	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
-	return (nullptr != MyBot && (MyBot->WantsPrimaryFire || MyBot->WantsSecondaryFire));
+	return (nullptr != MyBot 
+		 && (
+				(nullptr != MyBot->PrimaryWeapon && MyBot->PrimaryWeapon->GetCurrentState() == EWeaponState::Firing)
+				|| (nullptr != MyBot->SecondaryWeapon && MyBot->SecondaryWeapon->GetCurrentState() == EWeaponState::Firing)
+			)
+		);
 }
 
 /** Called by the GameMode object when the next round has begun. The character has not yet spawned at this point */
@@ -365,10 +371,7 @@ void AMagicBattleSoccerAIController::AttackPlayer(AMagicBattleSoccerCharacter* T
 		MyBot->SetActorRotation(faceRot);
 
 		// Start attacking the player if we haven't already
-		if (!MyBot->WantsPrimaryFire)
-		{
-			MyBot->StartPrimaryWeaponFire();
-		}
+		MyBot->StartPrimaryWeaponFire();
 	}
 }
 
@@ -379,10 +382,7 @@ void AMagicBattleSoccerAIController::StopAttackingPlayer()
 	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != MyBot)
 	{
-		if (MyBot->WantsPrimaryFire)
-		{
-			MyBot->StopPrimaryWeaponFire(false);
-		}
+		MyBot->StopPrimaryWeaponFire();
 	}
 }
 

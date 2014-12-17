@@ -35,6 +35,9 @@ public:
 	/** Gets the approximate current network time in milliseconds. */
 	int64 GetNetworkTime();
 
+	/** Not null if we need to synchronize the character rotation with the weapon aim next time Tick is called */
+	AMagicBattleSoccerWeapon* WeaponToSyncCharacterRotationWith;
+
 	//Begin AController interface
 
 	/** sets up input */
@@ -42,6 +45,8 @@ public:
 
 	/** This occurs when play begins */
 	virtual void BeginPlay() override;
+
+	void Tick(float DeltaSeconds) override;
 
 	/** update camera when pawn dies */
 	virtual void PawnPendingDestroy(APawn* inPawn) override;
@@ -58,6 +63,14 @@ public:
 	/** Spawns the character */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
 	void SpawnCharacter();
+
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerSpawnCharacter();
+
+	void TrySyncCharacterRotationToWeaponAim(AMagicBattleSoccerWeapon *Weapon);
+
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerForceActorRotation(FRotator rotation);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Input handlers

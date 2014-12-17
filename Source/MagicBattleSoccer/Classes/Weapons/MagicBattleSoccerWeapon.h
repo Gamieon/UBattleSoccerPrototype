@@ -3,18 +3,16 @@
 #include "GameFramework/Actor.h"
 #include "MagicBattleSoccerWeapon.generated.h"
 
-namespace EWeaponState
+UENUM(BlueprintType)
+enum class EWeaponState : uint8
 {
-	enum Type
-	{
-		Idle,
-		Firing,
-		Reloading,
-		Equipping,
-	};
-}
+	Idle,
+	Firing,
+	//Reloading,
+	//Equipping,
+};
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FWeaponData
 {
 	GENERATED_USTRUCT_BODY()
@@ -22,6 +20,10 @@ struct FWeaponData
 	/** time between two consecutive shots */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = WeaponStat)
 	float TimeBetweenShots;
+
+	/** the duration of the animation when attacking */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = WeaponStat)
+	float AnimationTime;
 
 	/** The effective range of the weapon. Used in AI to determine
 	whether the bot should fire at another soccer player. */
@@ -42,6 +44,7 @@ struct FWeaponData
 	FWeaponData()
 	{
 		TimeBetweenShots = 0.5f;
+		AnimationTime = 0.5f;
 		EffectiveRange = 120.0f;
 		RepeatingFire = false;
 		CharacterCanWalkWhileFiring = false;
@@ -67,10 +70,8 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon : public AActor
 	/** weapon is refiring */
 	uint32 bRefiring;
 
-	/** primary weapon state */
-	EWeaponState::Type CurrentState;
-
 	/** time of last successful weapon fire */
+	UPROPERTY(BlueprintReadOnly, Category = ActiveWeapon)
 	float LastFireTime;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -119,7 +120,8 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon : public AActor
 	// Reading data
 
 	/** get primary weapon state */
-	EWeaponState::Type GetCurrentState() const;
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	EWeaponState GetCurrentState() const;
 
 	/** set the weapon's owning pawn */
 	void SetOwningPawn(AMagicBattleSoccerCharacter* AShooterCharacter);
@@ -150,6 +152,15 @@ protected:
 	//////////////////////////////////////////////////////////////////////////
 	// Weapon usage
 
+	/** [local] weapon state. this is first changed on the local player's instance, and then changed
+	on the server's instance once the server gets the ServerStartFire RPC. */
+	UPROPERTY(Transient)
+	EWeaponState LocalState;
+
+	/** the weapon state as it is on the server.  */
+	UPROPERTY(Replicated, Transient, Replicated)
+	EWeaponState ServerState;
+
 	/** [local] weapon specific fire implementation */
 	virtual void FireWeapon() PURE_VIRTUAL(AMagicBattleSoccerWeapon::FireWeapon, );
 
@@ -167,7 +178,7 @@ protected:
 	virtual void OnBurstFinished();
 
 	/** update weapon state */
-	void SetWeaponState(EWeaponState::Type NewState);
+	void SetWeaponState(EWeaponState NewState);
 
 	/** determine primary weapon state */
 	void DetermineWeaponState();
@@ -181,6 +192,7 @@ protected:
 	/** detaches weapon mesh from pawn */
 	void DetachMeshFromPawn();
 
+public:
 	//////////////////////////////////////////////////////////////////////////
 	// Weapon usage helpers
 

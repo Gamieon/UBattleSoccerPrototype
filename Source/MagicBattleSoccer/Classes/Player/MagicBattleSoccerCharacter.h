@@ -23,14 +23,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
 	float Health;
 
-	/** current firing state */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
-	bool WantsPrimaryFire;
-
-	/** secondary attack state */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
-	bool WantsSecondaryFire;
-
 	/** The current movement speed for this player. This changes if the player
 	possesses the ball */
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentMovementSpeed)
@@ -197,12 +189,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	*/
 	void EquipSecondaryWeapon(class AMagicBattleSoccerWeapon* Weapon);
 
-	/** Called by the primary weapon object when a non-repeating fire action has completed */
-	void HandlePrimaryWeaponNonRepeatingFireFinished();
-
-	/** Called by the secondary weapon object when a non-repeating fire action has completed */
-	void HandleSecondaryWeaponNonRepeatingFireFinished();
-
 	/** Called to change a player's outfit based on team */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
 	void SetTeamColors();
@@ -214,19 +200,22 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	void StartPrimaryWeaponFire();
 
 	/** [local] stops weapon fire */
-	void StopPrimaryWeaponFire(bool bForceStop);
+	void StopPrimaryWeaponFire();
 
 	/** [local] starts weapon fire */
 	void StartSecondaryWeaponFire();
 
 	/** [local] stops weapon fire */
-	void StopSecondaryWeaponFire(bool bForceStop);
+	void StopSecondaryWeaponFire();
 
 	/** check if pawn can fire weapon */
 	bool CanFire();
 
-	/** [server] Updates the movement speed based on conditions (ball possessor, etc) */
+	/** [local + server] Updates the movement speed based on conditions (ball possessor, etc) */
 	void UpdateMovementSpeed();
+
+	/** returns true if the current weapon is preventing the player from moving*/
+	bool IsWeaponPreventingPlayerMove(AMagicBattleSoccerWeapon* Weapon);
 
 	/** [local] Kicks the ball with a force */
 	void KickBall(const FVector& Force);

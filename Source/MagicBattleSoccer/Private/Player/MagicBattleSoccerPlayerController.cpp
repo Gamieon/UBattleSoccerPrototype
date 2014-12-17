@@ -12,9 +12,12 @@ using namespace std::chrono;
 AMagicBattleSoccerPlayerController::AMagicBattleSoccerPlayerController(const class FObjectInitializer& OI)
 	: Super(OI)
 {
+	this->SetActorTickEnabled(true);
+	PrimaryActorTick.bCanEverTick = true;
 	timeServerTimeRequestWasPlaced = 0;
 	timeOffsetFromServer = 0;
 	timeOffsetIsValid = false;
+	WeaponToSyncCharacterRotationWith = nullptr;
 }
 
 /** Gets the game state */
@@ -78,6 +81,28 @@ void AMagicBattleSoccerPlayerController::BeginPlay()
 	}
 }
 
+void AMagicBattleSoccerPlayerController::Tick(float DeltaSeconds)
+{
+	// Characters should face the direction they're attacking if they're using a repeating weapon like a machine gun or flamethrower
+	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
+	if (nullptr != PlayerPawn && IsLocalController())
+	{
+		TrySyncCharacterRotationToWeaponAim(PlayerPawn->PrimaryWeapon);
+		TrySyncCharacterRotationToWeaponAim(PlayerPawn->SecondaryWeapon);
+
+		if (nullptr != WeaponToSyncCharacterRotationWith)
+		{
+			FVector AttackDir = WeaponToSyncCharacterRotationWith->GetAdjustedAim();
+			GetPawn()->SetActorRotation(AttackDir.Rotation());
+			if (Role < ROLE_Authority)
+			{
+				ServerForceActorRotation(AttackDir.Rotation());
+			}
+			WeaponToSyncCharacterRotationWith = nullptr;
+		}
+	}
+}
+
 void AMagicBattleSoccerPlayerController::PawnPendingDestroy(APawn* inPawn)
 {
 	LastDeathLocation = inPawn->GetActorLocation();
@@ -125,13 +150,45 @@ bool AMagicBattleSoccerPlayerController::FindDeathCameraSpot(FVector& CameraLoca
 bool AMagicBattleSoccerPlayerController::CanSpawnCharacter()
 {
 	AMagicBattleSoccerGameState *GameState = GetGameState();
-	return (Role == ROLE_Authority && nullptr != GameState && GameState->RoundInProgress);
+	return (Role == ROLE_Authority && nullptr == GetPawn() && nullptr != GameState && GameState->RoundInProgress);
 }
 
 /** Spawns the character */
 void AMagicBattleSoccerPlayerController::SpawnCharacter_Implementation()
 {
 	// Nothing to do here -- the blueprint should do all the work and it should only be done on the server
+}
+
+bool AMagicBattleSoccerPlayerController::ServerSpawnCharacter_Validate()
+{
+	return CanSpawnCharacter();
+}
+
+void AMagicBattleSoccerPlayerController::ServerSpawnCharacter_Implementation()
+{
+	SpawnCharacter();
+}
+
+void AMagicBattleSoccerPlayerController::TrySyncCharacterRotationToWeaponAim(AMagicBattleSoccerWeapon *Weapon)
+{
+	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
+	if (nullptr != PlayerPawn && nullptr != Weapon && nullptr == WeaponToSyncCharacterRotationWith && Weapon->GetCurrentState() == EWeaponState::Firing && Weapon->GetWeaponConfig().RepeatingFire)
+	{
+		WeaponToSyncCharacterRotationWith = Weapon;
+	}
+}
+
+bool AMagicBattleSoccerPlayerController::ServerForceActorRotation_Validate(FRotator rotation)
+{
+	return true;
+}
+
+void AMagicBattleSoccerPlayerController::ServerForceActorRotation_Implementation(FRotator rotation)
+{
+	if (nullptr != GetPawn())
+	{
+		GetPawn()->SetActorRotation(rotation);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -188,7 +245,7 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 		}
 		else if (nullptr != PlayerPawn->PrimaryWeapon)
 		{
-			PlayerPawn->StartPrimaryWeaponFire();
+			PlayerPawn->StartPrimaryWeaponFire();			
 		}
 	}
 }
@@ -199,7 +256,7 @@ void AMagicBattleSoccerPlayerController::OnStopPrimaryAction()
 	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
-		PlayerPawn->StopPrimaryWeaponFire(false);
+		PlayerPawn->StopPrimaryWeaponFire();
 	}
 }
 
@@ -222,7 +279,7 @@ void AMagicBattleSoccerPlayerController::OnStopSecondaryAction()
 	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
-		PlayerPawn->StopSecondaryWeaponFire(false);
+		PlayerPawn->StopSecondaryWeaponFire();
 	}
 }
 
@@ -239,7 +296,14 @@ void AMagicBattleSoccerPlayerController::OnRespawn()
 	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr == PlayerPawn)
 	{
-		SpawnCharacter();
+		if (Role < ROLE_Authority)
+		{
+			ServerSpawnCharacter();
+		}
+		else
+		{
+			SpawnCharacter();
+		}
 	}
 }
 

@@ -12,8 +12,9 @@ AMagicBattleSoccerWeapon::AMagicBattleSoccerWeapon(const class FObjectInitialize
 	bIsEquipped = false;
 	bWantsToFire = false;
 	bRefiring = false;
-	CurrentState = EWeaponState::Idle;
-	LastFireTime = 0.0f;
+	LocalState = EWeaponState::Idle;
+	ServerState = EWeaponState::Idle;
+	LastFireTime = -99999.0f;
 
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
@@ -21,9 +22,6 @@ AMagicBattleSoccerWeapon::AMagicBattleSoccerWeapon(const class FObjectInitialize
 	bReplicates = true;
 	bReplicateInstigator = true;
 	bNetUseOwnerRelevancy = true;
-
-	// LEGACY
-	//IsFiring = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -34,6 +32,7 @@ void AMagicBattleSoccerWeapon::GetLifetimeReplicatedProps(TArray< FLifetimePrope
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AMagicBattleSoccerWeapon, MyPawn);
+	DOREPLIFETIME(AMagicBattleSoccerWeapon, ServerState);
 }
 
 void AMagicBattleSoccerWeapon::OnRep_MyPawn()
@@ -96,19 +95,29 @@ void AMagicBattleSoccerWeapon::StopFire()
 //////////////////////////////////////////////////////////////////////////
 // Control
 
+/** check if weapon can fire */
 bool AMagicBattleSoccerWeapon::CanFire() const
 {
 	bool bCanFire = (nullptr != MyPawn) && MyPawn->CanFire();
-	bool bStateOKToFire = ((CurrentState == EWeaponState::Idle) || (CurrentState == EWeaponState::Firing));
+	bool bStateOKToFire = ((LocalState == EWeaponState::Idle) || (LocalState == EWeaponState::Firing));
 	return ((bCanFire == true) && (bStateOKToFire == true));
 }
 
 //////////////////////////////////////////////////////////////////////////
 // Reading data
 
-EWeaponState::Type AMagicBattleSoccerWeapon::GetCurrentState() const
+EWeaponState AMagicBattleSoccerWeapon::GetCurrentState() const
 {
-	return CurrentState;
+	if (ROLE_Authority == Role
+		|| (MyPawn && MyPawn->IsLocallyControlled())
+		)
+	{
+		return LocalState;
+	}
+	else
+	{
+		return ServerState;
+	}	
 }
 
 void AMagicBattleSoccerWeapon::SetOwningPawn(AMagicBattleSoccerCharacter* NewOwner)
@@ -176,41 +185,45 @@ void AMagicBattleSoccerWeapon::HandleFiring()
 			ServerHandleFiring();
 		}
 
+		// Make the player aim in the direction they're firing if they're not running
+		AMagicBattleSoccerPlayerController* const PlayerController = Instigator ? Cast<AMagicBattleSoccerPlayerController>(Instigator->Controller) : nullptr;
+		if (nullptr != PlayerController
+			&& nullptr != PlayerController->GetPawn()
+			&& nullptr != PlayerController->GetPawn()->GetMovementComponent()
+			&& PlayerController->GetPawn()->GetMovementComponent()->Velocity.Size() < 0.001f)
+		{
+			// We can't aim immediately because that could put the camera out of sync with the pawn. Just assign ourselves to the controller and it
+			// will take care of things in the next Tick().
+			PlayerController->WeaponToSyncCharacterRotationWith = this;
+		}
+
 		// setup refire timer
-		bRefiring = (CurrentState == EWeaponState::Firing && WeaponConfig.TimeBetweenShots > 0.0f && WeaponConfig.RepeatingFire);
+		bRefiring = (LocalState == EWeaponState::Firing && WeaponConfig.TimeBetweenShots > 0.0f && WeaponConfig.RepeatingFire);
 		if (bRefiring)
 		{
 			// Start a timer to handle repeating firing
 			GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerWeapon::HandleFiring, WeaponConfig.TimeBetweenShots, false);
-		}
-		else
-		{
-			// Start a timer to tell the controlling pawn that the non-repeating fire has completed. We need the controlling pawn
-			// to stop it because the controlling pawn must also update its own variables related to firing.
-			if (this == MyPawn->PrimaryWeapon)
-			{
-				GetWorldTimerManager().SetTimer(MyPawn, &AMagicBattleSoccerCharacter::HandlePrimaryWeaponNonRepeatingFireFinished, WeaponConfig.TimeBetweenShots, false);
-			}
-			else if (this == MyPawn->SecondaryWeapon)
-			{
-				GetWorldTimerManager().SetTimer(MyPawn, &AMagicBattleSoccerCharacter::HandleSecondaryWeaponNonRepeatingFireFinished, WeaponConfig.TimeBetweenShots, false);
-			}			
 		}
 	}
 
 	LastFireTime = GetWorld()->GetTimeSeconds();
 }
 
-void AMagicBattleSoccerWeapon::SetWeaponState(EWeaponState::Type NewState)
+void AMagicBattleSoccerWeapon::SetWeaponState(EWeaponState NewState)
 {
-	const EWeaponState::Type PrevState = CurrentState;
+	const EWeaponState PrevState = LocalState;
 
 	if (PrevState == EWeaponState::Firing && NewState != EWeaponState::Firing)
 	{
 		OnBurstFinished();
 	}
 
-	CurrentState = NewState;
+	LocalState = NewState;
+
+	if (ROLE_Authority == Role)
+	{
+		ServerState = NewState;
+	}
 
 	if (PrevState != EWeaponState::Firing && NewState == EWeaponState::Firing)
 	{
@@ -219,13 +232,13 @@ void AMagicBattleSoccerWeapon::SetWeaponState(EWeaponState::Type NewState)
 }
 
 void AMagicBattleSoccerWeapon::DetermineWeaponState()
-{
-	EWeaponState::Type NewState = EWeaponState::Idle;
+{	
+	EWeaponState NewState = EWeaponState::Idle;
 
-	if (bIsEquipped)
+	if (nullptr != MyPawn && bIsEquipped)
 	{
-		if ((bWantsToFire == true) && (CanFire() == true))
-		{
+		if (bWantsToFire && CanFire())
+		{			
 			NewState = EWeaponState::Firing;
 		}
 	}
@@ -310,6 +323,7 @@ FVector AMagicBattleSoccerWeapon::GetAdjustedAim() const
 				/ FVector::DotProduct(WorldDirection, FVector::UpVector);
 			FVector GroundPoint = WorldLocation + WorldDirection * d;
 			FinalAim = GroundPoint - Origin;
+			FinalAim.Z = 0.f;
 			FinalAim.Normalize();
 		}
 	}
@@ -347,20 +361,3 @@ void AMagicBattleSoccerWeapon::OnBurstFinished()
 	GetWorldTimerManager().ClearTimer(this, &AMagicBattleSoccerWeapon::HandleFiring);
 	bRefiring = false;
 }
-
-//////////////////////////////////////////////////////////////////////////
-// LEGACY
-
-
-/** Activates the weapon's primary function */
-/*void AMagicBattleSoccerWeapon::BeginFire_Implementation()
-{
-	IsFiring = true;
-}*/
-
-/** Deactivates the weapon's primary function */
-/*void AMagicBattleSoccerWeapon::CeaseFire_Implementation()
-{
-	IsFiring = false;
-}*/
-
