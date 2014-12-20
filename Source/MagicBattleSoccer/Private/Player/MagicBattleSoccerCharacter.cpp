@@ -521,38 +521,22 @@ void AMagicBattleSoccerCharacter::SetTeamColors_Implementation()
 // Actions
 
 /** [local] starts weapon fire */
-void AMagicBattleSoccerCharacter::StartPrimaryWeaponFire()
+void AMagicBattleSoccerCharacter::StartWeaponFire(AMagicBattleSoccerWeapon* Weapon)
 {
-	if (nullptr != PrimaryWeapon)
+	if (nullptr != Weapon
+		&& (Weapon == PrimaryWeapon || Weapon == SecondaryWeapon))
 	{
-		PrimaryWeapon->StartFire();
+		Weapon->StartFire();
 	}
 }
 
 /** [local] stops weapon fire */
-void AMagicBattleSoccerCharacter::StopPrimaryWeaponFire()
+void AMagicBattleSoccerCharacter::StopWeaponFire(AMagicBattleSoccerWeapon* Weapon)
 {
-	if (nullptr != PrimaryWeapon)
+	if (nullptr != Weapon
+		&& (Weapon == PrimaryWeapon || Weapon == SecondaryWeapon))
 	{
-		PrimaryWeapon->StopFire();
-	}
-}
-
-/** [local] starts secondary attack */
-void AMagicBattleSoccerCharacter::StartSecondaryWeaponFire()
-{
-	if (nullptr != SecondaryWeapon)
-	{
-		SecondaryWeapon->StartFire();
-	}
-}
-
-/** [local] stops secondary attack */
-void AMagicBattleSoccerCharacter::StopSecondaryWeaponFire()
-{
-	if (nullptr != SecondaryWeapon)
-	{
-		SecondaryWeapon->StopFire();
+		Weapon->StopFire();
 	}
 }
 

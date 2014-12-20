@@ -51,6 +51,22 @@ struct FWeaponData
 	}
 };
 
+USTRUCT(BlueprintType)
+struct FWeaponActorEffectiveness
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** The actor affected by this weapon */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponEffectiveness)
+	class AActor *Actor;
+
+	/** The health change factor [-1,1]. A value of 1 means the actor would be destroyed.
+	A value of -1 means the actor would be restored to full health. A value of zero means
+	this weapon would have no effect on the actor */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponEffectiveness)
+	float HealthChange;
+};
+
 /**
 * Actor is the base class for an Object that can be placed or spawned in a level.
 * Actors may contain a collection of ActorComponents, which can be used to control how actors move, how they are rendered, etc.
@@ -104,6 +120,14 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon : public AActor
 	//////////////////////////////////////////////////////////////////////////
 	// Input
 
+	/** [local + server] sets the firing target */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	virtual void SetTargetLocation(FVector TargetLocation);
+
+	/** [local + server] sets the firing target */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	virtual void SetTargetLocationAdjustedForVelocity(FVector TargetLocation, FVector TargetVelocity);
+
 	/** [local + server] start weapon fire */
 	virtual void StartFire();
 
@@ -139,9 +163,26 @@ protected:
 public:
 	inline const FWeaponData& GetWeaponConfig() { return WeaponConfig; }
 
+public:
+	//////////////////////////////////////////////////////////////////////////
+	// AI
+
+	/** Returns how effective this weapon would be on scene actors in the world's current state */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	virtual TArray<FWeaponActorEffectiveness> GetCurrentEffectiveness();
+
 protected:
+	/** the world coordinate that the player wants to attack */
+	FVector TargetLocation;
+
 	//////////////////////////////////////////////////////////////////////////
 	// Input - server side
+
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerSetTargetLocation(FVector TargetLocation);
+
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerSetTargetLocationAdjustedForVelocity(FVector TargetLocation, FVector TargetVelocity);
 
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerStartFire();
@@ -191,14 +232,4 @@ protected:
 
 	/** detaches weapon mesh from pawn */
 	void DetachMeshFromPawn();
-
-public:
-	//////////////////////////////////////////////////////////////////////////
-	// Weapon usage helpers
-
-	/** Get the aim of the weapon, allowing for adjustments to be made by the weapon */
-	virtual FVector GetAdjustedAim() const;
-
-	/** get the muzzle location of the weapon */
-	FVector GetMuzzleLocation() const;
 };

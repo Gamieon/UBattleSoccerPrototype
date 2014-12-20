@@ -17,7 +17,7 @@ AMagicBattleSoccerPlayerController::AMagicBattleSoccerPlayerController(const cla
 	timeServerTimeRequestWasPlaced = 0;
 	timeOffsetFromServer = 0;
 	timeOffsetIsValid = false;
-	WeaponToSyncCharacterRotationWith = nullptr;
+	bFaceMouseCursorInTick = false;
 }
 
 /** Gets the game state */
@@ -87,18 +87,31 @@ void AMagicBattleSoccerPlayerController::Tick(float DeltaSeconds)
 	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn && IsLocalController())
 	{
-		TrySyncCharacterRotationToWeaponAim(PlayerPawn->PrimaryWeapon);
-		TrySyncCharacterRotationToWeaponAim(PlayerPawn->SecondaryWeapon);
-
-		if (nullptr != WeaponToSyncCharacterRotationWith)
+		if (nullptr != PlayerPawn->PrimaryWeapon
+			&& PlayerPawn->PrimaryWeapon->GetCurrentState() == EWeaponState::Firing
+			&& PlayerPawn->PrimaryWeapon->GetWeaponConfig().RepeatingFire)
 		{
-			FVector AttackDir = WeaponToSyncCharacterRotationWith->GetAdjustedAim();
+			PlayerPawn->PrimaryWeapon->SetTargetLocation(FindMouseWorldLocation());
+			bFaceMouseCursorInTick = true;
+		}
+		else if (nullptr != PlayerPawn->SecondaryWeapon
+			&& PlayerPawn->SecondaryWeapon->GetCurrentState() == EWeaponState::Firing
+			&& PlayerPawn->SecondaryWeapon->GetWeaponConfig().RepeatingFire)
+		{
+			PlayerPawn->SecondaryWeapon->SetTargetLocation(FindMouseWorldLocation());
+			bFaceMouseCursorInTick = true;
+		}
+
+		// Can also be true if set from elsewhere
+		if (bFaceMouseCursorInTick)
+		{
+			FVector AttackDir = FindMouseAim();
 			GetPawn()->SetActorRotation(AttackDir.Rotation());
 			if (Role < ROLE_Authority)
 			{
 				ServerForceActorRotation(AttackDir.Rotation());
 			}
-			WeaponToSyncCharacterRotationWith = nullptr;
+			bFaceMouseCursorInTick = false;
 		}
 	}
 }
@@ -114,6 +127,66 @@ void AMagicBattleSoccerPlayerController::PawnPendingDestroy(APawn* inPawn)
 
 	SetInitialLocationAndRotation(CameraLocation, CameraRotation);
 	SetViewTarget(this);
+}
+
+/** Gets the position of the mouse cursor in world coordinates */
+FVector AMagicBattleSoccerPlayerController::FindMouseWorldLocation()
+{
+	FVector WorldLocation;
+	FVector WorldDirection;
+	APawn *Pawn = GetPawn();
+	if (nullptr == Pawn)
+	{
+		// Nothing we can do
+		return FVector::ZeroVector;
+	}
+	else if (!DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
+	{
+		// Failed. Return the actor's location
+		return Pawn->GetActorLocation();
+	}
+	else
+	{
+		// Calculate the point on the plane Z = ActorLocationZ that the mouse is pointing at. Remember we're not projecting onto the ground,
+		// we're projecting onto the plane that contains the player.
+		FVector Origin = Pawn->GetActorLocation();
+		float d = FVector::DotProduct((FVector(0, 0, Origin.Z) - WorldLocation), FVector::UpVector)
+			/ FVector::DotProduct(WorldDirection, FVector::UpVector);
+		FVector GroundPoint = WorldLocation + WorldDirection * d;
+		return GroundPoint;
+	}
+}
+
+/** Gets the direction the character must aim to cast a ray that intersects the mouse cursor position */
+FVector AMagicBattleSoccerPlayerController::FindMouseAim()
+{
+	// Aim where the mouse is pointing
+	FVector WorldLocation;
+	FVector WorldDirection;
+	APawn *Pawn = GetPawn();
+	if (nullptr == Pawn)
+	{
+		// Nothing we can do
+		return FVector::ZeroVector;
+	}
+	else if (!DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
+	{
+		// Failed. Return a zero vector which will result in no fire action taking place.
+		return Pawn->GetActorForwardVector();
+	}
+	else
+	{
+		// Calculate the point on the plane Z = ActorLocationZ that the mouse is pointing at. Remember we're not projecting onto the ground,
+		// we're projecting onto the plane that contains the player.
+		FVector Origin = Pawn->GetActorLocation();
+		float d = FVector::DotProduct((FVector(0, 0, Origin.Z) - WorldLocation), FVector::UpVector)
+			/ FVector::DotProduct(WorldDirection, FVector::UpVector);
+		FVector GroundPoint = WorldLocation + WorldDirection * d;
+		FVector FinalAim = GroundPoint - Origin;
+		FinalAim.Z = 0.f;
+		FinalAim.Normalize();
+		return FinalAim;
+	}
 }
 
 bool AMagicBattleSoccerPlayerController::FindDeathCameraSpot(FVector& CameraLocation, FRotator& CameraRotation)
@@ -167,15 +240,6 @@ bool AMagicBattleSoccerPlayerController::ServerSpawnCharacter_Validate()
 void AMagicBattleSoccerPlayerController::ServerSpawnCharacter_Implementation()
 {
 	SpawnCharacter();
-}
-
-void AMagicBattleSoccerPlayerController::TrySyncCharacterRotationToWeaponAim(AMagicBattleSoccerWeapon *Weapon)
-{
-	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
-	if (nullptr != PlayerPawn && nullptr != Weapon && nullptr == WeaponToSyncCharacterRotationWith && Weapon->GetCurrentState() == EWeaponState::Firing && Weapon->GetWeaponConfig().RepeatingFire)
-	{
-		WeaponToSyncCharacterRotationWith = Weapon;
-	}
 }
 
 bool AMagicBattleSoccerPlayerController::ServerForceActorRotation_Validate(FRotator rotation)
@@ -245,9 +309,15 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 		}
 		else if (nullptr != PlayerPawn->PrimaryWeapon)
 		{
-			PlayerPawn->StartPrimaryWeaponFire();			
+			PlayerPawn->PrimaryWeapon->SetTargetLocation(FindMouseWorldLocation());
+			PlayerPawn->StartWeaponFire(PlayerPawn->PrimaryWeapon);
+			if (!PlayerPawn->SecondaryWeapon->GetWeaponConfig().CharacterCanWalkWhileFiring)
+			{
+				bFaceMouseCursorInTick = true;
+			}
 		}
-	}
+
+	} // if (nullptr != PlayerPawn)
 }
 
 /** Player primary action event */
@@ -256,7 +326,7 @@ void AMagicBattleSoccerPlayerController::OnStopPrimaryAction()
 	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
-		PlayerPawn->StopPrimaryWeaponFire();
+		PlayerPawn->StopWeaponFire(PlayerPawn->PrimaryWeapon);
 	}
 }
 
@@ -266,9 +336,14 @@ void AMagicBattleSoccerPlayerController::OnStartSecondaryAction()
 	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
-		if (!PlayerPawn->PossessesBall())
+		if (!PlayerPawn->PossessesBall() && nullptr != PlayerPawn->SecondaryWeapon)
 		{
-			PlayerPawn->StartSecondaryWeaponFire();
+			PlayerPawn->SecondaryWeapon->SetTargetLocation(FindMouseWorldLocation());
+			PlayerPawn->StartWeaponFire(PlayerPawn->SecondaryWeapon);
+			if (!PlayerPawn->SecondaryWeapon->GetWeaponConfig().CharacterCanWalkWhileFiring)
+			{
+				bFaceMouseCursorInTick = true;
+			}
 		}
 	}
 }
@@ -279,7 +354,7 @@ void AMagicBattleSoccerPlayerController::OnStopSecondaryAction()
 	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
-		PlayerPawn->StopSecondaryWeaponFire();
+		PlayerPawn->StopWeaponFire(PlayerPawn->SecondaryWeapon);
 	}
 }
 

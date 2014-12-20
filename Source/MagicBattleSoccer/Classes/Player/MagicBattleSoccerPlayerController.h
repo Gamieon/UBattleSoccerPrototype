@@ -22,6 +22,8 @@ private:
 	class AMagicBattleSoccerGameState* GetGameState();
 
 public:
+	/** set to true if the character needs to face the mouse cursor in a subsequent tick */
+	bool bFaceMouseCursorInTick;
 
 	/** stores pawn location at last player death, used where player scores a kill after they died **/
 	FVector LastDeathLocation;
@@ -34,9 +36,6 @@ public:
 
 	/** Gets the approximate current network time in milliseconds. */
 	int64 GetNetworkTime();
-
-	/** Not null if we need to synchronize the character rotation with the weapon aim next time Tick is called */
-	AMagicBattleSoccerWeapon* WeaponToSyncCharacterRotationWith;
 
 	//Begin AController interface
 
@@ -53,6 +52,12 @@ public:
 
 	//End AController interface
 
+	/** Gets the location of the mouse cursor in world coordinates */
+	FVector FindMouseWorldLocation();
+
+	/** Gets the direction the character must aim to cast a ray that intersects the mouse cursor position */
+	FVector FindMouseAim();
+
 	/** try to find spot for death cam */
 	bool FindDeathCameraSpot(FVector& CameraLocation, FRotator& CameraRotation);
 
@@ -66,8 +71,6 @@ public:
 
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerSpawnCharacter();
-
-	void TrySyncCharacterRotationToWeaponAim(AMagicBattleSoccerWeapon *Weapon);
 
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerForceActorRotation(FRotator rotation);

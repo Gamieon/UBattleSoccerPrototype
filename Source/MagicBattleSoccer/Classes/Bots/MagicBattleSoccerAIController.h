@@ -28,8 +28,8 @@ public:
 	class ATriggerBox* ActionZone;
 
 	/** Gets the bot attack state */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	bool IsAttacking();
+	//UFUNCTION(BlueprintCallable, Category = Soccer)
+	//bool IsAttacking();
 
 	/** Called by the GameMode object when the next round has begun. The character has not yet spawned at this point */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
@@ -100,14 +100,6 @@ public:
 	/** Gets the ideal point to run to when not chasing another actor while following the ball possessor */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	FVector GetIdealPossessorFollowLocation();
-
-	/** Attacks a soccer player */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void AttackPlayer(class AMagicBattleSoccerCharacter* Target);
-
-	/** Stops attacking a soccer player */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
-	void StopAttackingPlayer();
 
 	/** Tries to kick ball into the goal. Returns true if the ball was kicked. */
 	UFUNCTION(BlueprintCallable, Category = Soccer)

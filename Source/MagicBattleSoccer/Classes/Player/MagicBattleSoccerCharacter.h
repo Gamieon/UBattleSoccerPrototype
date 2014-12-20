@@ -197,16 +197,12 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	// Actions
 
 	/** [local] starts weapon fire */
-	void StartPrimaryWeaponFire();
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	void StartWeaponFire(class AMagicBattleSoccerWeapon* Weapon);
 
 	/** [local] stops weapon fire */
-	void StopPrimaryWeaponFire();
-
-	/** [local] starts weapon fire */
-	void StartSecondaryWeaponFire();
-
-	/** [local] stops weapon fire */
-	void StopSecondaryWeaponFire();
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	void StopWeaponFire(class AMagicBattleSoccerWeapon* Weapon);
 
 	/** check if pawn can fire weapon */
 	bool CanFire();

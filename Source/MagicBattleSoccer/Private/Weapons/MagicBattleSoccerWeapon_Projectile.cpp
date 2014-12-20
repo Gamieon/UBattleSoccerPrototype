@@ -1,11 +1,61 @@
 
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerProjectile.h"
+#include "MagicBattleSoccerPlayerState.h"
 #include "MagicBattleSoccerWeapon_Projectile.h"
 
 AMagicBattleSoccerWeapon_Projectile::AMagicBattleSoccerWeapon_Projectile(const class FObjectInitializer& OI)
 	: Super(OI)
 {
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Input
+
+/** [local + server] sets the firing target */
+void AMagicBattleSoccerWeapon_Projectile::SetTargetLocationAdjustedForVelocity(FVector TargetLocation, FVector TargetVelocity)
+{
+	if (Role < ROLE_Authority)
+	{
+		ServerSetTargetLocationAdjustedForVelocity(TargetLocation, TargetVelocity);
+	}
+
+	// Adjust for projectile speed.
+	// TODO: Why are we not designating the projectile's speed?? We're completely guessing here!
+	float d = FVector::Dist(GetActorLocation(), TargetLocation);
+	float t = d / 2500.f;
+	this->TargetLocation = TargetLocation + TargetVelocity * t;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// AI
+
+/** Returns how effective this weapon would be on scene actors in the world's current state */
+TArray<FWeaponActorEffectiveness> AMagicBattleSoccerWeapon_Projectile::GetCurrentEffectiveness()
+{
+	TArray<FWeaponActorEffectiveness> effectivenessList;
+	if (nullptr != Instigator && nullptr != Instigator->PlayerState)
+	{
+		UWorld *World = GetWorld();
+		AMagicBattleSoccerGameState* GameState = Cast<AMagicBattleSoccerGameState>(World->GetGameState<AMagicBattleSoccerGameState>());
+		AMagicBattleSoccerPlayerState *PlayerState = Cast<AMagicBattleSoccerPlayerState>(Instigator->PlayerState);
+		if (nullptr != GameState)
+		{
+			const TArray<AMagicBattleSoccerCharacter*>& Opponents = GameState->GetOpponents(PlayerState);
+			for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Opponents.CreateConstIterator()); It; ++It)
+			{
+				float d = Instigator->GetDistanceTo(*It);
+				if (d < WeaponConfig.EffectiveRange)
+				{
+					FWeaponActorEffectiveness e;
+					e.Actor = *It;
+					e.HealthChange = (float)ProjectileConfig.ExplosionDamage / (*It)->Health;
+					effectivenessList.Add(e);
+				}
+			}
+		}
+	}
+	return effectivenessList;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -15,8 +65,10 @@ void AMagicBattleSoccerWeapon_Projectile::FireWeapon()
 {
 	if (nullptr != Instigator)
 	{
-		FVector ShootDir = GetAdjustedAim();
-		// We should be using GetMuzzleLocation(), but this seems to work better
+		FVector ShootDir = TargetLocation - Instigator->GetActorLocation();
+		ShootDir.Z = 0;
+		ShootDir.Normalize();
+		// We should be factoring in the muzzle location, but this seems to work better
 		FVector Origin = Instigator->GetActorLocation() + ShootDir * 80.0f;
 
 		//DrawDebugSphere(GetWorld(), Origin + ShootDir * 400.0f, 50.0f, 16, FColor::Red, true);

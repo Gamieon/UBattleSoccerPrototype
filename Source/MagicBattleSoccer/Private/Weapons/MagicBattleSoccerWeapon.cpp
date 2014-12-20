@@ -3,6 +3,7 @@
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerCharacter.h"
+#include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerPlayerController.h"
 
 AMagicBattleSoccerWeapon::AMagicBattleSoccerWeapon(const class FObjectInitializer& OI)
@@ -63,6 +64,29 @@ void AMagicBattleSoccerWeapon::OnUnEquip()
 
 //////////////////////////////////////////////////////////////////////////
 // Input
+
+/** [local + server] sets the firing target */
+void AMagicBattleSoccerWeapon::SetTargetLocation(FVector TargetLocation)
+{
+	if (Role < ROLE_Authority)
+	{
+		ServerSetTargetLocation(TargetLocation);
+	}
+
+	this->TargetLocation = TargetLocation;
+}
+
+/** [local + server] sets the firing target */
+void AMagicBattleSoccerWeapon::SetTargetLocationAdjustedForVelocity(FVector TargetLocation, FVector TargetVelocity)
+{
+	if (Role < ROLE_Authority)
+	{
+		ServerSetTargetLocationAdjustedForVelocity(TargetLocation, TargetVelocity);
+	}
+
+	// Virtual functions for projectile weapons should handle this
+	this->TargetLocation = TargetLocation;
+}
 
 void AMagicBattleSoccerWeapon::StartFire()
 {
@@ -132,7 +156,36 @@ void AMagicBattleSoccerWeapon::SetOwningPawn(AMagicBattleSoccerCharacter* NewOwn
 }
 
 //////////////////////////////////////////////////////////////////////////
+// AI
+
+/** Returns how effective this weapon would be on scene actors in the world's current state */
+TArray<FWeaponActorEffectiveness> AMagicBattleSoccerWeapon::GetCurrentEffectiveness()
+{
+	return TArray<FWeaponActorEffectiveness>();
+}
+
+//////////////////////////////////////////////////////////////////////////
 // Input - server side
+
+bool AMagicBattleSoccerWeapon::ServerSetTargetLocation_Validate(FVector TargetLocation)
+{
+	return true;
+}
+
+void AMagicBattleSoccerWeapon::ServerSetTargetLocation_Implementation(FVector TargetLocation)
+{
+	SetTargetLocation(TargetLocation);
+}
+
+bool AMagicBattleSoccerWeapon::ServerSetTargetLocationAdjustedForVelocity_Validate(FVector TargetLocation, FVector TargetVelocity)
+{
+	return true;
+}
+
+void AMagicBattleSoccerWeapon::ServerSetTargetLocationAdjustedForVelocity_Implementation(FVector TargetLocation, FVector TargetVelocity)
+{
+	SetTargetLocationAdjustedForVelocity(TargetLocation, TargetVelocity);
+}
 
 bool AMagicBattleSoccerWeapon::ServerStartFire_Validate()
 {
@@ -194,7 +247,7 @@ void AMagicBattleSoccerWeapon::HandleFiring()
 		{
 			// We can't aim immediately because that could put the camera out of sync with the pawn. Just assign ourselves to the controller and it
 			// will take care of things in the next Tick().
-			PlayerController->WeaponToSyncCharacterRotationWith = this;
+			PlayerController->bFaceMouseCursorInTick = true;
 		}
 
 		// setup refire timer
@@ -294,51 +347,6 @@ void AMagicBattleSoccerWeapon::DetachMeshFromPawn()
 {
 	DetachRootComponentFromParent();
 	SetActorHiddenInGame(true);
-}
-
-//////////////////////////////////////////////////////////////////////////
-// Weapon usage helpers
-
-FVector AMagicBattleSoccerWeapon::GetAdjustedAim() const
-{
-	AMagicBattleSoccerPlayerController* const PlayerController = Instigator ? Cast<AMagicBattleSoccerPlayerController>(Instigator->Controller) : nullptr;
-	FVector FinalAim = FVector::ZeroVector;
-
-	// If we have a player controller use it for the aim
-	if (nullptr != PlayerController)
-	{
-		// Aim where the mouse is pointing
-		FVector WorldLocation;
-		FVector WorldDirection;
-		if (!PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
-		{
-			// Failed. Return a zero vector which will result in no fire action taking place.
-		}
-		else
-		{
-			// Calculate the point on the plane Z = MuzzleLocationZ that the mouse is pointing at. Remember we're not projecting onto the ground,
-			// we're projecting onto the plane that contains the muzzle for a much more accurate reading.
-			FVector Origin = GetMuzzleLocation();
-			float d = FVector::DotProduct((FVector(0, 0, Origin.Z) - WorldLocation), FVector::UpVector)
-				/ FVector::DotProduct(WorldDirection, FVector::UpVector);
-			FVector GroundPoint = WorldLocation + WorldDirection * d;
-			FinalAim = GroundPoint - Origin;
-			FinalAim.Z = 0.f;
-			FinalAim.Normalize();
-		}
-	}
-	else if (nullptr != Instigator)
-	{
-		// Must be an AI player
-		return Instigator->GetActorForwardVector();
-	}
-
-	return FinalAim;
-}
-
-FVector AMagicBattleSoccerWeapon::GetMuzzleLocation() const
-{
-	return GetActorLocation();
 }
 
 void AMagicBattleSoccerWeapon::OnBurstStarted()

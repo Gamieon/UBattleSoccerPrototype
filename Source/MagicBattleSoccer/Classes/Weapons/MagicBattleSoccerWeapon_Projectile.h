@@ -47,11 +47,23 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon_Projectile : public AMagicB
 	/** apply config on projectile */
 	void ApplyWeaponConfig(FProjectileWeaponData& Data);
 
+	//////////////////////////////////////////////////////////////////////////
+	// Input
+
+	/** [local + server] sets the firing target */
+	virtual void SetTargetLocationAdjustedForVelocity(FVector TargetLocation, FVector TargetVelocity);
+
 protected:
 
 	/** weapon config */
 	UPROPERTY(EditDefaultsOnly, Category = Config)
 	FProjectileWeaponData ProjectileConfig;
+
+	//////////////////////////////////////////////////////////////////////////
+	// AI
+
+	/** Returns how effective this weapon would be on scene actors in the world's current state */
+	TArray<FWeaponActorEffectiveness> GetCurrentEffectiveness();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Weapon usage

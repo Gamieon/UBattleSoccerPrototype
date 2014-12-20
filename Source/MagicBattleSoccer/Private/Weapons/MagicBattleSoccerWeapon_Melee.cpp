@@ -1,11 +1,44 @@
 
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerWeapon_Melee.h"
+#include "MagicBattleSoccerGameState.h"
+#include "MagicBattleSoccerPlayerState.h"
 #include "MagicBattleSoccerPlayerController.h"
 
 AMagicBattleSoccerWeapon_Melee::AMagicBattleSoccerWeapon_Melee(const class FObjectInitializer& OI)
 	: Super(OI)
 {
+}
+
+//////////////////////////////////////////////////////////////////////////
+// AI
+
+/** Returns how effective this weapon would be on scene actors in the world's current state */
+TArray<FWeaponActorEffectiveness> AMagicBattleSoccerWeapon_Melee::GetCurrentEffectiveness()
+{
+	TArray<FWeaponActorEffectiveness> effectivenessList;
+	if (nullptr != Instigator && nullptr != Instigator->PlayerState)
+	{
+		UWorld *World = GetWorld();
+		AMagicBattleSoccerGameState* GameState = Cast<AMagicBattleSoccerGameState>(World->GetGameState<AMagicBattleSoccerGameState>());
+		AMagicBattleSoccerPlayerState *PlayerState = Cast<AMagicBattleSoccerPlayerState>(Instigator->PlayerState);
+		if (nullptr != GameState)
+		{
+			const TArray<AMagicBattleSoccerCharacter*>& Opponents = GameState->GetOpponents(PlayerState);
+			for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Opponents.CreateConstIterator()); It; ++It)
+			{
+				float d = Instigator->GetDistanceTo(*It);
+				if (d < WeaponConfig.EffectiveRange)
+				{
+					FWeaponActorEffectiveness e;
+					e.Actor = *It;
+					e.HealthChange = (float)MeleeConfig.Damage / (*It)->Health;
+					effectivenessList.Add(e);
+				}
+			}
+		}
+	}
+	return effectivenessList;
 }
 
 //////////////////////////////////////////////////////////////////////////

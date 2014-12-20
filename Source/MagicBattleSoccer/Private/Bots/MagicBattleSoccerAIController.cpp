@@ -26,18 +26,6 @@ AMagicBattleSoccerGameState* AMagicBattleSoccerAIController::GetGameState()
 	return World->GetGameState<AMagicBattleSoccerGameState>();
 }
 
-/** Gets the bot attack state */
-bool AMagicBattleSoccerAIController::IsAttacking()
-{
-	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
-	return (nullptr != MyBot 
-		 && (
-				(nullptr != MyBot->PrimaryWeapon && MyBot->PrimaryWeapon->GetCurrentState() == EWeaponState::Firing)
-				|| (nullptr != MyBot->SecondaryWeapon && MyBot->SecondaryWeapon->GetCurrentState() == EWeaponState::Firing)
-			)
-		);
-}
-
 /** Called by the GameMode object when the next round has begun. The character has not yet spawned at this point */
 void AMagicBattleSoccerAIController::RoundHasStarted_Implementation()
 {
@@ -356,36 +344,6 @@ FVector AMagicBattleSoccerAIController::GetIdealPossessorFollowLocation()
 	}
 }
 
-/** Attacks a soccer player */
-void AMagicBattleSoccerAIController::AttackPlayer(AMagicBattleSoccerCharacter* Target)
-{
-	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
-	if (nullptr != MyBot 
-		&& nullptr != Target
-		&& nullptr != MyBot->PrimaryWeapon
-		&& !MyBot->PossessesBall() 
-		)
-	{
-		FRotator faceRot = ((Target->GetActorLocation() + Target->GetVelocity()) - MyBot->GetActorLocation()).Rotation();
-		// Face the target
-		MyBot->SetActorRotation(faceRot);
-
-		// Start attacking the player if we haven't already
-		MyBot->StartPrimaryWeaponFire();
-	}
-}
-
-/** Stops attacking a soccer player */
-UFUNCTION(BlueprintCallable, Category = Soccer)
-void AMagicBattleSoccerAIController::StopAttackingPlayer()
-{
-	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
-	if (nullptr != MyBot)
-	{
-		MyBot->StopPrimaryWeaponFire();
-	}
-}
-
 /** Tries to kick ball into the goal. Returns true if the ball was kicked. */
 bool AMagicBattleSoccerAIController::KickBallToGoal()
 {
@@ -426,7 +384,6 @@ bool AMagicBattleSoccerAIController::KickBallToGoal()
 		}
 	}
 }
-
 
 /** [local] Kicks the ball to the specified location */
 void AMagicBattleSoccerAIController::KickBallToLocation(const FVector& Location, float AngleInDegrees)

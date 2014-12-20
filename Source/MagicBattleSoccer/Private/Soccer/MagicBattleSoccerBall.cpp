@@ -291,8 +291,8 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerCharacter* Player)
 			UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
 			if (nullptr != Possessor)
 			{
-				Possessor->StopPrimaryWeaponFire();
-				Possessor->StopSecondaryWeaponFire();
+				Possessor->StopWeaponFire(Possessor->PrimaryWeapon);
+				Possessor->StopWeaponFire(Possessor->SecondaryWeapon);
 				Root->PutRigidBodyToSleep();
 				Root->SetSimulatePhysics(false);
 				Root->SetEnableGravity(false);

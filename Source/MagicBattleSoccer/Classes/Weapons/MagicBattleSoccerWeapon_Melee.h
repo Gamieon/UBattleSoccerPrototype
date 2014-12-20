@@ -34,6 +34,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon_Melee : public AMagicBattle
 {
 	GENERATED_UCLASS_BODY()
 
+public:
+	//////////////////////////////////////////////////////////////////////////
+	// AI
+
+	/** Returns how effective this weapon would be on scene actors in the world's current state */
+	virtual TArray<FWeaponActorEffectiveness> GetCurrentEffectiveness();
+
 protected:
 
 	/** weapon config */
