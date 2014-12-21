@@ -81,19 +81,26 @@ AMagicBattleSoccerCharacter* AMagicBattleSoccerGameState::GetClosestOpponent(AMa
 	}
 	else
 	{
-		const TArray<AMagicBattleSoccerCharacter*>& Opponents = GetOpponents(Cast<AMagicBattleSoccerPlayerState>(Player->PlayerState));
-		AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(GetWorld()->GetAuthGameMode());
-		AMagicBattleSoccerCharacter* ClosestOpponent = nullptr;
-
-		float ClosestOpponentDistance = 0.0f;
-		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Opponents.CreateConstIterator()); It; ++It)
-		{
-			if (nullptr == ClosestOpponent || Player->GetDistanceTo(*It) < ClosestOpponentDistance && GameMode->CanBePursued(*It))
-			{
-				ClosestOpponent = *It;
-				ClosestOpponentDistance = Player->GetDistanceTo(*It);
-			}
-		}
-		return ClosestOpponent;
+		return GetClosestOpponentToLocation(Player, Player->GetActorLocation());
 	}
+}
+
+/** Gets the closest enemy to a world location that can be pursued */
+AMagicBattleSoccerCharacter* AMagicBattleSoccerGameState::GetClosestOpponentToLocation(AMagicBattleSoccerCharacter* Player, FVector Location)
+{
+	const TArray<AMagicBattleSoccerCharacter*>& Opponents = GetOpponents(Cast<AMagicBattleSoccerPlayerState>(Player->PlayerState));
+	AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(GetWorld()->GetAuthGameMode());
+	AMagicBattleSoccerCharacter* ClosestOpponent = nullptr;
+
+	float ClosestOpponentDistance = 0.0f;
+	for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Opponents.CreateConstIterator()); It; ++It)
+	{
+		float d = FVector::DistSquared((*It)->GetActorLocation(), Location);
+		if (nullptr == ClosestOpponent || d < ClosestOpponentDistance && GameMode->CanBePursued(*It))
+		{
+			ClosestOpponent = *It;
+			ClosestOpponentDistance = d;
+		}
+	}
+	return ClosestOpponent;
 }

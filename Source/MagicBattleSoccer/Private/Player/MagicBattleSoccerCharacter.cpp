@@ -3,6 +3,7 @@
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerGameState.h"
+#include "MagicBattleSoccerPlayerState.h"
 #include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerProjectile.h"
@@ -89,6 +90,19 @@ void AMagicBattleSoccerCharacter::OnRep_LastTakeHitInfo()
 	else
 	{
 		PlayHit(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
+	}
+}
+
+/** Gets the character's team number */
+int32 AMagicBattleSoccerCharacter::GetTeamNumber()
+{
+	if (nullptr == PlayerState)
+	{
+		return 0;
+	}
+	else
+	{
+		return Cast<AMagicBattleSoccerPlayerState>(PlayerState)->TeamNumber;
 	}
 }
 

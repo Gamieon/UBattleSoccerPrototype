@@ -50,7 +50,13 @@ void AMagicBattleSoccerWeapon_Trap::ServerSpawnTrap_Implementation(FVector Origi
 	{
 		Trap->Instigator = Instigator;
 		Trap->SetOwner(this);
-
 		UGameplayStatics::FinishSpawningActor(Trap, SpawnTM);
+		OnTrapSpawned(Trap);
 	}
+}
+
+/** Called when the trap is spawned */
+void AMagicBattleSoccerWeapon_Trap::OnTrapSpawned_Implementation(AMagicBattleSoccerTrap *Trap)
+{
+
 }

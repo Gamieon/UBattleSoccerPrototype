@@ -35,6 +35,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	float LastBallPossessionTime;
 
+	/** Gets the character's team number */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	int32 GetTeamNumber();
+
 	/** The default movement speed for this player. Initially assigned the
 	max walking speed. */
 	float DefaultMovementSpeed;

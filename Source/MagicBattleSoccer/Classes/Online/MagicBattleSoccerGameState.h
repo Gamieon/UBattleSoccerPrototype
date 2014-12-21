@@ -43,7 +43,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameState : public AGameState
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
 	bool RoundInProgress;
 
-public:
 	/** Gets all the teammates of a specified player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	TArray<class AMagicBattleSoccerCharacter*> GetTeammates(class AMagicBattleSoccerPlayerState* PlayerState);
@@ -55,4 +54,8 @@ public:
 	/** Gets the closest opponent */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	class AMagicBattleSoccerCharacter* GetClosestOpponent(class AMagicBattleSoccerCharacter* Player);
+
+	/** Gets the closest enemy to a world location that can be pursued */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	class AMagicBattleSoccerCharacter* GetClosestOpponentToLocation(AMagicBattleSoccerCharacter* Player, FVector Location);
 };

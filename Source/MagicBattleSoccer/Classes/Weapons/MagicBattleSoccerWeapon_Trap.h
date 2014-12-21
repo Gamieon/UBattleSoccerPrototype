@@ -24,4 +24,8 @@ protected:
 	/** spawn trap on server */
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerSpawnTrap(FVector Origin);
+
+	/** Called when the trap is spawned */
+	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
+	void OnTrapSpawned(AMagicBattleSoccerTrap *Trap);
 };
