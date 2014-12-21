@@ -87,8 +87,12 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon : public AActor
 	uint32 bRefiring;
 
 	/** time of last successful weapon fire */
-	UPROPERTY(BlueprintReadOnly, Category = ActiveWeapon)
+	UPROPERTY(BlueprintReadOnly, Category = Soccer)
 	float LastFireTime;
+
+	/** The weapon's icon to appear at the bottom of the screen */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Soccer)
+	UTexture2D *DashboardIcon;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Replication & effects
@@ -112,6 +116,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon : public AActor
 	virtual void OnLeaveInventory();
 
 	/** check if it's currently equipped */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
 	bool IsEquipped() const;
 
 	/** check if mesh is already attached */

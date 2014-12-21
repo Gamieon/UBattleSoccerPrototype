@@ -360,7 +360,7 @@ void AMagicBattleSoccerCharacter::SetPrimaryWeapon(AMagicBattleSoccerWeapon* New
 	if (NewWeapon)
 	{
 		NewWeapon->SetOwningPawn(this);	// Make sure weapon's MyPawn is pointing back to us. During replication, we can't guarantee APawn::PrimaryWeapon will rep after AWeapon::MyPawn!
-		NewWeapon->OnEquip(RightHandSocket);
+		NewWeapon->OnEquip(PrimaryWeaponSocket);
 	}
 }
 
@@ -389,7 +389,7 @@ void AMagicBattleSoccerCharacter::SetSecondaryWeapon(AMagicBattleSoccerWeapon* N
 	if (NewWeapon)
 	{
 		NewWeapon->SetOwningPawn(this);	// Make sure weapon's MyPawn is pointing back to us. During replication, we can't guarantee APawn::PrimaryWeapon will rep after AWeapon::MyPawn!
-		NewWeapon->OnEquip(LeftHandSocket);
+		NewWeapon->OnEquip(SecondaryWeaponSocket);
 	}
 }
 
@@ -400,27 +400,20 @@ void AMagicBattleSoccerCharacter::SpawnDefaultInventory()
 		return;
 	}
 
-	int32 NumWeaponClasses = DefaultInventoryClasses.Num();
-	for (int32 i = 0; i < NumWeaponClasses; i++)
+	if (nullptr != DefaultPrimaryWeaponClass)
 	{
-		if (DefaultInventoryClasses[i])
-		{
-			FActorSpawnParameters SpawnInfo;
-			SpawnInfo.bNoCollisionFail = true;
-			AMagicBattleSoccerWeapon* NewWeapon = GetWorld()->SpawnActor<AMagicBattleSoccerWeapon>(DefaultInventoryClasses[i], SpawnInfo);
-			AddWeapon(NewWeapon);
-		}
+		FActorSpawnParameters SpawnInfo;
+		SpawnInfo.bNoCollisionFail = true;
+		AMagicBattleSoccerWeapon* NewWeapon = GetWorld()->SpawnActor<AMagicBattleSoccerWeapon>(DefaultPrimaryWeaponClass, SpawnInfo);
+		EquipPrimaryWeapon(NewWeapon);
 	}
 
-	// equip first weapon in inventory
-	if (Inventory.Num() > 0)
+	if (nullptr != DefaultSecondaryWeaponClass)
 	{
-		EquipPrimaryWeapon(Inventory[0]);
-	}
-	// equip second weapon in inventory
-	if (Inventory.Num() > 1)
-	{
-		EquipSecondaryWeapon(Inventory[1]);
+		FActorSpawnParameters SpawnInfo;
+		SpawnInfo.bNoCollisionFail = true;
+		AMagicBattleSoccerWeapon* NewWeapon = GetWorld()->SpawnActor<AMagicBattleSoccerWeapon>(DefaultSecondaryWeaponClass, SpawnInfo);
+		EquipSecondaryWeapon(NewWeapon);
 	}
 }
 
@@ -432,14 +425,15 @@ void AMagicBattleSoccerCharacter::DestroyInventory()
 	}
 
 	// remove all weapons from inventory and destroy them
-	for (int32 i = Inventory.Num() - 1; i >= 0; i--)
+	if (nullptr != PrimaryWeapon)
 	{
-		AMagicBattleSoccerWeapon* Weapon = Inventory[i];
-		if (Weapon)
-		{
-			RemoveWeapon(Weapon);
-			Weapon->Destroy();
-		}
+		RemoveWeapon(PrimaryWeapon);
+		PrimaryWeapon->Destroy();
+	}
+	if (nullptr != SecondaryWeapon)
+	{
+		RemoveWeapon(SecondaryWeapon);
+		SecondaryWeapon->Destroy();
 	}
 }
 
@@ -468,7 +462,6 @@ void AMagicBattleSoccerCharacter::AddWeapon(AMagicBattleSoccerWeapon* Weapon)
 	if (Weapon && Role == ROLE_Authority)
 	{
 		Weapon->OnEnterInventory(this);
-		Inventory.AddUnique(Weapon);
 	}
 }
 
@@ -477,7 +470,6 @@ void AMagicBattleSoccerCharacter::RemoveWeapon(AMagicBattleSoccerWeapon* Weapon)
 	if (Weapon && Role == ROLE_Authority)
 	{
 		Weapon->OnLeaveInventory();
-		Inventory.RemoveSingle(Weapon);
 	}
 }
 

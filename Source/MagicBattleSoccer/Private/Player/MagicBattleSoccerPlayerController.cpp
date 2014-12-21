@@ -311,7 +311,7 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 		{
 			PlayerPawn->PrimaryWeapon->SetTargetLocation(FindMouseWorldLocation());
 			PlayerPawn->StartWeaponFire(PlayerPawn->PrimaryWeapon);
-			if (!PlayerPawn->SecondaryWeapon->GetWeaponConfig().CharacterCanWalkWhileFiring)
+			if (!PlayerPawn->PrimaryWeapon->GetWeaponConfig().CharacterCanWalkWhileFiring)
 			{
 				bFaceMouseCursorInTick = true;
 			}

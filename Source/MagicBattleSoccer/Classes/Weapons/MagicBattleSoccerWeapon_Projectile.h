@@ -3,29 +3,29 @@
 #include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerWeapon_Projectile.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FProjectileWeaponData
 {
 	GENERATED_USTRUCT_BODY()
 
 	/** projectile class */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = WeaponStat)
 	TSubclassOf<class AMagicBattleSoccerProjectile> ProjectileClass;
 
 	/** life time */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = WeaponStat)
 	float ProjectileLife;
 
 	/** damage at impact point */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = WeaponStat)
 	int32 ExplosionDamage;
 
 	/** radius of damage */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = WeaponStat)
 	float ExplosionRadius;
 
 	/** type of damage */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = WeaponStat)
 	TSubclassOf<UDamageType> DamageType;
 
 	/** defaults */
@@ -56,7 +56,7 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon_Projectile : public AMagicB
 protected:
 
 	/** weapon config */
-	UPROPERTY(EditDefaultsOnly, Category = Config)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Soccer)
 	FProjectileWeaponData ProjectileConfig;
 
 	//////////////////////////////////////////////////////////////////////////

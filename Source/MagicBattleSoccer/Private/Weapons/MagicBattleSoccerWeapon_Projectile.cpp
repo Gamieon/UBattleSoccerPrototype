@@ -44,13 +44,18 @@ TArray<FWeaponActorEffectiveness> AMagicBattleSoccerWeapon_Projectile::GetCurren
 			const TArray<AMagicBattleSoccerCharacter*>& Opponents = GameState->GetOpponents(PlayerState);
 			for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Opponents.CreateConstIterator()); It; ++It)
 			{
-				float d = Instigator->GetDistanceTo(*It);
-				if (d < WeaponConfig.EffectiveRange)
+				FVector v = (*It)->GetActorLocation() - Instigator->GetActorLocation();
+				float dp = FVector::DotProduct(v, Instigator->GetActorForwardVector());
+				if (dp > 0)
 				{
-					FWeaponActorEffectiveness e;
-					e.Actor = *It;
-					e.HealthChange = (float)ProjectileConfig.ExplosionDamage / (*It)->Health;
-					effectivenessList.Add(e);
+					float d = Instigator->GetDistanceTo(*It);
+					if (d < WeaponConfig.EffectiveRange)
+					{
+						FWeaponActorEffectiveness e;
+						e.Actor = *It;
+						e.HealthChange = (float)ProjectileConfig.ExplosionDamage / (*It)->Health;
+						effectivenessList.Add(e);
+					}
 				}
 			}
 		}

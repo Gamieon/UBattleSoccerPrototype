@@ -61,13 +61,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	//////////////////////////////////////////////////////////////////////////
 	// Inventory and weapons
 
-	/** default inventory list */
+	/** default primary weapon class */
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
-	TArray<TSubclassOf<class AMagicBattleSoccerWeapon> > DefaultInventoryClasses;
+	TSubclassOf<class AMagicBattleSoccerWeapon> DefaultPrimaryWeaponClass;
 
-	/** weapons in inventory */
-	UPROPERTY(Transient, Replicated)
-	TArray<class AMagicBattleSoccerWeapon*> Inventory;
+	/** default secondary weapon class */
+	UPROPERTY(EditDefaultsOnly, Category = Inventory)
+	TSubclassOf<class AMagicBattleSoccerWeapon> DefaultSecondaryWeaponClass;
 
 	/** The player's primary weapon */
 	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing = OnRep_PrimaryWeapon, Category = Soccer)
@@ -81,13 +81,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	UFUNCTION()
 	void OnRep_SecondaryWeapon(class AMagicBattleSoccerWeapon* LastWeapon);
 
-	/** The socket where the player holds a weapon in their left hand */
+	/** The socket where the player holds the primary weapon */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
-	FName LeftHandSocket;
+	FName PrimaryWeaponSocket;
 
-	/** The socket where the player holds a weapon in their right hand */
+	/** The socket where the player holds the secondary weapon*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
-	FName RightHandSocket;
+	FName SecondaryWeaponSocket;
 
 	//Begin AActor interface
 
