@@ -209,7 +209,15 @@ float AMagicBattleSoccerGameMode::ModifyDamage(float Damage, AActor* DamagedActo
 bool AMagicBattleSoccerGameMode::CanDealDamage(AMagicBattleSoccerPlayerState* DamageInstigator, AMagicBattleSoccerPlayerState* DamagedPlayer) const
 {
 	// Prevent friendly damage and self damage
-	return DamageInstigator && DamagedPlayer && (DamagedPlayer->TeamNumber != DamageInstigator->TeamNumber);
+	if (nullptr == DamageInstigator)
+	{
+		// Environmental damge
+		return true;
+	}
+	else
+	{
+		return DamageInstigator && DamagedPlayer && (DamagedPlayer->TeamNumber != DamageInstigator->TeamNumber);
+	}
 }
 
 void AMagicBattleSoccerGameMode::Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType)

@@ -22,6 +22,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	/** The health this player has */
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
 	float Health;
+	
+	/** true if the character is dead */
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsDead;
 
 	/** The current movement speed for this player. This changes if the player
 	possesses the ball */

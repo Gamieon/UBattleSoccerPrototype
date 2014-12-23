@@ -125,8 +125,7 @@ void AMagicBattleSoccerPlayerController::PawnPendingDestroy(APawn* inPawn)
 
 	Super::PawnPendingDestroy(inPawn);
 
-	SetInitialLocationAndRotation(CameraLocation, CameraRotation);
-	SetViewTarget(this);
+	ClientSetSpectatorCamera(CameraLocation, CameraRotation);
 }
 
 /** Gets the position of the mouse cursor in world coordinates */
@@ -219,6 +218,12 @@ bool AMagicBattleSoccerPlayerController::FindDeathCameraSpot(FVector& CameraLoca
 	return false;
 }
 
+void AMagicBattleSoccerPlayerController::ClientSetSpectatorCamera_Implementation(FVector CameraLocation, FRotator CameraRotation)
+{
+	SetInitialLocationAndRotation(CameraLocation, CameraRotation);
+	SetViewTarget(this);
+}
+
 /** Determines whether the character can be spawned at this time */
 bool AMagicBattleSoccerPlayerController::CanSpawnCharacter()
 {
@@ -252,6 +257,20 @@ void AMagicBattleSoccerPlayerController::ServerForceActorRotation_Implementation
 	if (nullptr != GetPawn())
 	{
 		GetPawn()->SetActorRotation(rotation);
+	}
+}
+
+bool AMagicBattleSoccerPlayerController::ServerSuicide_Validate()
+{
+	return true;
+}
+
+void AMagicBattleSoccerPlayerController::ServerSuicide_Implementation()
+{
+	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
+	if (nullptr != PlayerPawn && PlayerPawn->Health > 0)
+	{
+		UGameplayStatics::ApplyDamage(PlayerPawn, PlayerPawn->Health * 2.f, nullptr, nullptr, UDamageType::StaticClass());
 	}
 }
 
@@ -361,8 +380,7 @@ void AMagicBattleSoccerPlayerController::OnStopSecondaryAction()
 /** Player suicide event */
 void AMagicBattleSoccerPlayerController::OnSuicide()
 {
-	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
-	PlayerPawn->Destroy();
+	ServerSuicide();
 }
 
 /** Player respawn event */

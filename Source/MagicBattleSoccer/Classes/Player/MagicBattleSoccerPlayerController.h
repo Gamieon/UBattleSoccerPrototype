@@ -45,7 +45,7 @@ public:
 	/** This occurs when play begins */
 	virtual void BeginPlay() override;
 
-	void Tick(float DeltaSeconds) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	/** update camera when pawn dies */
 	virtual void PawnPendingDestroy(APawn* inPawn) override;
@@ -61,6 +61,10 @@ public:
 	/** try to find spot for death cam */
 	bool FindDeathCameraSpot(FVector& CameraLocation, FRotator& CameraRotation);
 
+	/** sets spectator location and rotation */
+	UFUNCTION(reliable, client)
+	void ClientSetSpectatorCamera(FVector CameraLocation, FRotator CameraRotation);
+
 	/** Determines whether the character can be spawned at this time */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	bool CanSpawnCharacter();
@@ -71,6 +75,9 @@ public:
 
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerSpawnCharacter();
+
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerSuicide();
 
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerForceActorRotation(FRotator rotation);

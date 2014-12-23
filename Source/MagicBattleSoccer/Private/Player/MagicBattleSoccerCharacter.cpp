@@ -25,6 +25,7 @@ AMagicBattleSoccerCharacter::AMagicBattleSoccerCharacter(const class FObjectInit
 	PrimaryWeapon = nullptr;
 	SecondaryWeapon = nullptr;
 	LastTakeHitTimeTimeout = 0;
+	bIsDead = false;
 }
 
 void AMagicBattleSoccerCharacter::PostInitializeComponents()
@@ -52,6 +53,8 @@ void AMagicBattleSoccerCharacter::PreReplication(IRepChangedPropertyTracker & Ch
 void AMagicBattleSoccerCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(AMagicBattleSoccerCharacter, LastTakeHitInfo, COND_Custom);
 
 	// Replicate to everyone
 	DOREPLIFETIME(AMagicBattleSoccerCharacter, MaxHealth);
@@ -275,17 +278,28 @@ void AMagicBattleSoccerCharacter::OnDeath(float KillingDamage, struct FDamageEve
 {
 	bReplicateMovement = false;
 	bTearOff = true;
+	bIsDead = true;
 
 	if (ROLE_Authority == Role)
 	{
 		ReplicateHit(KillingDamage, DamageEvent, PawnInstigator, DamageCauser, true);
+
+		// Remove this character from the game mode cache
+		GetGameState()->SoccerPlayers.Remove(this);
 	}
 
 	// remove all weapons
 	DestroyInventory();
 
-	// now destroy the player
-	Destroy();
+	DetachFromControllerPendingDestroy();
+
+	// disable collisions on capsule
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	SetActorEnableCollision(true);
+
+	SetLifeSpan(3.0f);
 }
 
 void AMagicBattleSoccerCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser)
