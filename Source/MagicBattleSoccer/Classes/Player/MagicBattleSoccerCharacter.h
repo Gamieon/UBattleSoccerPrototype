@@ -66,6 +66,9 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	/** Time at which point the last take hit info for the actor times out and won't be replicated; Used to stop join-in-progress effects all over the screen */
 	float LastTakeHitTimeTimeout;
 
+	/** True if the character should be sinking into the ground after death */
+	bool bSinkIntoGround;
+
 	//////////////////////////////////////////////////////////////////////////
 	// Inventory and weapons
 
@@ -139,6 +142,9 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 
 	/** notification when killed, for both the server and client. */
 	virtual void OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, class APawn* InstigatingPawn, class AActor* DamageCauser);
+
+	/** called to make the player start sinking into the ground */
+	virtual void DelayedSinkIntoGround();
 
 	/** play effects on hit */
 	virtual void PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser);

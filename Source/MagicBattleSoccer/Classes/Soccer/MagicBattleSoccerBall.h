@@ -68,6 +68,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	bool IsFree();
 
+	/** True if the player can possess the ball */
+	bool CanPossessBall(AMagicBattleSoccerCharacter* Player);
+
 	/** When a possessor releases the ball, we don't want to allow them to repossess the ball until it has
 	travelled a certain distance away. This variable lets the ball remember who possessed the ball last so
 	it can do this calculation. Once the distance has been exceeded, this is set to null. */

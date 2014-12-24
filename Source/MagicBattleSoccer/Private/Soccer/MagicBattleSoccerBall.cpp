@@ -251,6 +251,12 @@ bool AMagicBattleSoccerBall::IsFree()
 	return (nullptr == Possessor && nullptr == GameState->PenetratedGoal);
 }
 
+/** True if the player can possess the ball */
+bool AMagicBattleSoccerBall::CanPossessBall(AMagicBattleSoccerCharacter* Player)
+{
+	return (nullptr != Player && Player->Health > 0.f);
+}
+
 void AMagicBattleSoccerBall::MoveWithPossessor()
 {
 	// This is used to roll the ball while a possessor owns it. The angle is a function of how far the ball has travelled.
@@ -271,7 +277,7 @@ void AMagicBattleSoccerBall::SetPossessor(AMagicBattleSoccerCharacter* Player)
 	else
 	{
 		// We only allow a possession change if the ball is being unpossessed or the player is not one we're ignoring
-		if (nullptr == Player || PossessorToIgnore != Player)
+		if (nullptr == Player || (CanPossessBall(Player) && (PossessorToIgnore != Player)))
 		{
 			AMagicBattleSoccerCharacter *OldPossessor = Possessor;
 

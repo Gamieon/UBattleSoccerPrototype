@@ -26,6 +26,7 @@ AMagicBattleSoccerCharacter::AMagicBattleSoccerCharacter(const class FObjectInit
 	SecondaryWeapon = nullptr;
 	LastTakeHitTimeTimeout = 0;
 	bIsDead = false;
+	bSinkIntoGround = false;
 }
 
 void AMagicBattleSoccerCharacter::PostInitializeComponents()
@@ -165,6 +166,13 @@ void AMagicBattleSoccerCharacter::Tick(float DeltaSeconds)
 		}
 	}
 
+	// Sink into the ground after death
+	if (bSinkIntoGround)
+	{
+		FVector v = GetActorLocation();
+		SetActorLocation(FVector(v.X, v.Y, v.Z - DeltaSeconds * 200.f));
+	}
+
 	// Update the movement speed
 	UpdateMovementSpeed();
 }
@@ -284,6 +292,12 @@ void AMagicBattleSoccerCharacter::OnDeath(float KillingDamage, struct FDamageEve
 	{
 		ReplicateHit(KillingDamage, DamageEvent, PawnInstigator, DamageCauser, true);
 
+		// Release the ball if in possession
+		if (PossessesBall())
+		{
+			GetSoccerBall()->CharacterHasDestroyed(this);
+		}
+
 		// Remove this character from the game mode cache
 		GetGameState()->SoccerPlayers.Remove(this);
 	}
@@ -299,7 +313,15 @@ void AMagicBattleSoccerCharacter::OnDeath(float KillingDamage, struct FDamageEve
 
 	SetActorEnableCollision(true);
 
-	SetLifeSpan(3.0f);
+	// Set a timer to begin sinking into the ground
+	GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerCharacter::DelayedSinkIntoGround, 2.5f);
+
+	SetLifeSpan(5.0f);
+}
+
+void AMagicBattleSoccerCharacter::DelayedSinkIntoGround()
+{
+	bSinkIntoGround = true;
 }
 
 void AMagicBattleSoccerCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser)
