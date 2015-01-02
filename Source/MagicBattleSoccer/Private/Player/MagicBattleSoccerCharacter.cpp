@@ -80,8 +80,7 @@ void AMagicBattleSoccerCharacter::OnRep_CurrentMovementSpeed()
 {
 	// Update the default movement speed of the movement component
 	// with the replicated value
-	UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
-	MovementComponent->MaxWalkSpeed = CurrentMovementSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed;
 }
 
 /** play hit or death on client */
@@ -138,8 +137,7 @@ void AMagicBattleSoccerCharacter::BeginPlay()
 		GetGameState()->SoccerPlayers.Add(this);
 
 		// Assign the character max walk speed to the default movement speed
-		UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
-		DefaultMovementSpeed = CurrentMovementSpeed = MovementComponent->MaxWalkSpeed;
+		DefaultMovementSpeed = CurrentMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	}
 	else
 	{
@@ -591,7 +589,6 @@ bool AMagicBattleSoccerCharacter::CanFire()
 /** [local + server] Updates the movement speed based on conditions (ball possessor, etc) */
 void AMagicBattleSoccerCharacter::UpdateMovementSpeed()
 {
-	UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
 	if (ROLE_Authority == Role)
 	{
 		AMagicBattleSoccerBall *Ball = GetSoccerBall();
@@ -609,7 +606,7 @@ void AMagicBattleSoccerCharacter::UpdateMovementSpeed()
 			CurrentMovementSpeed = 0;
 		}		
 	}
-	MovementComponent->MaxWalkSpeed = CurrentMovementSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed;
 }
 
 /** returns true if the current weapon is preventing the player from moving*/
@@ -617,7 +614,7 @@ bool AMagicBattleSoccerCharacter::IsWeaponPreventingPlayerMove(AMagicBattleSocce
 {
 	return (nullptr != Weapon
 		&& !Weapon->GetWeaponConfig().CharacterCanWalkWhileFiring
-		&& (Weapon->GetCurrentState() == EWeaponState::Firing || (GetWorld()->GetTimeSeconds() < PrimaryWeapon->LastFireTime + PrimaryWeapon->GetWeaponConfig().AnimationTime))
+		&& (Weapon->GetCurrentState() == EWeaponState::Firing || (GetWorld()->GetTimeSeconds() < Weapon->LastFireTime + Weapon->GetWeaponConfig().AnimationTime))
 		);
 }
 

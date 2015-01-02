@@ -13,15 +13,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayerController : public APlayerC
 {
 	GENERATED_UCLASS_BODY()
 
-private:
-	int64 timeServerTimeRequestWasPlaced;
-	int64 timeOffsetFromServer;
-	bool timeOffsetIsValid;
-
-	/** Gets the game state */
-	class AMagicBattleSoccerGameState* GetGameState();
-
-public:
 	/** set to true if the character needs to face the mouse cursor in a subsequent tick */
 	bool bFaceMouseCursorInTick;
 
@@ -116,6 +107,13 @@ public:
 	void OnQuitToMainMenu();
 
 protected:
+	int64 timeServerTimeRequestWasPlaced;
+	int64 timeOffsetFromServer;
+	bool timeOffsetIsValid;
+
+	/** Gets the game state */
+	class AMagicBattleSoccerGameState* GetGameState();
+
 	/** Sent from a client to the server to get the server's system time */
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerGetServerTime();

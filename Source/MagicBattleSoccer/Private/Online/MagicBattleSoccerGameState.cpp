@@ -9,6 +9,7 @@
 #include "MagicBattleSoccerPlayerState.h"
 #include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerGoal.h"
+#include "MagicBattleSoccerSpawnPoint.h"
 #include "UnrealNetwork.h"
 
 AMagicBattleSoccerGameState::AMagicBattleSoccerGameState(const class FObjectInitializer& OI)
@@ -17,6 +18,8 @@ AMagicBattleSoccerGameState::AMagicBattleSoccerGameState(const class FObjectInit
 	SoccerBall = nullptr;
 	Team1Goal = nullptr;
 	Team2Goal = nullptr;
+	Team1SoccerBallSpawnPoint = nullptr;
+	Team2SoccerBallSpawnPoint = nullptr;
 	PenetratedGoal = nullptr;
 	RoundInProgress = false;
 }
@@ -28,10 +31,27 @@ void AMagicBattleSoccerGameState::GetLifetimeReplicatedProps(TArray< FLifetimePr
 	// Replicate to everyone
 	DOREPLIFETIME(AMagicBattleSoccerGameState, SoccerPlayers);
 	DOREPLIFETIME(AMagicBattleSoccerGameState, SoccerBall);
-	DOREPLIFETIME(AMagicBattleSoccerGameState, Team1Goal);
-	DOREPLIFETIME(AMagicBattleSoccerGameState, Team2Goal);
 	DOREPLIFETIME(AMagicBattleSoccerGameState, PenetratedGoal);
 	DOREPLIFETIME(AMagicBattleSoccerGameState, RoundInProgress);
+}
+
+/** Gets all the teammate controllers of a specified player */
+TArray<AController*> AMagicBattleSoccerGameState::GetTeammateControllers(class AMagicBattleSoccerPlayerState* PlayerState)
+{
+	TArray<AController*> Teammates;
+	if (nullptr != PlayerState)
+	{
+		for (TObjectIterator<AController> Itr; Itr; ++Itr)
+		{
+			if ((*Itr)->PlayerState != PlayerState
+				&& nullptr != Cast<AMagicBattleSoccerPlayerState>((*Itr)->PlayerState)
+				&& Cast<AMagicBattleSoccerPlayerState>((*Itr)->PlayerState)->TeamNumber == PlayerState->TeamNumber)
+			{
+				Teammates.Add(*Itr);
+			}
+		}
+	}
+	return Teammates;
 }
 
 /** Gets all the teammates of a specified player */
@@ -103,4 +123,50 @@ AMagicBattleSoccerCharacter* AMagicBattleSoccerGameState::GetClosestOpponentToLo
 		}
 	}
 	return ClosestOpponent;
+}
+
+/** Called when the state transitions to WaitingToStart */
+void AMagicBattleSoccerGameState::HandleMatchIsWaitingToStart()
+{
+	Super::HandleMatchIsWaitingToStart();
+
+	// Ensure the goal and spawn points are populated
+	EnsureGameStateActors();
+}
+
+/** Called when the state transitions to InProgress */
+void AMagicBattleSoccerGameState::HandleMatchHasStarted()
+{
+	Super::HandleMatchHasStarted();
+
+	// Ensure the goal and spawn points are populated
+	EnsureGameStateActors();
+}
+
+/** Populates the goals and ball spawn point members with values */
+void AMagicBattleSoccerGameState::EnsureGameStateActors()
+{
+	for (TObjectIterator<AMagicBattleSoccerGoal> Itr; Itr; ++Itr)
+	{
+		if ((*Itr)->TeamNumber == 1)
+		{
+			Team1Goal = *Itr;
+		}
+		else if ((*Itr)->TeamNumber == 2)
+		{
+			Team2Goal = *Itr;
+		}
+	}
+
+	for (TObjectIterator<AMagicBattleSoccerSpawnPoint> Itr; Itr; ++Itr)
+	{
+		if (1 == (*Itr)->OwningTeamNumber && (*Itr)->SpawnSoccerBalls)
+		{
+			Team1SoccerBallSpawnPoint = *Itr;
+		}
+		else if (2 == (*Itr)->OwningTeamNumber && (*Itr)->SpawnSoccerBalls)
+		{
+			Team2SoccerBallSpawnPoint = *Itr;
+		}
+	}
 }

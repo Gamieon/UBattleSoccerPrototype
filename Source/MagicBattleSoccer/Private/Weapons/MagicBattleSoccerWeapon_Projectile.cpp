@@ -70,6 +70,23 @@ void AMagicBattleSoccerWeapon_Projectile::FireWeapon()
 {
 	if (nullptr != Instigator)
 	{
+		// If the instigator is running, then fire the projectile immediately
+		if (Instigator->GetVelocity().Size() > 0.001f)
+		{
+			FireWeapon_Delayed();
+		}
+		else
+		{
+			// Set the timer for the delayed fire
+			GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerWeapon_Projectile::FireWeapon_Delayed, ProjectileConfig.ReleaseDelay);
+		}
+	}
+}
+
+void AMagicBattleSoccerWeapon_Projectile::FireWeapon_Delayed()
+{
+	if (nullptr != Instigator)
+	{
 		FVector ShootDir = TargetLocation - Instigator->GetActorLocation();
 		ShootDir.Z = 0;
 		ShootDir.Normalize();

@@ -5,7 +5,6 @@
 AMagicBattleSoccerWeapon_Bow::AMagicBattleSoccerWeapon_Bow(const class FObjectInitializer& OI)
 	: Super(OI)
 {
-	ArrowReleaseDelay = .5f;
 	DrawnArrowComponent = nullptr;
 }
 
@@ -44,10 +43,12 @@ void AMagicBattleSoccerWeapon_Bow::UpdateDrawnArrowComponent_Implementation()
 
 void AMagicBattleSoccerWeapon_Bow::FireWeapon()
 {
+	Super::FireWeapon();
+
 	if (nullptr != Instigator && Instigator->GetVelocity().Size() > 0.001f)
 	{
-		// If the instigator is running, then fire the arrow immediately
-		Super::FireWeapon();
+		// If the instigator is running, the arrow will have fired immediately in the call
+		// to Super::FireWeapon
 	}
 	else
 	{
@@ -56,15 +57,12 @@ void AMagicBattleSoccerWeapon_Bow::FireWeapon()
 		{
 			DrawnArrowComponent->SetVisibility(true);
 		}
-
-		// Set the timer for the delayed fire
-		GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerWeapon_Bow::FireWeapon_Delayed, ArrowReleaseDelay);
 	}
 }
 
 void AMagicBattleSoccerWeapon_Bow::FireWeapon_Delayed()
 {
-	Super::FireWeapon();
+	Super::FireWeapon_Delayed();
 
 	// The arrow has been released, so hide the instigator's drawn arrow component
 	if (nullptr != DrawnArrowComponent)

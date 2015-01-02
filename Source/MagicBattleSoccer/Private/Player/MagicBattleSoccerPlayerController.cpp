@@ -325,7 +325,7 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 				// Kick to the ground location
 				FVector v(GroundPoint.X - Origin.X, GroundPoint.Y - Origin.Y, 0.f);
 				//PlayerPawn->KickBallToLocation(GroundPoint, 15.f);
-				PlayerPawn->KickBallToLocation(Origin + v * 2.f, 15.f);
+				PlayerPawn->KickBallToLocation(Origin + v * 1.5f, 10.f);
 			}
 		}
 		else if (nullptr != PlayerPawn->PrimaryWeapon)

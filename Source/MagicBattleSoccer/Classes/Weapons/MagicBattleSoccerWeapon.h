@@ -207,15 +207,15 @@ protected:
 	UPROPERTY(Replicated, Transient, Replicated)
 	EWeaponState ServerState;
 
-	/** [local] weapon specific fire implementation */
-	virtual void FireWeapon() PURE_VIRTUAL(AMagicBattleSoccerWeapon::FireWeapon, );
-
 	/** [server] fire & update ammo */
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerHandleFiring();
 
 	/** [local + server] handle weapon fire */
 	void HandleFiring();
+
+	/** [local] weapon specific fire implementation */
+	virtual void FireWeapon();
 
 	/** [local + server] firing started */
 	virtual void OnBurstStarted();

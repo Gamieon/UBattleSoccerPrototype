@@ -20,12 +20,20 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameState : public AGameState
 	class AMagicBattleSoccerBall *SoccerBall;
 
 	/** Team 1 goal. Cached locally for all sessions */
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
 	class AMagicBattleSoccerGoal *Team1Goal;
 
 	/** Team 2 goal. Cached locally for all sessions */
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
 	class AMagicBattleSoccerGoal *Team2Goal;
+
+	/** Team 1 soccer ball spawn point. Cached locally for all sessions */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	class AMagicBattleSoccerSpawnPoint *Team1SoccerBallSpawnPoint;
+
+	/** Team 2 soccer ball spawn point. Cached locally for all sessions */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	class AMagicBattleSoccerSpawnPoint *Team2SoccerBallSpawnPoint;
 
 	/** Team 1 score */
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
@@ -43,6 +51,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameState : public AGameState
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
 	bool RoundInProgress;
 
+	/** Gets all the teammate controllers of a specified player */
+	UFUNCTION(BlueprintCallable, Category = Soccer)
+	TArray<class AController*> GetTeammateControllers(class AMagicBattleSoccerPlayerState* PlayerState);
+
 	/** Gets all the teammates of a specified player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	TArray<class AMagicBattleSoccerCharacter*> GetTeammates(class AMagicBattleSoccerPlayerState* PlayerState);
@@ -58,4 +70,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameState : public AGameState
 	/** Gets the closest enemy to a world location that can be pursued */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	class AMagicBattleSoccerCharacter* GetClosestOpponentToLocation(AMagicBattleSoccerCharacter* Player, FVector Location);
+
+	/** Called when the state transitions to WaitingToStart */
+	virtual void HandleMatchIsWaitingToStart();
+
+	/** Called when the state transitions to InProgress */
+	virtual void HandleMatchHasStarted();
+
+	/** Populates the goals and ball spawn point members with values */
+	void EnsureGameStateActors();
 };

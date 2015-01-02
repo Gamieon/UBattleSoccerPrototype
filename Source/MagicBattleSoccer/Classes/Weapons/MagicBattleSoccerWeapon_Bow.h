@@ -18,10 +18,6 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon_Bow : public AMagicBattleSo
 	UPROPERTY(BlueprintReadWrite, Category = Soccer)
 	UStaticMeshComponent *DrawnArrowComponent;
 
-	/** arrow release delay */
-	UPROPERTY(EditDefaultsOnly, Category = Soccer)
-	float ArrowReleaseDelay;	
-
 	//////////////////////////////////////////////////////////////////////////
 	// Inventory
 

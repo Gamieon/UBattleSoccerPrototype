@@ -28,6 +28,10 @@ struct FProjectileWeaponData
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = WeaponStat)
 	TSubclassOf<UDamageType> DamageType;
 
+	/** how long to wait between the time the player fires and the time the projectile is released */
+	UPROPERTY(EditDefaultsOnly, Category = Soccer)
+	float ReleaseDelay;
+
 	/** defaults */
 	FProjectileWeaponData()
 	{
@@ -35,6 +39,7 @@ struct FProjectileWeaponData
 		ProjectileLife = 10.0f;
 		ExplosionDamage = 100;
 		ExplosionRadius = 300.0f;
+		ReleaseDelay = 0.f;
 		DamageType = UDamageType::StaticClass();
 	}
 };
@@ -70,6 +75,9 @@ protected:
 
 	/** [local] weapon specific fire implementation */
 	virtual void FireWeapon() override;
+
+	/** delayed function call to fire the weapon. This is always called even if the fire delay is zero. */
+	virtual void FireWeapon_Delayed();
 
 	/** spawn projectile on server */
 	UFUNCTION(reliable, server, WithValidation)

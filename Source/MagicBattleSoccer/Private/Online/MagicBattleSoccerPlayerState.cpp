@@ -7,13 +7,22 @@
 AMagicBattleSoccerPlayerState::AMagicBattleSoccerPlayerState(const class FObjectInitializer& OI)
 	: Super(OI)
 {
+	static ConstructorHelpers::FClassFinder<AMagicBattleSoccerCharacter> DefaultCharacter(TEXT("/Game/Characters/Tyler/tyler"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> DefaultCharacterIcon(TEXT("/Game/Characters/Tyler/Textures/avatar_tyler"));
+
 	TeamNumber = 0;
+
+	// TODO: Have the character choose their class
+	CharacterClass = DefaultCharacter.Class;
+	CharacterIcon = DefaultCharacterIcon.Object;
 }
 
 void AMagicBattleSoccerPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(AMagicBattleSoccerPlayerState, CharacterClass);
+	DOREPLIFETIME(AMagicBattleSoccerPlayerState, CharacterIcon);
 	DOREPLIFETIME(AMagicBattleSoccerPlayerState, TeamNumber);
 }
 

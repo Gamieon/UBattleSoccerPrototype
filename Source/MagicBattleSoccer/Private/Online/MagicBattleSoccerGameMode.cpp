@@ -117,6 +117,25 @@ void AMagicBattleSoccerGameMode::HandleRoundHasStarted()
 		Itr->SpawnCharacter();
 	}
 
+	// Reset the ball position
+	if (nullptr == GameState->PenetratedGoal)
+	{
+		GameState->SoccerBall->SetActorLocation(FVector(0.f, 0.f, 40.f));
+	}
+	else if (GameState->PenetratedGoal->TeamNumber == 1)
+	{
+		GameState->SoccerBall->SetActorLocation(GameState->Team1SoccerBallSpawnPoint->GetActorLocation());
+	}
+	else if (GameState->PenetratedGoal->TeamNumber == 2)
+	{
+		GameState->SoccerBall->SetActorLocation(GameState->Team2SoccerBallSpawnPoint->GetActorLocation());
+	}
+	else
+	{
+		// Unexpected case; just center the ball
+		GameState->SoccerBall->SetActorLocation(FVector(0.f, 0.f, 40.f));
+	}
+
 	// Ensure the ball has no possessor and move it to the center of the map
 	GameState->SoccerBall->RoundHasStarted();
 

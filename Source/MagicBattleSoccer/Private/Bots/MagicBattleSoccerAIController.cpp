@@ -379,7 +379,7 @@ bool AMagicBattleSoccerAIController::KickBallToGoal()
 		}
 		else
 		{
-			MyBot->KickBallToLocation(EnemyGoal->GetActorLocation(), 10.f);
+			KickBallToLocation(EnemyGoal->GetActorLocation(), 10.f);
 			return true;
 		}
 	}
@@ -391,6 +391,11 @@ void AMagicBattleSoccerAIController::KickBallToLocation(const FVector& Location,
 	AMagicBattleSoccerCharacter* MyBot = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != MyBot)
 	{
-		MyBot->KickBallToLocation(Location, AngleInDegrees);
+		//MyBot->KickBallToLocation(Location, AngleInDegrees);
+
+		// Kick it with extra force so that it intersects the location
+		FVector Origin = MyBot->GetActorLocation();
+		FVector v(Location.X - Origin.X, Location.Y - Origin.Y, 0.f);
+		MyBot->KickBallToLocation(Origin + v * 1.5f, AngleInDegrees);
 	}
 }

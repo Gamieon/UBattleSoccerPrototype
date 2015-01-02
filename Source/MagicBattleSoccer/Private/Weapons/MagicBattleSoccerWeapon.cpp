@@ -230,7 +230,7 @@ void AMagicBattleSoccerWeapon::HandleFiring()
 		}
 	}
 
-	if (MyPawn && MyPawn->IsLocallyControlled())
+	if (nullptr != MyPawn && MyPawn->IsLocallyControlled())
 	{
 		// local client will notify server
 		if (Role < ROLE_Authority)
@@ -260,6 +260,12 @@ void AMagicBattleSoccerWeapon::HandleFiring()
 	}
 
 	LastFireTime = GetWorld()->GetTimeSeconds();
+}
+
+/** [local] weapon specific fire implementation */
+void AMagicBattleSoccerWeapon::FireWeapon()
+{
+	// Child classes handle this
 }
 
 void AMagicBattleSoccerWeapon::SetWeaponState(EWeaponState NewState)

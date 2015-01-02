@@ -215,7 +215,6 @@ void AMagicBattleSoccerBall::RoundHasStarted_Implementation()
 		}
 		PossessorToIgnore = nullptr;
 	}
-	SetActorLocation(FVector(0.f, 0.f, 40.f));
 }
 
 /** Called by a AMagicBattleSoccerCharacter object when it has been destroyed */

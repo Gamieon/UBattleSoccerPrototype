@@ -14,6 +14,8 @@ AMagicBattleSoccerWeapon_Trap::AMagicBattleSoccerWeapon_Trap(const class FObject
 
 void AMagicBattleSoccerWeapon_Trap::FireWeapon()
 {
+	Super::FireWeapon();
+
 	FVector WorldLocation;
 	FVector WorldDirection;
 

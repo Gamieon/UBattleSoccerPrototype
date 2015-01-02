@@ -134,7 +134,7 @@ FReply SMainMenuUI::HostClicked()
 	/** This code joins manually */
 	UMagicBattleSoccerInstance *GI = Cast<UMagicBattleSoccerInstance>(GEngine->GameViewport->GetGameInstance());
 	APlayerController *Controller = GI->GetFirstLocalPlayerController();
-	FString CommandString = FString::Printf(TEXT("open test_4v4?listen"));
+	FString CommandString = FString::Printf(TEXT("open test_dummy_enemy?listen"));
 	Controller->ConsoleCommand(CommandString);
 
 

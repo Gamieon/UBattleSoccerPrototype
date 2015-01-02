@@ -46,6 +46,8 @@ TArray<FWeaponActorEffectiveness> AMagicBattleSoccerWeapon_Melee::GetCurrentEffe
 
 void AMagicBattleSoccerWeapon_Melee::FireWeapon()
 {
+	Super::FireWeapon();
+
 	FVector WorldLocation;
 	FVector WorldDirection;
 

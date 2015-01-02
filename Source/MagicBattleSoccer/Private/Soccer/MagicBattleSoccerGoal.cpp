@@ -53,27 +53,3 @@ FVector AMagicBattleSoccerGoal::GetIdealRunLocation(AMagicBattleSoccerCharacter*
 		return FVector(FrontOfGoal.X, FrontOfGoal.Y, Player->GetActorLocation().Z);
 	}
 }
-
-/** This occurs when play begins */
-void AMagicBattleSoccerGoal::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (ROLE_Authority == Role)
-	{
-		// Servers should add this goal to the game mode cache
-		AMagicBattleSoccerGameState* GameState = GetGameState();
-		if (1 == TeamNumber)
-		{
-			GameState->Team1Goal = this;
-		}
-		else if (2 == TeamNumber)
-		{
-			GameState->Team2Goal = this;
-		}
-	}
-	else
-	{
-		// The server manages the game state; the goals will be replicated to us.
-	}
-}

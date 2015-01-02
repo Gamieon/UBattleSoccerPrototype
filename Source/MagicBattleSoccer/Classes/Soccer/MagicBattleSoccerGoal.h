@@ -25,11 +25,4 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGoal : public AActor
 	/** The goal's owning team number */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	int32 TeamNumber;
-	
-	//Begin AActor interface
-
-	/** This occurs when play begins */
-	virtual void BeginPlay() override;
-
-	//End AActor interface
 };

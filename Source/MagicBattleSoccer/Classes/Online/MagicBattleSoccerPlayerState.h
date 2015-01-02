@@ -15,6 +15,14 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayerState : public APlayerState
 {
 	GENERATED_UCLASS_BODY()
 
+	/** the character class to spawn */
+	UPROPERTY(Transient, Replicated, EditAnywhere, BlueprintReadWrite, Category = Soccer)
+	TSubclassOf<class AMagicBattleSoccerCharacter> CharacterClass;
+
+	/** the icon of the character */
+	UPROPERTY(Transient, Replicated, EditAnywhere, BlueprintReadWrite, Category = Soccer)
+	UTexture2D *CharacterIcon;
+
 	/** The team number */
 	UPROPERTY(Transient, Replicated, EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	int32 TeamNumber;
