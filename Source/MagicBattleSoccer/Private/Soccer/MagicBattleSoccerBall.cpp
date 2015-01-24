@@ -18,6 +18,8 @@ AMagicBattleSoccerBall::AMagicBattleSoccerBall(const class FObjectInitializer& O
 	proxyStateCount = 0;
 	this->SetActorTickEnabled(true);
 	PrimaryActorTick.bCanEverTick = true;
+	serverChargeBeginTime = -1;
+	IsCharging = false;
 }
 
 void AMagicBattleSoccerBall::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
@@ -170,6 +172,12 @@ void AMagicBattleSoccerBall::Tick(float DeltaSeconds)
 		}
 		else
 		{
+			// Update the charging value
+			if (GetVelocity().SizeSquared() > 1.f)
+			{
+				IsCharging = false;
+			}
+
 			// Servers should simulate the ball physics freely and replicate the orientation
 			UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
 			ServerPhysicsState.pos = GetActorLocation();
@@ -377,4 +385,12 @@ void AMagicBattleSoccerBall::KickToLocation(const FVector& Location, float Angle
 		Root->SetPhysicsLinearVelocity(kick);
 		Root->SetPhysicsAngularVelocity(cross * forceMag * -4.f);
 	}
+}
+
+/** [server] begins charging the ball */
+void AMagicBattleSoccerBall::BeginCharging()
+{
+	// Start charging
+	serverChargeBeginTime = GetWorld()->TimeSeconds;
+	IsCharging = true;
 }

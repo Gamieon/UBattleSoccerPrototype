@@ -30,6 +30,13 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerBall : public AActor
 	/** The negative distance travelled since creation. Maintained locally. */
 	float NegDistanceTravelled;
 
+	/** [server + local] True if the ball is charging */
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	bool IsCharging;
+
+	/** [server] The time when the ball began charging */
+	float serverChargeBeginTime;
+
 private:
 	/** Clients store twenty states with "playback" information from the server. This
 	array contains the official state of this object at different times according to
@@ -87,5 +94,8 @@ public:
 
 	/** Kicks this ball to a location */
 	void KickToLocation(const FVector& Location, float AngleInDegrees);
+
+	/** [server] begins charging the ball */
+	void BeginCharging();
 };
 

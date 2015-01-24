@@ -60,18 +60,25 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerPlayerController : public APlayerC
 	UFUNCTION(BlueprintCallable, Category = Soccer)
 	bool CanSpawnCharacter();
 
-	/** Spawns the character */
+	/** [server] Spawns the character  via blueprints */
 	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
 	void SpawnCharacter();
 
+	/** Requests that the server spawns a character */
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerSpawnCharacter();
 
+	/** Requests that the server suicide this character */
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerSuicide();
 
+	/** Requests that the server change the character's rotation */
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerForceActorRotation(FRotator rotation);
+
+	/** Requests that the server start charging the ball */
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerBeginChargingBall();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Input handlers

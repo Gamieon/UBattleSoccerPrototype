@@ -27,6 +27,7 @@ AMagicBattleSoccerCharacter::AMagicBattleSoccerCharacter(const class FObjectInit
 	LastTakeHitTimeTimeout = 0;
 	bIsDead = false;
 	bSinkIntoGround = false;
+	IsStunned = false;
 }
 
 void AMagicBattleSoccerCharacter::PostInitializeComponents()
@@ -94,6 +95,12 @@ void AMagicBattleSoccerCharacter::OnRep_LastTakeHitInfo()
 	{
 		PlayHit(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
 	}
+}
+
+void AMagicBattleSoccerCharacter::OnRep_IsStunned()
+{
+	// Update the movement speed
+	UpdateMovementSpeed();
 }
 
 /** Gets the character's team number */

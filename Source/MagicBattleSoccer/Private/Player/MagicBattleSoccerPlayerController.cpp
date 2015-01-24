@@ -260,6 +260,17 @@ void AMagicBattleSoccerPlayerController::ServerForceActorRotation_Implementation
 	}
 }
 
+bool AMagicBattleSoccerPlayerController::ServerBeginChargingBall_Validate()
+{
+	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
+	return (nullptr != PlayerPawn && PlayerPawn->PossessesBall());
+}
+
+void AMagicBattleSoccerPlayerController::ServerBeginChargingBall_Implementation()
+{
+	GetGameState()->SoccerBall->BeginCharging();
+}
+
 bool AMagicBattleSoccerPlayerController::ServerSuicide_Validate()
 {
 	return true;
@@ -305,28 +316,7 @@ void AMagicBattleSoccerPlayerController::OnStartPrimaryAction()
 	{
 		if (PlayerPawn->PossessesBall())
 		{
-			// Aim where the mouse is pointing
-			FVector WorldLocation;
-			FVector WorldDirection;
-			if (!DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
-			{
-				// Failed. Do not kick.
-				WorldDirection = PlayerPawn->GetActorForwardVector();
-			}
-			else
-			{
-				// Calculate the point on the plane Z = BallZ that the mouse is pointing at. Remember we're not projecting onto the ground,
-				// we're projecting onto the plane that contains the ball origin for a much more accurate reading.
-				FVector Origin = GetGameState()->SoccerBall->GetActorLocation();
-				float d = FVector::DotProduct((FVector(0, 0, Origin.Z) - WorldLocation), FVector::UpVector)
-					/ FVector::DotProduct(WorldDirection, FVector::UpVector);
-				FVector GroundPoint = WorldLocation + WorldDirection * d;
-
-				// Kick to the ground location
-				FVector v(GroundPoint.X - Origin.X, GroundPoint.Y - Origin.Y, 0.f);
-				//PlayerPawn->KickBallToLocation(GroundPoint, 15.f);
-				PlayerPawn->KickBallToLocation(Origin + v * 1.5f, 10.f);
-			}
+			ServerBeginChargingBall();
 		}
 		else if (nullptr != PlayerPawn->PrimaryWeapon)
 		{
@@ -347,7 +337,39 @@ void AMagicBattleSoccerPlayerController::OnStopPrimaryAction()
 	AMagicBattleSoccerCharacter* PlayerPawn = Cast<AMagicBattleSoccerCharacter>(GetPawn());
 	if (nullptr != PlayerPawn)
 	{
+		// Ensure in all cases that weapon fire is ceased
 		PlayerPawn->StopWeaponFire(PlayerPawn->PrimaryWeapon);
+
+		// Kick the ball
+		if (PlayerPawn->PossessesBall())
+		{
+			// Aim where the mouse is pointing
+			FVector WorldLocation;
+			FVector WorldDirection;
+			if (!DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
+			{
+				// Failed. I don't see how this can ever happen; just tap the ball forward if it does.
+				UE_LOG(LogOnlineGame, Verbose, TEXT("AMagicBattleSoccerPlayerController::OnStopPrimaryAction failed at DeprojectMousePositionToWorld! Tapping ball forward."));
+				FVector Origin = GetGameState()->SoccerBall->GetActorLocation();
+				PlayerPawn->KickBallToLocation(Origin + PlayerPawn->GetActorForwardVector() * 100.f, 10.f);
+			}
+			else
+			{
+				// Calculate the point on the plane Z = BallZ that the mouse is pointing at. Remember we're not projecting onto the ground,
+				// we're projecting onto the plane that contains the ball origin for a much more accurate reading.
+				FVector Origin = GetGameState()->SoccerBall->GetActorLocation();
+				float d = FVector::DotProduct((FVector(0, 0, Origin.Z) - WorldLocation), FVector::UpVector)
+					/ FVector::DotProduct(WorldDirection, FVector::UpVector);
+				FVector GroundPoint = WorldLocation + WorldDirection * d;
+
+				// Kick to the ground location
+				FVector v(GroundPoint.X - Origin.X, GroundPoint.Y - Origin.Y, 0.f);
+				//PlayerPawn->KickBallToLocation(GroundPoint, 15.f);
+				float powerUpDuration = GetWorld()->TimeSeconds - GetGameState()->SoccerBall->serverChargeBeginTime;
+				powerUpDuration = FMath::Min(powerUpDuration, 4.f);
+				PlayerPawn->KickBallToLocation(Origin + v * (1.f + powerUpDuration), 10.f - powerUpDuration * 1.5f);
+			}
+		}
 	}
 }
 

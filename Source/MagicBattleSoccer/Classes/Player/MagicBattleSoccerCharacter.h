@@ -100,6 +100,12 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)
 	FName SecondaryWeaponSocket;
 
+	/** [server + local] True if the character is stunned */
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	bool IsStunned;
+	UFUNCTION()
+	void OnRep_IsStunned();
+
 	//Begin AActor interface
 
 	/** spawn inventory, setup initial variables */
