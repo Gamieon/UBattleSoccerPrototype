@@ -39,6 +39,11 @@ protected:
 	/** Delegate for searching for sessions */
 	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
 
+	/** Handles to various registered delegates */
+	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
+	FDelegateHandle OnDestroySessionCompleteDelegateHandle;
+	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
+
 	/** Transient properties of a session during game creation/matchmaking */
 	FMagicBattleSoccerSessionParams CurrentSessionParams;
 	/** Current host settings */
@@ -68,11 +73,6 @@ protected:
 	* @param bWasSuccessful true if the async action completed without error, false if there was an error
 	*/
 	virtual void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
-
-	/**
-	* Safe delete mechanism to make sure we aren't deleting a session too soon after its creation
-	*/
-	void DelayedSessionDelete();
 
 	/*
 	* Event triggered when a presence session is created

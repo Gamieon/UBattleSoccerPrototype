@@ -16,6 +16,11 @@ private:
 	FString TravelURL;
 
 private:
+	/** Handle to various registered delegates */
+	FDelegateHandle OnSearchSessionsCompleteDelegateHandle;
+	FDelegateHandle OnCreatePresenceSessionCompleteDelegateHandle;
+
+private:
 	/** Called to show the loading screen */
 	void ShowLoadingScreen();
 

@@ -55,7 +55,7 @@ void AMagicBattleSoccerWeapon_Melee::FireWeapon()
 	if (nullptr != Controller)
 	{
 		// Deal damage half way through the swing
-		GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerWeapon_Melee::ApplySweepDamage, WeaponConfig.TimeBetweenShots * 0.5f, false);		
+		GetWorldTimerManager().SetTimer(TimerHandle_ApplySweepDamageTimer, this, &AMagicBattleSoccerWeapon_Melee::ApplySweepDamage, WeaponConfig.TimeBetweenShots * 0.5f, false);
 	}
 }
 

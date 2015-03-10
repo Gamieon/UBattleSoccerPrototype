@@ -34,6 +34,9 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon_Melee : public AMagicBattle
 {
 	GENERATED_UCLASS_BODY()
 
+private:
+	FTimerHandle TimerHandle_ApplySweepDamageTimer;
+
 public:
 	//////////////////////////////////////////////////////////////////////////
 	// AI

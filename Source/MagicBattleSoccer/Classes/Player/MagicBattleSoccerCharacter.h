@@ -12,6 +12,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 {
 	GENERATED_UCLASS_BODY()
 
+private:
+	FTimerHandle TimerHandle_DelayedSinkIntoGroundTimer;
+
+public:
 	//////////////////////////////////////////////////////////////////////////
 	// Player attributes
 

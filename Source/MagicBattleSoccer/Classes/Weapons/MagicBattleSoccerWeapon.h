@@ -77,6 +77,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon : public AActor
 {
 	GENERATED_UCLASS_BODY()
 
+private:
+	FTimerHandle TimerHandle_HandleFiringTimer;
+
+public:
 	/** is weapon currently equipped? */
 	uint32 bIsEquipped : 1;
 

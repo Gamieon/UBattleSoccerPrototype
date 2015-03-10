@@ -187,7 +187,7 @@ void AMagicBattleSoccerGameMode::HandleRoundHasEnded()
 	}
 
 	// Start a timer to begin the next round
-	GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerGameMode::StartNextRound, 3.f);
+	GetWorldTimerManager().SetTimer(TimerHandle_StartNextRoundTimer, this, &AMagicBattleSoccerGameMode::StartNextRound, 3.f);
 }
 
 void AMagicBattleSoccerGameMode::StartNextRound()

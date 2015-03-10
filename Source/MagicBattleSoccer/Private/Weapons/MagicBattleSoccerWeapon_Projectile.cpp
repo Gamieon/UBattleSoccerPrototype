@@ -78,7 +78,7 @@ void AMagicBattleSoccerWeapon_Projectile::FireWeapon()
 		else
 		{
 			// Set the timer for the delayed fire
-			GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerWeapon_Projectile::FireWeapon_Delayed, ProjectileConfig.ReleaseDelay);
+			GetWorldTimerManager().SetTimer(TimerHandle_FireWeapon_DelayedTimer, this, &AMagicBattleSoccerWeapon_Projectile::FireWeapon_Delayed, ProjectileConfig.ReleaseDelay);
 		}
 	}
 }

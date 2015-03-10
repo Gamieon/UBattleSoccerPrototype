@@ -53,7 +53,7 @@ bool UMagicBattleSoccerInstance::HostGame(ULocalPlayer* LocalPlayer, const FStri
 	if (GameSession)
 	{
 		// add callback delegate for completion
-		GameSession->OnCreatePresenceSessionComplete().AddUObject(this, &UMagicBattleSoccerInstance::OnCreatePresenceSessionComplete);
+		OnCreatePresenceSessionCompleteDelegateHandle = GameSession->OnCreatePresenceSessionComplete().AddUObject(this, &UMagicBattleSoccerInstance::OnCreatePresenceSessionComplete);
 
 		TravelURL = InTravelURL;
 		bool const bIsLanMatch = false; // We don't support LAN play right now
@@ -82,7 +82,7 @@ void UMagicBattleSoccerInstance::OnCreatePresenceSessionComplete(FName SessionNa
 	AMagicBattleSoccerGameSession* const GameSession = GetGameSession();
 	if (GameSession)
 	{
-		GameSession->OnCreatePresenceSessionComplete().RemoveUObject(this, &UMagicBattleSoccerInstance::OnCreatePresenceSessionComplete);
+		GameSession->OnCreatePresenceSessionComplete().Remove(OnCreatePresenceSessionCompleteDelegateHandle);
 
 		// Finish the session creation
 		FinishSessionCreation(bWasSuccessful ? EOnJoinSessionCompleteResult::Success : EOnJoinSessionCompleteResult::UnknownError);
@@ -101,7 +101,7 @@ bool UMagicBattleSoccerInstance::FindSessions(ULocalPlayer* PlayerOwner, bool bF
 		if (GameSession)
 		{
 			GameSession->OnFindSessionsComplete().RemoveAll(this);
-			GameSession->OnFindSessionsComplete().AddUObject(this, &UMagicBattleSoccerInstance::OnSearchSessionsComplete);
+			OnSearchSessionsCompleteDelegateHandle = GameSession->OnFindSessionsComplete().AddUObject(this, &UMagicBattleSoccerInstance::OnSearchSessionsComplete);
 
 			GameSession->FindSessions(PlayerOwner->GetPreferredUniqueNetId(), GameSessionName, bFindLAN, true);
 
@@ -118,7 +118,7 @@ void UMagicBattleSoccerInstance::OnSearchSessionsComplete(bool bWasSuccessful)
 	AMagicBattleSoccerGameSession* const Session = GetGameSession();
 	if (Session)
 	{
-		Session->OnFindSessionsComplete().RemoveUObject(this, &UMagicBattleSoccerInstance::OnSearchSessionsComplete);
+		Session->OnFindSessionsComplete().Remove(OnSearchSessionsCompleteDelegateHandle);
 	}
 }
 

@@ -319,7 +319,7 @@ void AMagicBattleSoccerCharacter::OnDeath(float KillingDamage, struct FDamageEve
 	SetActorEnableCollision(true);
 
 	// Set a timer to begin sinking into the ground
-	GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerCharacter::DelayedSinkIntoGround, 2.5f);
+	GetWorldTimerManager().SetTimer(TimerHandle_DelayedSinkIntoGroundTimer, this, &AMagicBattleSoccerCharacter::DelayedSinkIntoGround, 2.5f);
 
 	SetLifeSpan(5.0f);
 }

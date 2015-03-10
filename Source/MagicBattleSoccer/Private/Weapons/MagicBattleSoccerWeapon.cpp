@@ -21,7 +21,6 @@ AMagicBattleSoccerWeapon::AMagicBattleSoccerWeapon(const class FObjectInitialize
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
 	SetRemoteRoleForBackwardsCompat(ROLE_SimulatedProxy);
 	bReplicates = true;
-	bReplicateInstigator = true;
 	bNetUseOwnerRelevancy = true;
 }
 
@@ -255,7 +254,7 @@ void AMagicBattleSoccerWeapon::HandleFiring()
 		if (bRefiring)
 		{
 			// Start a timer to handle repeating firing
-			GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerWeapon::HandleFiring, WeaponConfig.TimeBetweenShots, false);
+			GetWorldTimerManager().SetTimer(TimerHandle_HandleFiringTimer, this, &AMagicBattleSoccerWeapon::HandleFiring, WeaponConfig.TimeBetweenShots, false);
 		}
 	}
 
@@ -362,7 +361,7 @@ void AMagicBattleSoccerWeapon::OnBurstStarted()
 	if (LastFireTime > 0 && WeaponConfig.TimeBetweenShots > 0.0f &&
 		LastFireTime + WeaponConfig.TimeBetweenShots > GameTime)
 	{
-		GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerWeapon::HandleFiring, LastFireTime + WeaponConfig.TimeBetweenShots - GameTime, false);
+		GetWorldTimerManager().SetTimer(TimerHandle_HandleFiringTimer, this, &AMagicBattleSoccerWeapon::HandleFiring, LastFireTime + WeaponConfig.TimeBetweenShots - GameTime, false);
 	}
 	else
 	{
@@ -372,6 +371,6 @@ void AMagicBattleSoccerWeapon::OnBurstStarted()
 
 void AMagicBattleSoccerWeapon::OnBurstFinished()
 {
-	GetWorldTimerManager().ClearTimer(this, &AMagicBattleSoccerWeapon::HandleFiring);
+	GetWorldTimerManager().ClearTimer(TimerHandle_HandleFiringTimer);
 	bRefiring = false;
 }

@@ -49,6 +49,10 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerWeapon_Projectile : public AMagicB
 {
 	GENERATED_UCLASS_BODY()
 
+private:
+	FTimerHandle TimerHandle_FireWeapon_DelayedTimer;
+
+public:
 	/** apply config on projectile */
 	void ApplyWeaponConfig(FProjectileWeaponData& Data);
 

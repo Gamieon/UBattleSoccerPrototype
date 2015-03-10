@@ -6,7 +6,6 @@ AMagicBattleSoccerTrap::AMagicBattleSoccerTrap(const class FObjectInitializer& O
 	: Super(OI)
 {
 	bReplicates = true;
-	bReplicateInstigator = true;
 	bNetUseOwnerRelevancy = true;
 	this->SetActorTickEnabled(true);
 	PrimaryActorTick.bCanEverTick = true;

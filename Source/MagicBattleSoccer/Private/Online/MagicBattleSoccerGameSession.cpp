@@ -63,15 +63,10 @@ void AMagicBattleSoccerGameSession::OnCreateSessionComplete(FName SessionName, b
 	if (OnlineSub)
 	{
 		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();
-		Sessions->ClearOnCreateSessionCompleteDelegate(OnCreateSessionCompleteDelegate);
+		Sessions->ClearOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegateHandle);
 	}
 
 	OnCreatePresenceSessionComplete().Broadcast(SessionName, bWasSuccessful);
-
-	if (!bWasSuccessful)
-	{
-		DelayedSessionDelete();
-	}
 }
 
 /**
@@ -88,34 +83,11 @@ void AMagicBattleSoccerGameSession::OnDestroySessionComplete(FName SessionName, 
 	if (OnlineSub)
 	{
 		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();
-		Sessions->ClearOnDestroySessionCompleteDelegate(OnDestroySessionCompleteDelegate);
+		Sessions->ClearOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegateHandle);
 		HostSettings = NULL;
 	}
 }
 
-/** Safe delete mechanism to make sure we aren't deleting a session too soon after its creation */
-void AMagicBattleSoccerGameSession::DelayedSessionDelete()
-{
-	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
-	if (OnlineSub)
-	{
-		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();
-		EOnlineSessionState::Type SessionState = Sessions->GetSessionState(CurrentSessionParams.SessionName);
-		if (SessionState != EOnlineSessionState::Creating)
-		{
-			Sessions->AddOnDestroySessionCompleteDelegate(OnDestroySessionCompleteDelegate);
-			if (!Sessions->DestroySession(CurrentSessionParams.SessionName))
-			{
-				Sessions->ClearOnDestroySessionCompleteDelegate(OnDestroySessionCompleteDelegate);
-			}
-		}
-		else
-		{
-			// Retry shortly
-			GetWorldTimerManager().SetTimer(this, &AMagicBattleSoccerGameSession::DelayedSessionDelete, 1.f);
-		}
-	}
-}
 
 /** Host a new online session */
 bool AMagicBattleSoccerGameSession::HostSession(TSharedPtr<FUniqueNetId> UserId, FName SessionName, const FString & GameType, const FString & MapName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers)
@@ -140,7 +112,7 @@ bool AMagicBattleSoccerGameSession::HostSession(TSharedPtr<FUniqueNetId> UserId,
 			HostSettings->Set(SETTING_SESSION_TEMPLATE_NAME, FString("GameSession"), EOnlineDataAdvertisementType::DontAdvertise);
 			HostSettings->Set(SEARCH_KEYWORDS, CustomMatchKeyword, EOnlineDataAdvertisementType::ViaOnlineService);
 
-			Sessions->AddOnCreateSessionCompleteDelegate(OnCreateSessionCompleteDelegate);
+			OnCreateSessionCompleteDelegateHandle = Sessions->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
 			return Sessions->CreateSession(*CurrentSessionParams.UserId, CurrentSessionParams.SessionName, *HostSettings);
 		}
 	}
@@ -166,7 +138,7 @@ void AMagicBattleSoccerGameSession::OnFindSessionsComplete(bool bWasSuccessful)
 		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();
 		if (Sessions.IsValid())
 		{
-			Sessions->ClearOnFindSessionsCompleteDelegate(OnFindSessionsCompleteDelegate);
+			Sessions->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
 
 			UE_LOG(LogOnlineGame, Verbose, TEXT("Num Search Results: %d"), SearchSettings->SearchResults.Num());
 			for (int32 SearchIdx = 0; SearchIdx < SearchSettings->SearchResults.Num(); SearchIdx++)
@@ -198,7 +170,7 @@ void AMagicBattleSoccerGameSession::FindSessions(TSharedPtr<FUniqueNetId> UserId
 
 			TSharedRef<FOnlineSessionSearch> SearchSettingsRef = SearchSettings.ToSharedRef();
 
-			Sessions->AddOnFindSessionsCompleteDelegate(OnFindSessionsCompleteDelegate);
+			OnFindSessionsCompleteDelegateHandle = Sessions->AddOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegate);
 			Sessions->FindSessions(*CurrentSessionParams.UserId, SearchSettingsRef);
 		}
 	}

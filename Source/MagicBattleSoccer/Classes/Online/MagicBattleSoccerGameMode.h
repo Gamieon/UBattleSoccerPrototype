@@ -26,6 +26,9 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameMode : public AGameMode
 	int NextBotNameID;
 
 private:
+	FTimerHandle TimerHandle_StartNextRoundTimer;
+
+private:
 	/** Gets the game state */
 	class AMagicBattleSoccerGameState* GetGameState();
 
