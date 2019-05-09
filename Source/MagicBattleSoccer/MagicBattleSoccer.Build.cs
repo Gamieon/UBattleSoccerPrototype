@@ -11,13 +11,32 @@ public class MagicBattleSoccer : ModuleRules
 
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] {
-		    "Core", "CoreUObject", "Engine", "InputCore",
-		    "ProceduralMeshComponent", "GameplayTags", "Slate", "SlateCore", "Paper2D"
-        });
+		PrivateIncludePaths.AddRange(
+            new string[] { 
+                "MagicBattleSoccer/Classes/Bots"
+                ,"MagicBattleSoccer/Classes/Online"
+				,"MagicBattleSoccer/Classes/Player"
+                ,"MagicBattleSoccer/Classes/Soccer"
+                ,"MagicBattleSoccer/Classes/Weapons"
+                ,"MagicBattleSoccer/Classes/UI"
+                ,"MagicBattleSoccer/Classes/Traps"
+                ,"MagicBattleSoccer/Private/UI/Menu"
+                ,"MagicBattleSoccer/Private/UI/Style"
+                ,"MagicBattleSoccer/Private/UI/Widgets"
+            }
+        );
+
+		   PublicDependencyModuleNames.AddRange(new string[] { 
+            "Core", 
+            "CoreUObject", 
+            "Engine", 
+			"OnlineSubsystem",
+			"OnlineSubsystemUtils",
+            "InputCore", 
+            "AIModule" });
 
 		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
