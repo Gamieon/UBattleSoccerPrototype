@@ -7,6 +7,7 @@
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerUserSettings.h"
 #include "MagicBattleSoccerEngine.h"
+#include "MagicBattleSoccerBall.h"
 #include <chrono>
 
 using namespace std::chrono;

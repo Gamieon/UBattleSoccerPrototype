@@ -459,7 +459,7 @@ void AMagicBattleSoccerCharacter::SpawnDefaultInventory()
 	if (nullptr != DefaultPrimaryWeaponClass)
 	{
 		FActorSpawnParameters SpawnInfo;
-		SpawnInfo.bNoCollisionFail = true;
+		SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		AMagicBattleSoccerWeapon* NewWeapon = GetWorld()->SpawnActor<AMagicBattleSoccerWeapon>(DefaultPrimaryWeaponClass, SpawnInfo);
 		EquipPrimaryWeapon(NewWeapon);
 	}
@@ -467,7 +467,7 @@ void AMagicBattleSoccerCharacter::SpawnDefaultInventory()
 	if (nullptr != DefaultSecondaryWeaponClass)
 	{
 		FActorSpawnParameters SpawnInfo;
-		SpawnInfo.bNoCollisionFail = true;
+		SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		AMagicBattleSoccerWeapon* NewWeapon = GetWorld()->SpawnActor<AMagicBattleSoccerWeapon>(DefaultSecondaryWeaponClass, SpawnInfo);
 		EquipSecondaryWeapon(NewWeapon);
 	}

@@ -342,7 +342,8 @@ void AMagicBattleSoccerWeapon::AttachMeshToPawn(FName InSocketName)
 
 		// Attach the weapon to the player's right hand
 		USkeletalMeshComponent* PlayerMesh = Cast<USkeletalMeshComponent>(MyPawn->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
-		AttachRootComponentTo(PlayerMesh, InSocketName, EAttachLocation::SnapToTarget);
+		
+		AActor::AttachToComponent(PlayerMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, InSocketName);
 
 		// Show our mesh
 		SetActorHiddenInGame(false);

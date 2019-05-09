@@ -18,6 +18,9 @@
 #include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerSpawnPoint.h"
 #include "MagicBattleSoccerGameSession.h"
+#include "MagicBattleSoccerAIController.h"
+#include "MagicBattleSoccerBall.h"
+#include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerHUD.h"
 
 AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FObjectInitializer& OI)

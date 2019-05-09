@@ -71,8 +71,8 @@ void SJoinMenuUI::Construct(const FArguments& args)
 							.HAlign(HAlign_Center)
 							[
 								SNew(STextBlock)
-								.Text(this, &SJoinMenuUI::GetBottomText)
-								.TextStyle(FMagicBattleSoccerStyles::Get(), "MagicBattleSoccer.MenuServerListTextStyle")
+								//.Text(this, &SJoinMenuUI::GetBottomText)
+								//.TextStyle(FMagicBattleSoccerStyles::Get(), "MagicBattleSoccer.MenuServerListTextStyle")
 							]
 						]
 					]

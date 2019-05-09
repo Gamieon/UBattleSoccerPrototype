@@ -174,7 +174,7 @@ AActor* AMagicBattleSoccerAIController::GetClosestActorObstructingPoint(const FV
 		CollisionQueryParams.AddIgnoredActors(ActorsToIgnore);
 		FCollisionObjectQueryParams CollisionObjectQueryParams;
 		CollisionObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-		GetWorld()->LineTraceSingle(
+		GetWorld()->LineTraceSingleByChannel(
 			HitResult
 			, GetPawn()->GetActorLocation()
 			, Point
