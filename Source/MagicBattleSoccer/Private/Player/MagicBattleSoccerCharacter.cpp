@@ -107,13 +107,13 @@ void AMagicBattleSoccerCharacter::OnRep_IsStunned()
 /** Gets the character's team number */
 int32 AMagicBattleSoccerCharacter::GetTeamNumber()
 {
-	if (nullptr == PlayerState)
+	if (nullptr == GetPlayerState())
 	{
 		return 0;
 	}
 	else
 	{
-		return Cast<AMagicBattleSoccerPlayerState>(PlayerState)->TeamNumber;
+		return Cast<AMagicBattleSoccerPlayerState>(GetPlayerState())->TeamNumber;
 	}
 }
 
@@ -257,7 +257,7 @@ bool AMagicBattleSoccerCharacter::CanDie(float KillingDamage, FDamageEvent const
 	if (IsPendingKill()								// already destroyed
 		|| Role != ROLE_Authority						// not authority
 		|| GetWorld()->GetAuthGameMode() == NULL
-		|| GetWorld()->GetAuthGameMode()->GetMatchState() == MatchState::LeavingMap)	// level transition occurring
+		|| ((AGameMode*)GetWorld()->GetAuthGameMode())->GetMatchState() == MatchState::LeavingMap)	// level transition occurring
 	{
 		return false;
 	}

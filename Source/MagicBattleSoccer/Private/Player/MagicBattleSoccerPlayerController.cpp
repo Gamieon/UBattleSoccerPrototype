@@ -4,7 +4,9 @@
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerGameMode.h"
+#include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerUserSettings.h"
+#include "MagicBattleSoccerEngine.h"
 #include <chrono>
 
 using namespace std::chrono;
@@ -205,7 +207,7 @@ bool AMagicBattleSoccerPlayerController::FindDeathCameraSpot(FVector& CameraLoca
 		CameraDir.Normalize();
 
 		const FVector TestLocation = PawnLocation - CameraDir.Vector() * CameraOffset;
-		const bool bBlocked = GetWorld()->LineTraceTest(PawnLocation, TestLocation, ECC_Camera, TraceParams);
+		const bool bBlocked = GetWorld()->LineTraceTestByChannel(PawnLocation, TestLocation, ECC_Camera, TraceParams);
 
 		if (!bBlocked)
 		{
@@ -349,7 +351,7 @@ void AMagicBattleSoccerPlayerController::OnStopPrimaryAction()
 			if (!DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
 			{
 				// Failed. I don't see how this can ever happen; just tap the ball forward if it does.
-				UE_LOG(LogOnlineGame, Verbose, TEXT("AMagicBattleSoccerPlayerController::OnStopPrimaryAction failed at DeprojectMousePositionToWorld! Tapping ball forward."));
+				UE_LOG(LogTemp, Verbose, TEXT("AMagicBattleSoccerPlayerController::OnStopPrimaryAction failed at DeprojectMousePositionToWorld! Tapping ball forward."));
 				FVector Origin = GetGameState()->SoccerBall->GetActorLocation();
 				PlayerPawn->KickBallToLocation(Origin + PlayerPawn->GetActorForwardVector() * 100.f, 10.f);
 			}

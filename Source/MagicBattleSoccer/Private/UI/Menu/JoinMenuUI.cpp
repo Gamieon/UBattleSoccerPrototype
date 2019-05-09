@@ -104,7 +104,7 @@ void SJoinMenuUI::UpdateSearchStatus()
 		int32 CurrentSearchIdx, NumSearchResults;
 		EOnlineAsyncTaskState::Type SearchState = GameSession->GetSearchResultStatus(CurrentSearchIdx, NumSearchResults);
 
-		UE_LOG(LogOnlineGame, Log, TEXT("GameSession->GetSearchResultStatus: %s"), EOnlineAsyncTaskState::ToString(SearchState));
+		UE_LOG(LogTemp, Log, TEXT("GameSession->GetSearchResultStatus: %s"), EOnlineAsyncTaskState::ToString(SearchState));
 
 		switch (SearchState)
 		{

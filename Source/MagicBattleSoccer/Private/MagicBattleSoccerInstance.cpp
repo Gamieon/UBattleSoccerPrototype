@@ -16,7 +16,7 @@ AMagicBattleSoccerGameSession* UMagicBattleSoccerInstance::GetGameSession() cons
 	UWorld* const World = GetWorld();
 	if (World)
 	{
-		AGameMode* const Game = World->GetAuthGameMode();
+		AGameModeBase* const Game = World->GetAuthGameMode();
 		if (Game)
 		{
 			return Cast<AMagicBattleSoccerGameSession>(Game->GameSession);

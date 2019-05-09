@@ -62,9 +62,9 @@ TArray<AMagicBattleSoccerCharacter*> AMagicBattleSoccerGameState::GetTeammates(A
 	{
 		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(SoccerPlayers.CreateConstIterator()); It; ++It)
 		{
-			if ((*It)->PlayerState != PlayerState
-				&& nullptr != Cast<AMagicBattleSoccerPlayerState>((*It)->PlayerState)
-				&& Cast<AMagicBattleSoccerPlayerState>((*It)->PlayerState)->TeamNumber == PlayerState->TeamNumber)
+			if ((*It)->GetPlayerState() != PlayerState
+				&& nullptr != Cast<AMagicBattleSoccerPlayerState>((*It)->GetPlayerState())
+				&& Cast<AMagicBattleSoccerPlayerState>((*It)->GetPlayerState())->TeamNumber == PlayerState->TeamNumber)
 			{
 				Teammates.Add(*It);
 			}
@@ -81,9 +81,9 @@ TArray<AMagicBattleSoccerCharacter*> AMagicBattleSoccerGameState::GetOpponents(A
 	{
 		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(SoccerPlayers.CreateConstIterator()); It; ++It)
 		{
-			if ((*It)->PlayerState != PlayerState
-				&& nullptr != Cast<AMagicBattleSoccerPlayerState>((*It)->PlayerState)
-				&& Cast<AMagicBattleSoccerPlayerState>((*It)->PlayerState)->TeamNumber != PlayerState->TeamNumber)
+			if ((*It)->GetPlayerState() != PlayerState
+				&& nullptr != Cast<AMagicBattleSoccerPlayerState>((*It)->GetPlayerState())
+				&& Cast<AMagicBattleSoccerPlayerState>((*It)->GetPlayerState())->TeamNumber != PlayerState->TeamNumber)
 			{
 				Opponents.Add(*It);
 			}
@@ -108,7 +108,7 @@ AMagicBattleSoccerCharacter* AMagicBattleSoccerGameState::GetClosestOpponent(AMa
 /** Gets the closest enemy to a world location that can be pursued */
 AMagicBattleSoccerCharacter* AMagicBattleSoccerGameState::GetClosestOpponentToLocation(AMagicBattleSoccerCharacter* Player, FVector Location)
 {
-	const TArray<AMagicBattleSoccerCharacter*>& Opponents = GetOpponents(Cast<AMagicBattleSoccerPlayerState>(Player->PlayerState));
+	const TArray<AMagicBattleSoccerCharacter*>& Opponents = GetOpponents(Cast<AMagicBattleSoccerPlayerState>(Player->GetPlayerState()));
 	AMagicBattleSoccerGameMode* GameMode = Cast<AMagicBattleSoccerGameMode>(GetWorld()->GetAuthGameMode());
 	AMagicBattleSoccerCharacter* ClosestOpponent = nullptr;
 
