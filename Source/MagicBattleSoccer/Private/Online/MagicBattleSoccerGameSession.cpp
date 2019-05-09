@@ -1,6 +1,7 @@
 #include "MagicBattleSoccerGameSession.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerOnlineGameSettings.h"
+#include "OnlineSubsystemSessionSettings.h"
 
 namespace
 {

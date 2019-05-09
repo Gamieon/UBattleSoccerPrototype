@@ -13,7 +13,7 @@ struct FMagicBattleSoccerSessionParams
 	/** Presence enabled session */
 	bool bIsPresence;
 	/** Id of player initiating lobby */
-	TSharedPtr<FUniqueNetId> UserId;
+	TSharedPtr<const FUniqueNetId> UserId;
 	/** Current search result choice to join */
 	int32 BestSessionIdx;
 
