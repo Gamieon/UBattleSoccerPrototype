@@ -11,6 +11,7 @@
 #include "MagicBattleSoccerPlayerController.h"
 #include "AIController.h"
 #include "Engine/TriggerBox.h"
+#include "Net/UnrealNetwork.h"
 
 AMagicBattleSoccerCharacter::AMagicBattleSoccerCharacter(const class FObjectInitializer& OI)
 	: Super(OI)

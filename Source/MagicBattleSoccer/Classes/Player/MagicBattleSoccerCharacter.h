@@ -124,7 +124,7 @@ public:
 	void Tick(float DeltaSeconds) override;
 
 	/** This occurs when play ends */
-	virtual void ReceiveEndPlay(EEndPlayReason::Type EndPlayReason) override;
+	virtual void ReceiveEndPlay(EEndPlayReason::Type EndPlayReason);
 
 	/** This occurs when the player is destroyed */
 	virtual void Destroyed() override;

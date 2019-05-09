@@ -9,6 +9,7 @@
 #include "MagicBattleSoccerHUD.h"
 #include "MagicBattleSoccerStyles.h"
 #include "MenuBackgroundWidgetStyle.h"
+#include "MagicBattleSoccerInstance.h"
 #include "MenuItemWidgetStyle.h"
 
 void SManualJoinMenuUI::Construct(const FArguments& args)

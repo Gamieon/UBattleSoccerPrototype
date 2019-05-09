@@ -1,6 +1,7 @@
 
 #include "MagicBattleSoccerWeapon_Projectile.h"
 #include "MagicBattleSoccer.h"
+#include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerProjectile.h"
 #include "MagicBattleSoccerPlayerState.h"
 
@@ -34,11 +35,11 @@ void AMagicBattleSoccerWeapon_Projectile::SetTargetLocationAdjustedForVelocity(F
 TArray<FWeaponActorEffectiveness> AMagicBattleSoccerWeapon_Projectile::GetCurrentEffectiveness()
 {
 	TArray<FWeaponActorEffectiveness> effectivenessList;
-	if (nullptr != Instigator && nullptr != Instigator->PlayerState)
+	if (nullptr != Instigator && nullptr != Instigator->GetPlayerState())
 	{
 		UWorld *World = GetWorld();
 		AMagicBattleSoccerGameState* GameState = Cast<AMagicBattleSoccerGameState>(World->GetGameState<AMagicBattleSoccerGameState>());
-		AMagicBattleSoccerPlayerState *PlayerState = Cast<AMagicBattleSoccerPlayerState>(Instigator->PlayerState);
+		AMagicBattleSoccerPlayerState *PlayerState = Cast<AMagicBattleSoccerPlayerState>(Instigator->GetPlayerState());
 		if (nullptr != GameState)
 		{
 			const TArray<AMagicBattleSoccerCharacter*>& Opponents = GameState->GetOpponents(PlayerState);

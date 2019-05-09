@@ -88,7 +88,7 @@ void SOptionsMenuUI::Construct(const FArguments& args)
 							[
 								SNew(STextBlock)
 								.TextStyle(FMagicBattleSoccerStyles::Get(), "MagicBattleSoccer.ButtonTextStyle")
-								.Text(this, &SOptionsMenuUI::GetResolutionText)
+								//.Text(this, &SOptionsMenuUI::GetResolutionText)
 							]
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
@@ -146,7 +146,7 @@ void SOptionsMenuUI::Construct(const FArguments& args)
 							[
 								SNew(STextBlock)
 								.TextStyle(FMagicBattleSoccerStyles::Get(), "MagicBattleSoccer.ButtonTextStyle")
-								.Text(this, &SOptionsMenuUI::GetFullScreenText)
+								//.Text(this, &SOptionsMenuUI::GetFullScreenText)
 							]
 							+ SHorizontalBox::Slot()
 							.AutoWidth()

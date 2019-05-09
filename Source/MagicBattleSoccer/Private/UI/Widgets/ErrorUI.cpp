@@ -49,7 +49,7 @@ void SErrorUI::Construct(const FArguments& args)
 						[
 							SNew(STextBlock)
 							.TextStyle(FMagicBattleSoccerStyles::Get(), "MagicBattleSoccer.ButtonTextStyle")
-							.Text(this, &SErrorUI::GetLastErrorString)
+							//.Text(this, &SErrorUI::GetLastErrorString)
 							.WrapTextAt(770)
 						]
 						+ SVerticalBox::Slot()

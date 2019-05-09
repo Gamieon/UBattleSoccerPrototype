@@ -3,6 +3,7 @@ MagicBattleSoccerHUD.cpp - The base class for all shooter-specific HUD's. This h
 or the most recent error message from the shooter engine class.
 **/
 
+#include <cmath>
 #include "LoadingUI.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerHUD.h"

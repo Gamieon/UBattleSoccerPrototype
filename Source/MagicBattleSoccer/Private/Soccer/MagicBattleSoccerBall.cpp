@@ -1,9 +1,11 @@
 
 #include "MagicBattleSoccerBall.h"
+#include <cmath>
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerPlayerController.h"
+#include "Net/UnrealNetwork.h"
 
 #define DISTANCE_IN_FRONT_OF_POSSESSOR		90.f
 #define POSSESSOR_Z_OFFSET					-60.f

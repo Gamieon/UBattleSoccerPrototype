@@ -42,7 +42,7 @@ public:
 	virtual void HandleMatchIsWaitingToStart() override;
 
 	/** called to see if we should start the match */
-	virtual bool ReadyToStartMatch() override;
+	virtual bool ReadyToStartMatch();
 
 	/** starts new match */
 	virtual void HandleMatchHasStarted() override;

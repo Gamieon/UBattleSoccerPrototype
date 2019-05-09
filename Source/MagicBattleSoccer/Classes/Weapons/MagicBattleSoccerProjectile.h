@@ -2,6 +2,8 @@
 
 #include "GameFramework/Actor.h"
 #include "MagicBattleSoccerWeapon_Projectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Components/SphereComponent.h"
 #include "MagicBattleSoccerProjectile.generated.h"
 
 class AMagicBattleSoccerCharacter;

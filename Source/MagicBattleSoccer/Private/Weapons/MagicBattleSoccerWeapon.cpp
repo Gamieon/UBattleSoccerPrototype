@@ -5,6 +5,7 @@
 #include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerPlayerController.h"
+#include "Net/UnrealNetwork.h"
 
 AMagicBattleSoccerWeapon::AMagicBattleSoccerWeapon(const class FObjectInitializer& OI)
 	: Super(OI)
