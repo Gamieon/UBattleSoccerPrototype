@@ -4,8 +4,8 @@
 *
 */
 
-#include "MagicBattleSoccer.h"
 #include "MenuBackgroundWidgetStyle.h"
+#include "MagicBattleSoccer.h"
 
 FMenuBackgroundStyle::FMenuBackgroundStyle()
 {

@@ -1,7 +1,7 @@
 
+#include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGoal.h"
-#include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerPlayerController.h"

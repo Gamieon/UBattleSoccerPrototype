@@ -4,9 +4,9 @@
 *
 */
 
+#include "ErrorUI.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerHUD.h"
-#include "ErrorUI.h"
 #include "MagicBattleSoccerEngine.h"
 #include "MagicBattleSoccerStyles.h"
 #include "MenuBackgroundWidgetStyle.h"

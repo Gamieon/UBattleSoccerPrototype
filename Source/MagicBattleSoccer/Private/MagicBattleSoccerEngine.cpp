@@ -1,7 +1,7 @@
 /** MagicBattleSoccerEngine.cpp - The one and only game application engine */
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerEngine.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerInstance.h"
 
 UMagicBattleSoccerEngine::UMagicBattleSoccerEngine(const class FObjectInitializer& OI)

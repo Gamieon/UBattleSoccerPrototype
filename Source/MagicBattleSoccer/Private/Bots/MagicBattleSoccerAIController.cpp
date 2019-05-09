@@ -1,7 +1,7 @@
 
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerAIController.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerSpawnPoint.h"
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerGameMode.h"

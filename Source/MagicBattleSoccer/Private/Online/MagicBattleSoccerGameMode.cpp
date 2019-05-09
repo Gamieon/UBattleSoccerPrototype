@@ -9,6 +9,7 @@
 * on the game class picked by the above process.
 */
 
+#include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerGameState.h"

@@ -2,8 +2,8 @@
  * GameState is replicated and is valid on servers and clients.
  */
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameState.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerInstance.h"
 #include "MagicBattleSoccerPlayerState.h"

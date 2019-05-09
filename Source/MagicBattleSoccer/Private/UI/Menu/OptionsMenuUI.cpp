@@ -4,9 +4,9 @@
 *
 */
 
+#include "OptionsMenuUI.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerHUD.h"
-#include "OptionsMenuUI.h"
 #include "MagicBattleSoccerStyles.h"
 #include "MenuBackgroundWidgetStyle.h"
 #include "MenuItemWidgetStyle.h"

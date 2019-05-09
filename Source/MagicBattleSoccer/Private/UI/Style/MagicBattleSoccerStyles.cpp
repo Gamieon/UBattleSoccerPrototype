@@ -4,8 +4,8 @@
 *
 */
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerStyles.h"
+#include "MagicBattleSoccer.h"
 #include "SlateBasics.h"
 #include "SlateGameResources.h"
 

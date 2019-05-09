@@ -4,11 +4,11 @@
 *
 */
 
+#include "JoinMenuUI.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerHUD.h"
 #include "MagicBattleSoccerGameSession.h"
 #include "MagicBattleSoccerInstance.h"
-#include "JoinMenuUI.h"
 #include "MagicBattleSoccerStyles.h"
 #include "MenuBackgroundWidgetStyle.h"
 #include "MenuItemWidgetStyle.h"

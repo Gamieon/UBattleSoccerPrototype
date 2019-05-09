@@ -1,6 +1,6 @@
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerWeapon_Bow.h"
+#include "MagicBattleSoccer.h"
 
 AMagicBattleSoccerWeapon_Bow::AMagicBattleSoccerWeapon_Bow(const class FObjectInitializer& OI)
 	: Super(OI)

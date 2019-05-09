@@ -1,5 +1,5 @@
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameSession.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerOnlineGameSettings.h"
 
 namespace

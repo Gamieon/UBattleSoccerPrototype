@@ -4,9 +4,9 @@
 *
 */
 
+#include "MainMenuUI.h"
 #include "MagicBattleSoccer.h"
 #include "MainMenuHUD.h"
-#include "MainMenuUI.h"
 #include "JoinMenuUI.h"
 #include "ManualJoinMenuUI.h"
 #include "ProfileMenuUI.h"

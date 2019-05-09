@@ -1,7 +1,7 @@
 /** MenuBackgroundWidgetStyle.cpp - This is the base class for menu item style widget blueprints accessed in the Unreal Editor. */
 
-#include "MagicBattleSoccer.h"
 #include "MenuItemWidgetStyle.h"
+#include "MagicBattleSoccer.h"
 
 FMenuItemStyle::FMenuItemStyle()
 {

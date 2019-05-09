@@ -1,7 +1,7 @@
 
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerPlayerState.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameMode.h"
 
 AMagicBattleSoccerPlayerState::AMagicBattleSoccerPlayerState(const class FObjectInitializer& OI)

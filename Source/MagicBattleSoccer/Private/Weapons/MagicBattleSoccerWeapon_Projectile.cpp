@@ -1,8 +1,8 @@
 
+#include "MagicBattleSoccerWeapon_Projectile.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerProjectile.h"
 #include "MagicBattleSoccerPlayerState.h"
-#include "MagicBattleSoccerWeapon_Projectile.h"
 
 AMagicBattleSoccerWeapon_Projectile::AMagicBattleSoccerWeapon_Projectile(const class FObjectInitializer& OI)
 	: Super(OI)

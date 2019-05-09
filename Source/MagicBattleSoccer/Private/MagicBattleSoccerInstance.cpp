@@ -1,7 +1,7 @@
 /** MagicBattleSoccerInstance.cpp - The one and only game application instance */
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerInstance.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerHUD.h"
 #include "MagicBattleSoccerGameSession.h"
 
