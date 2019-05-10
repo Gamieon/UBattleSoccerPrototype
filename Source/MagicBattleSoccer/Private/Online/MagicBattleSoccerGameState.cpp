@@ -62,7 +62,8 @@ TArray<AMagicBattleSoccerCharacter*> AMagicBattleSoccerGameState::GetTeammates(A
 	{
 		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(SoccerPlayers.CreateConstIterator()); It; ++It)
 		{
-			if ((*It)->GetPlayerState() != PlayerState
+			if ((*It) != nullptr &&
+				(*It)->GetPlayerState() != PlayerState
 				&& nullptr != Cast<AMagicBattleSoccerPlayerState>((*It)->GetPlayerState())
 				&& Cast<AMagicBattleSoccerPlayerState>((*It)->GetPlayerState())->TeamNumber == PlayerState->TeamNumber)
 			{
@@ -81,7 +82,8 @@ TArray<AMagicBattleSoccerCharacter*> AMagicBattleSoccerGameState::GetOpponents(A
 	{
 		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(SoccerPlayers.CreateConstIterator()); It; ++It)
 		{
-			if ((*It)->GetPlayerState() != PlayerState
+			if ((*It) != nullptr &&
+				(*It)->GetPlayerState() != PlayerState
 				&& nullptr != Cast<AMagicBattleSoccerPlayerState>((*It)->GetPlayerState())
 				&& Cast<AMagicBattleSoccerPlayerState>((*It)->GetPlayerState())->TeamNumber != PlayerState->TeamNumber)
 			{
