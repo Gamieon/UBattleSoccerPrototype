@@ -4,9 +4,8 @@
 #include "MagicBattleSoccerTypes.h"
 #include "MagicBattleSoccerCharacter.generated.h"
 
-/**
-*
-*/
+class AMagicBattleSoccerWeapon;
+
 UCLASS()
 class MAGICBATTLESOCCER_API AMagicBattleSoccerCharacter : public ACharacter
 {
@@ -78,23 +77,23 @@ public:
 
 	/** default primary weapon class */
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
-	TSubclassOf<class AMagicBattleSoccerWeapon> DefaultPrimaryWeaponClass;
+	TSubclassOf<AMagicBattleSoccerWeapon> DefaultPrimaryWeaponClass;
 
 	/** default secondary weapon class */
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
-	TSubclassOf<class AMagicBattleSoccerWeapon> DefaultSecondaryWeaponClass;
+	TSubclassOf<AMagicBattleSoccerWeapon> DefaultSecondaryWeaponClass;
 
 	/** The player's primary weapon */
 	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing = OnRep_PrimaryWeapon, Category = Soccer)
 	class AMagicBattleSoccerWeapon* PrimaryWeapon;
 	UFUNCTION()
-	void OnRep_PrimaryWeapon(class AMagicBattleSoccerWeapon* LastWeapon);
+	void OnRep_PrimaryWeapon(AMagicBattleSoccerWeapon* LastWeapon);
 
 	/** The player's secondary weapon */
 	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing = OnRep_SecondaryWeapon, Category = Soccer)
 	class AMagicBattleSoccerWeapon* SecondaryWeapon;
 	UFUNCTION()
-	void OnRep_SecondaryWeapon(class AMagicBattleSoccerWeapon* LastWeapon);
+	void OnRep_SecondaryWeapon(AMagicBattleSoccerWeapon* LastWeapon);
 
 	/** The socket where the player holds the primary weapon */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Soccer)

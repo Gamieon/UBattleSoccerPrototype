@@ -1,6 +1,8 @@
 #pragma once
 
 #include "GameFramework/GameState.h"
+#include "MagicBattleSoccerCharacter.h"
+#include "MagicBattleSoccerPlayerState.h"
 #include "MagicBattleSoccerGameState.generated.h"
 
 /**
@@ -53,23 +55,23 @@ class MAGICBATTLESOCCER_API AMagicBattleSoccerGameState : public AGameState
 
 	/** Gets all the teammate controllers of a specified player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	TArray<class AController*> GetTeammateControllers(class AMagicBattleSoccerPlayerState* PlayerState);
+	TArray<class AController*> GetTeammateControllers(AMagicBattleSoccerPlayerState* PlayerState);
 
 	/** Gets all the teammates of a specified player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	TArray<class AMagicBattleSoccerCharacter*> GetTeammates(class AMagicBattleSoccerPlayerState* PlayerState);
+	TArray<AMagicBattleSoccerCharacter*> GetTeammates(AMagicBattleSoccerPlayerState* PlayerState);
 
 	/** Gets all the opponents of a specified player */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	TArray<class AMagicBattleSoccerCharacter*> GetOpponents(class AMagicBattleSoccerPlayerState* PlayerState);
+	TArray<AMagicBattleSoccerCharacter*> GetOpponents(AMagicBattleSoccerPlayerState* PlayerState);
 
 	/** Gets the closest opponent */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	class AMagicBattleSoccerCharacter* GetClosestOpponent(class AMagicBattleSoccerCharacter* Player);
+	AMagicBattleSoccerCharacter* GetClosestOpponent(AMagicBattleSoccerCharacter* Player);
 
 	/** Gets the closest enemy to a world location that can be pursued */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	class AMagicBattleSoccerCharacter* GetClosestOpponentToLocation(AMagicBattleSoccerCharacter* Player, FVector Location);
+	AMagicBattleSoccerCharacter* GetClosestOpponentToLocation(AMagicBattleSoccerCharacter* Player, FVector Location);
 
 	/** Called when the state transitions to WaitingToStart */
 	virtual void HandleMatchIsWaitingToStart();

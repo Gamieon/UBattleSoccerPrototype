@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/PlayerState.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerPlayerState.generated.h"
 
 /**

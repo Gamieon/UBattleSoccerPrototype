@@ -3,6 +3,7 @@
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerPlayerState.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerPlayerController.h"
 
 AMagicBattleSoccerWeapon_Melee::AMagicBattleSoccerWeapon_Melee(const class FObjectInitializer& OI)

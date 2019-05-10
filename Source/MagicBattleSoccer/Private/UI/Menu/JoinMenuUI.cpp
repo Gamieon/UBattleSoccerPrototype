@@ -279,8 +279,9 @@ TSharedRef<ITableRow> SJoinMenuUI::MakeListViewWidget(TSharedPtr<FServerEntry> I
 			{
 				ItemText = Item->Ping;
 			}
+
 			return SNew(STextBlock)
-				.Text(ItemText)
+				.Text(FText::FromString(ItemText))
 				.TextStyle(FMagicBattleSoccerStyles::Get(), "MagicBattleSoccer.MenuServerListTextStyle");
 		}
 		TSharedPtr<FServerEntry> Item;

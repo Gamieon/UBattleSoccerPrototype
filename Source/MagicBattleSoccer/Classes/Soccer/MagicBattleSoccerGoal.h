@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerGoal.generated.h"
 
 /**

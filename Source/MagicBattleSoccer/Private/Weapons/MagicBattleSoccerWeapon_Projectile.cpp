@@ -4,6 +4,7 @@
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerProjectile.h"
 #include "MagicBattleSoccerPlayerState.h"
+#include "MagicBattleSoccerCharacter.h"
 
 AMagicBattleSoccerWeapon_Projectile::AMagicBattleSoccerWeapon_Projectile(const class FObjectInitializer& OI)
 	: Super(OI)
