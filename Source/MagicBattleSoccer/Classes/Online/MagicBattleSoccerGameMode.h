@@ -1,11 +1,12 @@
 #pragma once
 
 #include "GameFramework/GameMode.h"
+#include "MagicBattleSoccerCharacter.h"
+#include "MagicBattleSoccerPlayerState.h"
 #include "MagicBattleSoccerGameMode.generated.h"
 
 class AMagicBattleSoccerBall;
 class AMagicBattleSoccerGoal;
-class AMagicBattleSoccerCharacter;
 
 /**
  * The GameMode defines the game being played. It governs the game rules, scoring, what actors
@@ -42,7 +43,7 @@ public:
 	virtual void HandleMatchIsWaitingToStart() override;
 
 	/** called to see if we should start the match */
-	virtual bool ReadyToStartMatch() override;
+	virtual bool ReadyToStartMatch();
 
 	/** starts new match */
 	virtual void HandleMatchHasStarted() override;
@@ -73,7 +74,7 @@ public:
 	virtual float ModifyDamage(float Damage, AActor* DamagedActor, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const;
 
 	/** can players damage each other? */
-	virtual bool CanDealDamage(class AMagicBattleSoccerPlayerState* DamageInstigator, class AMagicBattleSoccerPlayerState* DamagedPlayer) const;
+	virtual bool CanDealDamage(AMagicBattleSoccerPlayerState* DamageInstigator, AMagicBattleSoccerPlayerState* DamagedPlayer) const;
 
 	/** notify about kills */
 	virtual void Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType);
@@ -83,5 +84,5 @@ public:
 
 	/** Determines whether a soccer player can be pursued by a bot */
 	UFUNCTION(BlueprintCallable, Category = Soccer)
-	bool CanBePursued(class AMagicBattleSoccerCharacter* Player);
+	bool CanBePursued(AMagicBattleSoccerCharacter* Player);
 };

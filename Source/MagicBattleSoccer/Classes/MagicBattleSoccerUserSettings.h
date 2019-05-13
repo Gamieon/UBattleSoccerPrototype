@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "GameFramework/GameUserSettings.h"
 #include "MagicBattleSoccerUserSettings.generated.h"
 
 UCLASS()

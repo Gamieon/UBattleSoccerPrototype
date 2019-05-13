@@ -1,12 +1,17 @@
-
+// Fill out your copyright notice in the Description page of Project Settings.
 
 using UnrealBuildTool;
 
 public class MagicBattleSoccer : ModuleRules
 {
-	public MagicBattleSoccer(TargetInfo Target)
+	public MagicBattleSoccer(ReadOnlyTargetRules Target) : base(Target)
 	{
-        PrivateIncludePaths.AddRange(
+        MinFilesUsingPrecompiledHeaderOverride = 1;
+        bFasterWithoutUnity = true;
+
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
+		PrivateIncludePaths.AddRange(
             new string[] { 
                 "MagicBattleSoccer/Classes/Bots"
                 ,"MagicBattleSoccer/Classes/Online"
@@ -21,7 +26,7 @@ public class MagicBattleSoccer : ModuleRules
             }
         );
 
-        PublicDependencyModuleNames.AddRange(new string[] { 
+		   PublicDependencyModuleNames.AddRange(new string[] { 
             "Core", 
             "CoreUObject", 
             "Engine", 
@@ -30,30 +35,12 @@ public class MagicBattleSoccer : ModuleRules
             "InputCore", 
             "AIModule" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
-
 		// Uncomment if you are using Slate UI
-		PrivateDependencyModuleNames.AddRange(new string[] { 
-            "Slate", 
-            "SlateCore" });
-		
-		// Uncomment if you are using online features
-        if ((Target.Platform == UnrealTargetPlatform.Win32) || (Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Linux) || (Target.Platform == UnrealTargetPlatform.Mac))
-        {
-            if (UEBuildConfiguration.bCompileSteamOSS == true)
-            {
-                DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
-            }
+		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 
-            DynamicallyLoadedModuleNames.Add("OnlineSubsystemNull");
-        }
-        else if (Target.Platform == UnrealTargetPlatform.PS4)
-        {
-            DynamicallyLoadedModuleNames.Add("OnlineSubsystemPS4");
-        }
-        else if (Target.Platform == UnrealTargetPlatform.XboxOne)
-        {
-            DynamicallyLoadedModuleNames.Add("OnlineSubsystemLive");
-        }
+		// Uncomment if you are using online features
+		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
+
+		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
 	}
 }

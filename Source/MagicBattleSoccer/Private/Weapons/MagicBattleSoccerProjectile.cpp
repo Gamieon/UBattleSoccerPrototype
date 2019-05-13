@@ -1,9 +1,11 @@
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerProjectile.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerPlayerState.h"
 #include "MagicBattleSoccerCharacter.h"
+#include "Net/UnrealNetwork.h"
+#include "Components/BoxComponent.h"
 
 AMagicBattleSoccerProjectile::AMagicBattleSoccerProjectile(const class FObjectInitializer& OI) : Super(OI)
 {
@@ -45,7 +47,7 @@ void AMagicBattleSoccerProjectile::PostInitializeComponents()
 	{
 		// Ignore instigator teammates
 		AMagicBattleSoccerGameState* GameState = GetWorld()->GetGameState<AMagicBattleSoccerGameState>();
-		const TArray<AMagicBattleSoccerCharacter*>& Teammates = GameState->GetTeammates(Cast<AMagicBattleSoccerPlayerState>(InstigatorPlayer->PlayerState));
+		const TArray<AMagicBattleSoccerCharacter*>& Teammates = GameState->GetTeammates(Cast<AMagicBattleSoccerPlayerState>(InstigatorPlayer->GetPlayerState()));
 		for (TArray<AMagicBattleSoccerCharacter*>::TConstIterator It(Teammates.CreateConstIterator()); It; ++It)
 		{
 			CollisionComp->IgnoreActorWhenMoving(*It, true);
@@ -143,7 +145,7 @@ void AMagicBattleSoccerProjectile::OnRep_Exploded()
 	const FVector EndTrace = GetActorLocation() + ProjDirection * 150;
 	FHitResult Impact;
 
-	if (!GetWorld()->LineTraceSingle(Impact, StartTrace, EndTrace, COLLISION_PROJECTILE, FCollisionQueryParams(TEXT("ProjClient"), true, Instigator)))
+	if (!GetWorld()->LineTraceSingleByChannel(Impact, StartTrace, EndTrace, COLLISION_PROJECTILE, FCollisionQueryParams(TEXT("ProjClient"), true, Instigator)))
 	{
 		// failsafe
 		Impact.ImpactPoint = GetActorLocation();

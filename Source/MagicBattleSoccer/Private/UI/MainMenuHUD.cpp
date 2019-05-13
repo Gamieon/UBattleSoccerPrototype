@@ -3,9 +3,9 @@ MainMenuHUD.cpp - The HUD class for the Main Menu map. This class contains all t
 complete collection of menus for the Main Menu; including HOST, OPTIONS, QUIT, etc. and all of their children.
 **/
 
+#include "MainMenuHUD.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerEngine.h"
-#include "MainMenuHUD.h"
 #include "MainMenuUI.h"
 #include "JoinMenuUI.h"
 #include "ManualJoinMenuUI.h"

@@ -2,8 +2,8 @@
 GameHUD.h - The HUD class for game maps.
 **/
 
-#include "MagicBattleSoccer.h"
 #include "SoccerGameHUD.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerEngine.h"
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerCharacter.h"

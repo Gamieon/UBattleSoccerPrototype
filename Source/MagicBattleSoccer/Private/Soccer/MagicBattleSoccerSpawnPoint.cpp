@@ -1,6 +1,6 @@
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerSpawnPoint.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerAIController.h"
 #include "MagicBattleSoccerCharacter.h"
 

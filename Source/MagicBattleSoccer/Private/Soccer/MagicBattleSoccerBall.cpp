@@ -1,9 +1,13 @@
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerBall.h"
+#include <cmath>
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameMode.h"
+#include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerPlayerController.h"
+#include "Engine.h"
+#include "Net/UnrealNetwork.h"
 
 #define DISTANCE_IN_FRONT_OF_POSSESSOR		90.f
 #define POSSESSOR_Z_OFFSET					-60.f
@@ -51,7 +55,7 @@ void AMagicBattleSoccerBall::OnRep_ServerPhysicsState()
 	// Check if states are in order
 	if (proxyStates[0].timestamp < proxyStates[1].timestamp)
 	{ 
-		UE_LOG(LogOnlineGame, Verbose, TEXT("Timestamp inconsistent: %d should be greater than %d"), proxyStates[0].timestamp, proxyStates[1].timestamp);
+		UE_LOG(LogTemp, Verbose, TEXT("Timestamp inconsistent: %d should be greater than %d"), proxyStates[0].timestamp, proxyStates[1].timestamp);
 	}		
 }
 

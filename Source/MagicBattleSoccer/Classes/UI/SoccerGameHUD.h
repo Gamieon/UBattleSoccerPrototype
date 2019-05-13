@@ -5,6 +5,7 @@ GameHUD.h - The HUD class for game maps.
 #pragma once
 
 #include "MagicBattleSoccerHUD.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "SoccerGameHUD.generated.h"
 
 

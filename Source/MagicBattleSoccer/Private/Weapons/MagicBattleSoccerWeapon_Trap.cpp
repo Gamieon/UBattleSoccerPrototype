@@ -1,7 +1,7 @@
 
+#include "MagicBattleSoccerWeapon_Trap.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerTrap.h"
-#include "MagicBattleSoccerWeapon_Trap.h"
 #include "MagicBattleSoccerPlayerController.h"
 
 AMagicBattleSoccerWeapon_Trap::AMagicBattleSoccerWeapon_Trap(const class FObjectInitializer& OI)

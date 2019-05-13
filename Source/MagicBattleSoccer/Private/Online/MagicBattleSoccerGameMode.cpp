@@ -9,6 +9,7 @@
 * on the game class picked by the above process.
 */
 
+#include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerGameState.h"
@@ -17,6 +18,9 @@
 #include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerSpawnPoint.h"
 #include "MagicBattleSoccerGameSession.h"
+#include "MagicBattleSoccerAIController.h"
+#include "MagicBattleSoccerBall.h"
+#include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerHUD.h"
 
 AMagicBattleSoccerGameMode::AMagicBattleSoccerGameMode(const class FObjectInitializer& OI)
@@ -212,7 +216,7 @@ float AMagicBattleSoccerGameMode::ModifyDamage(float Damage, AActor* DamagedActo
 	AMagicBattleSoccerCharacter* DamagedPawn = Cast<AMagicBattleSoccerCharacter>(DamagedActor);
 	if (DamagedPawn && EventInstigator)
 	{
-		AMagicBattleSoccerPlayerState* DamagedPlayerState = Cast<AMagicBattleSoccerPlayerState>(DamagedPawn->PlayerState);
+		AMagicBattleSoccerPlayerState* DamagedPlayerState = Cast<AMagicBattleSoccerPlayerState>(DamagedPawn->GetPlayerState());
 		AMagicBattleSoccerPlayerState* InstigatorPlayerState = Cast<AMagicBattleSoccerPlayerState>(EventInstigator->PlayerState);
 
 		// disable friendly fire

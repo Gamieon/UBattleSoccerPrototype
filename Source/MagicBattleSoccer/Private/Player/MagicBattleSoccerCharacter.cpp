@@ -1,16 +1,17 @@
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerBall.h"
 #include "MagicBattleSoccerGoal.h"
 #include "MagicBattleSoccerGameMode.h"
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerPlayerState.h"
-#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerWeapon.h"
 #include "MagicBattleSoccerProjectile.h"
 #include "MagicBattleSoccerSpawnPoint.h"
 #include "MagicBattleSoccerPlayerController.h"
 #include "AIController.h"
 #include "Engine/TriggerBox.h"
+#include "Net/UnrealNetwork.h"
 
 AMagicBattleSoccerCharacter::AMagicBattleSoccerCharacter(const class FObjectInitializer& OI)
 	: Super(OI)
@@ -106,13 +107,13 @@ void AMagicBattleSoccerCharacter::OnRep_IsStunned()
 /** Gets the character's team number */
 int32 AMagicBattleSoccerCharacter::GetTeamNumber()
 {
-	if (nullptr == PlayerState)
+	if (nullptr == GetPlayerState())
 	{
 		return 0;
 	}
 	else
 	{
-		return Cast<AMagicBattleSoccerPlayerState>(PlayerState)->TeamNumber;
+		return Cast<AMagicBattleSoccerPlayerState>(GetPlayerState())->TeamNumber;
 	}
 }
 
@@ -256,7 +257,7 @@ bool AMagicBattleSoccerCharacter::CanDie(float KillingDamage, FDamageEvent const
 	if (IsPendingKill()								// already destroyed
 		|| Role != ROLE_Authority						// not authority
 		|| GetWorld()->GetAuthGameMode() == NULL
-		|| GetWorld()->GetAuthGameMode()->GetMatchState() == MatchState::LeavingMap)	// level transition occurring
+		|| ((AGameMode*)GetWorld()->GetAuthGameMode())->GetMatchState() == MatchState::LeavingMap)	// level transition occurring
 	{
 		return false;
 	}
@@ -458,7 +459,7 @@ void AMagicBattleSoccerCharacter::SpawnDefaultInventory()
 	if (nullptr != DefaultPrimaryWeaponClass)
 	{
 		FActorSpawnParameters SpawnInfo;
-		SpawnInfo.bNoCollisionFail = true;
+		SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		AMagicBattleSoccerWeapon* NewWeapon = GetWorld()->SpawnActor<AMagicBattleSoccerWeapon>(DefaultPrimaryWeaponClass, SpawnInfo);
 		EquipPrimaryWeapon(NewWeapon);
 	}
@@ -466,7 +467,7 @@ void AMagicBattleSoccerCharacter::SpawnDefaultInventory()
 	if (nullptr != DefaultSecondaryWeaponClass)
 	{
 		FActorSpawnParameters SpawnInfo;
-		SpawnInfo.bNoCollisionFail = true;
+		SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		AMagicBattleSoccerWeapon* NewWeapon = GetWorld()->SpawnActor<AMagicBattleSoccerWeapon>(DefaultSecondaryWeaponClass, SpawnInfo);
 		EquipSecondaryWeapon(NewWeapon);
 	}

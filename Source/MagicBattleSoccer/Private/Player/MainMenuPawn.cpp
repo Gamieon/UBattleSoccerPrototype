@@ -2,8 +2,8 @@
 MainMenuPawn.cpp - The default pawn class for the main menu
 **/
 
-#include "MagicBattleSoccer.h"
 #include "MainMenuPawn.h"
+#include "MagicBattleSoccer.h"
 
 AMainMenuPawn::AMainMenuPawn(const class FObjectInitializer& OI)
 	: Super(OI)

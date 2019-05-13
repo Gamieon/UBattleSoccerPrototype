@@ -1,7 +1,7 @@
 /** MagicBattleSoccerInstance.cpp - The one and only game application instance */
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerInstance.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerHUD.h"
 #include "MagicBattleSoccerGameSession.h"
 
@@ -16,7 +16,7 @@ AMagicBattleSoccerGameSession* UMagicBattleSoccerInstance::GetGameSession() cons
 	UWorld* const World = GetWorld();
 	if (World)
 	{
-		AGameMode* const Game = World->GetAuthGameMode();
+		AGameModeBase* const Game = World->GetAuthGameMode();
 		if (Game)
 		{
 			return Cast<AMagicBattleSoccerGameSession>(Game->GameSession);
@@ -63,7 +63,7 @@ bool UMagicBattleSoccerInstance::HostGame(ULocalPlayer* LocalPlayer, const FStri
 		const FString & ChoppedMapName = TravelURL.RightChop(MapNameSubStr.Len());
 		const FString & MapName = ChoppedMapName.LeftChop(ChoppedMapName.Len() - ChoppedMapName.Find("?game"));
 
-		if (GameSession->HostSession(LocalPlayer->GetPreferredUniqueNetId(), GameSessionName, GameType, MapName, bIsLanMatch, true, AMagicBattleSoccerGameSession::DEFAULT_NUM_PLAYERS))
+		if (GameSession->HostSession(LocalPlayer->GetPreferredUniqueNetId().GetUniqueNetId(), GameSessionName, GameType, MapName, bIsLanMatch, true, AMagicBattleSoccerGameSession::DEFAULT_NUM_PLAYERS))
 		{
 			// Go ahead and go into loading state now
 			// If we fail, the delegate will handle showing the proper messaging
@@ -103,7 +103,7 @@ bool UMagicBattleSoccerInstance::FindSessions(ULocalPlayer* PlayerOwner, bool bF
 			GameSession->OnFindSessionsComplete().RemoveAll(this);
 			OnSearchSessionsCompleteDelegateHandle = GameSession->OnFindSessionsComplete().AddUObject(this, &UMagicBattleSoccerInstance::OnSearchSessionsComplete);
 
-			GameSession->FindSessions(PlayerOwner->GetPreferredUniqueNetId(), GameSessionName, bFindLAN, true);
+			GameSession->FindSessions(PlayerOwner->GetPreferredUniqueNetId().GetUniqueNetId(), GameSessionName, bFindLAN, true);
 
 			bResult = true;
 		}

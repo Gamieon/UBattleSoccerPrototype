@@ -4,8 +4,8 @@
 *
 */
 
-#include "MagicBattleSoccer.h"
 #include "LoadingUI.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerStyles.h"
 #include "MenuBackgroundWidgetStyle.h"
 

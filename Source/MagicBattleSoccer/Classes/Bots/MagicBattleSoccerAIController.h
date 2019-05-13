@@ -3,6 +3,7 @@
 #pragma once
 
 #include "AIController.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerAIController.generated.h"
 
 /**

@@ -4,11 +4,11 @@
 *
 */
 
+#include "JoinMenuUI.h"
 #include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerHUD.h"
 #include "MagicBattleSoccerGameSession.h"
 #include "MagicBattleSoccerInstance.h"
-#include "JoinMenuUI.h"
 #include "MagicBattleSoccerStyles.h"
 #include "MenuBackgroundWidgetStyle.h"
 #include "MenuItemWidgetStyle.h"
@@ -71,8 +71,8 @@ void SJoinMenuUI::Construct(const FArguments& args)
 							.HAlign(HAlign_Center)
 							[
 								SNew(STextBlock)
-								.Text(this, &SJoinMenuUI::GetBottomText)
-								.TextStyle(FMagicBattleSoccerStyles::Get(), "MagicBattleSoccer.MenuServerListTextStyle")
+								//.Text(this, &SJoinMenuUI::GetBottomText)
+								//.TextStyle(FMagicBattleSoccerStyles::Get(), "MagicBattleSoccer.MenuServerListTextStyle")
 							]
 						]
 					]
@@ -104,7 +104,7 @@ void SJoinMenuUI::UpdateSearchStatus()
 		int32 CurrentSearchIdx, NumSearchResults;
 		EOnlineAsyncTaskState::Type SearchState = GameSession->GetSearchResultStatus(CurrentSearchIdx, NumSearchResults);
 
-		UE_LOG(LogOnlineGame, Log, TEXT("GameSession->GetSearchResultStatus: %s"), EOnlineAsyncTaskState::ToString(SearchState));
+		UE_LOG(LogTemp, Log, TEXT("GameSession->GetSearchResultStatus: %s"), EOnlineAsyncTaskState::ToString(SearchState));
 
 		switch (SearchState)
 		{
@@ -279,8 +279,9 @@ TSharedRef<ITableRow> SJoinMenuUI::MakeListViewWidget(TSharedPtr<FServerEntry> I
 			{
 				ItemText = Item->Ping;
 			}
+
 			return SNew(STextBlock)
-				.Text(ItemText)
+				.Text(FText::FromString(ItemText))
 				.TextStyle(FMagicBattleSoccerStyles::Get(), "MagicBattleSoccer.MenuServerListTextStyle");
 		}
 		TSharedPtr<FServerEntry> Item;

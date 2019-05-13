@@ -3,9 +3,10 @@ MagicBattleSoccerHUD.cpp - The base class for all shooter-specific HUD's. This h
 or the most recent error message from the shooter engine class.
 **/
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerHUD.h"
+#include <cmath>
 #include "LoadingUI.h"
+#include "MagicBattleSoccer.h"
 #include "ErrorUI.h"
 #include "MagicBattleSoccerStyles.h"
 #include "MagicBattleSoccerPlayerController.h"
@@ -31,15 +32,15 @@ void AMagicBattleSoccerHUD::PostInitializeComponents()
 		UGameViewportClient* Viewport = GEngine->GameViewport;
 
 		// We need to do this if we're in the editor.
-		FMagicBattleSoccerStyles::Initialize();
+		//FMagicBattleSoccerStyles::Initialize();
 
 		// Create the loading UI
-		SAssignNew(LoadingUI, SLoadingUI)
-			.MenuHUD(TWeakObjectPtr<AMagicBattleSoccerHUD>(this));
+		//SAssignNew(LoadingUI, SLoadingUI)
+			//.MenuHUD(TWeakObjectPtr<AMagicBattleSoccerHUD>(this));
 
 		// Create the error UI
-		SAssignNew(ErrorUI, SErrorUI)
-			.MenuHUD(TWeakObjectPtr<AMagicBattleSoccerHUD>(this));
+		//SAssignNew(ErrorUI, SErrorUI)
+			//.MenuHUD(TWeakObjectPtr<AMagicBattleSoccerHUD>(this));
 	}
 }
 

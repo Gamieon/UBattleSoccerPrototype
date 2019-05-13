@@ -1,8 +1,9 @@
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerWeapon_Melee.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerPlayerState.h"
+#include "MagicBattleSoccerCharacter.h"
 #include "MagicBattleSoccerPlayerController.h"
 
 AMagicBattleSoccerWeapon_Melee::AMagicBattleSoccerWeapon_Melee(const class FObjectInitializer& OI)
@@ -17,11 +18,11 @@ AMagicBattleSoccerWeapon_Melee::AMagicBattleSoccerWeapon_Melee(const class FObje
 TArray<FWeaponActorEffectiveness> AMagicBattleSoccerWeapon_Melee::GetCurrentEffectiveness()
 {
 	TArray<FWeaponActorEffectiveness> effectivenessList;
-	if (nullptr != Instigator && nullptr != Instigator->PlayerState)
+	if (nullptr != Instigator && nullptr != Instigator->GetPlayerState())
 	{
 		UWorld *World = GetWorld();
 		AMagicBattleSoccerGameState* GameState = Cast<AMagicBattleSoccerGameState>(World->GetGameState<AMagicBattleSoccerGameState>());
-		AMagicBattleSoccerPlayerState *PlayerState = Cast<AMagicBattleSoccerPlayerState>(Instigator->PlayerState);
+		AMagicBattleSoccerPlayerState *PlayerState = Cast<AMagicBattleSoccerPlayerState>(Instigator->GetPlayerState());
 		if (nullptr != GameState)
 		{
 			const TArray<AMagicBattleSoccerCharacter*>& Opponents = GameState->GetOpponents(PlayerState);

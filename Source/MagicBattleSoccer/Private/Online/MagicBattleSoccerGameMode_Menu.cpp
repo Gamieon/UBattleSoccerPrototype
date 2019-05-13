@@ -2,8 +2,8 @@
 MagicBattleSoccerGameMode_Menu.cpp - The game mode class for the main menu
 **/
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameMode_Menu.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerPlayerController_Menu.h"
 #include "MagicBattleSoccerGameSession.h"
 #include "MainMenuPawn.h"

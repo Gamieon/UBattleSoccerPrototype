@@ -1,8 +1,10 @@
 
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerPlayerState.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameMode.h"
+#include "MagicBattleSoccerCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 AMagicBattleSoccerPlayerState::AMagicBattleSoccerPlayerState(const class FObjectInitializer& OI)
 	: Super(OI)

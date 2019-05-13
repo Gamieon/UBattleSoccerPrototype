@@ -1,7 +1,7 @@
 
 
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerAIController.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerSpawnPoint.h"
 #include "MagicBattleSoccerGameState.h"
 #include "MagicBattleSoccerGameMode.h"
@@ -174,7 +174,7 @@ AActor* AMagicBattleSoccerAIController::GetClosestActorObstructingPoint(const FV
 		CollisionQueryParams.AddIgnoredActors(ActorsToIgnore);
 		FCollisionObjectQueryParams CollisionObjectQueryParams;
 		CollisionObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-		GetWorld()->LineTraceSingle(
+		GetWorld()->LineTraceSingleByChannel(
 			HitResult
 			, GetPawn()->GetActorLocation()
 			, Point

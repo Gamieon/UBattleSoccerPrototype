@@ -1,6 +1,7 @@
-#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerGameSession.h"
+#include "MagicBattleSoccer.h"
 #include "MagicBattleSoccerOnlineGameSettings.h"
+#include "OnlineSubsystemSessionSettings.h"
 
 namespace
 {
@@ -90,7 +91,7 @@ void AMagicBattleSoccerGameSession::OnDestroySessionComplete(FName SessionName, 
 
 
 /** Host a new online session */
-bool AMagicBattleSoccerGameSession::HostSession(TSharedPtr<FUniqueNetId> UserId, FName SessionName, const FString & GameType, const FString & MapName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers)
+bool AMagicBattleSoccerGameSession::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, const FString & GameType, const FString & MapName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers)
 {
 	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
 	if (OnlineSub)
@@ -152,7 +153,7 @@ void AMagicBattleSoccerGameSession::OnFindSessionsComplete(bool bWasSuccessful)
 	}
 }
 
-void AMagicBattleSoccerGameSession::FindSessions(TSharedPtr<FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence)
+void AMagicBattleSoccerGameSession::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence)
 {
 	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
 	if (OnlineSub)

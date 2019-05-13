@@ -4,6 +4,8 @@
 
 #include "MagicBattleSoccerTypes.generated.h"
 
+
+
 /** replicated information on a hit we've taken */
 USTRUCT()
 struct FTakeHitInfo
