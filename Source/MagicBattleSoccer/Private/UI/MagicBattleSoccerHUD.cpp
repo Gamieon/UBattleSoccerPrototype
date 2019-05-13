@@ -32,15 +32,15 @@ void AMagicBattleSoccerHUD::PostInitializeComponents()
 		UGameViewportClient* Viewport = GEngine->GameViewport;
 
 		// We need to do this if we're in the editor.
-		FMagicBattleSoccerStyles::Initialize();
+		//FMagicBattleSoccerStyles::Initialize();
 
 		// Create the loading UI
-		SAssignNew(LoadingUI, SLoadingUI)
-			.MenuHUD(TWeakObjectPtr<AMagicBattleSoccerHUD>(this));
+		//SAssignNew(LoadingUI, SLoadingUI)
+			//.MenuHUD(TWeakObjectPtr<AMagicBattleSoccerHUD>(this));
 
 		// Create the error UI
-		SAssignNew(ErrorUI, SErrorUI)
-			.MenuHUD(TWeakObjectPtr<AMagicBattleSoccerHUD>(this));
+		//SAssignNew(ErrorUI, SErrorUI)
+			//.MenuHUD(TWeakObjectPtr<AMagicBattleSoccerHUD>(this));
 	}
 }
 
